@@ -1,0 +1,4 @@
+*.pyc
+.obsidian/
+*_backup
+.ipynb_checkpoints/
