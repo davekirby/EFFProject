@@ -6,7 +6,7 @@ can lose points for quoting too much to pad out
 
 Too many citations can lose marks!
 
-REword stuff from your proposal - don't self-plagiarise
+Reword stuff from your proposal - don't self-plagiarise
 
 Word count != quality - don't try to pad it
 
