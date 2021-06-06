@@ -9,7 +9,7 @@ Thoughts:
 
 It should be possible to do most of this directly with the skfuzzy library high level interface. 
 
-- [ ] #task experiment with skfuzzy
+- [ ] #task experiment with [[scikit-fuzzy]]
     - [x] create a notebook in jupyter lab
 - [ ] #task create simple iris classifier with hand-coded rules
 
@@ -39,4 +39,33 @@ Puzzling how to model the consequents:
 
 I will go with 1 for now and see what happens.  
 
-Bugger, first pass threw a ValueError in the defuzzifier because there was zero area to defuzzify.  
+Bugger, first pass threw a ValueError in the defuzzifier because there was zero area to defuzzify.  Will need to debug.
+Doh!  forgot to change the variable.universe when copy-pasting the consequents.
+Damn, did not make any difference.  
+Also had to switch to my old keyboard due to tea on the new one.  Hope it is not fucked.  
+OK, I think I know why it fails.  The data point falls in the zero region of rule 3 so the fuzzy consequent is all zero.  This is only a problem for centroid and bisector defuzzifier, so I can either set it to something else or extend the rules so that something is generated each time - maybe add 'unlikely' term and consequent to each rule.
+Cool - setting the consequent defuzzifier to 'som' (smallest of max) does what I want. 
+So all that is left is
+- [X] #task take the argmax to find the class index
+- [X] #task run fuzzy classifier on all the data and measure the performance
+- [ ] #task wrap fuzzy classifier up in a class or function that can be used with sklearn
+    - create a Classifier class - but no fit method yet
+
+The classifer was not bad - took 99ms and had an accuracy of 130/150 = 86.6%
+What do I need to do to wrap it into a reusable package?
+FuzzyClassifier class:
+With these inputs:
+- list of rules
+- dict mapping consequent names to predicted class
+- 
+Methods:
+- predict(X)
+    - X may be a dataframe with column names matching the antecedent names
+    - OR X is a numpy matrix and pass a dict mapping antecedent names to column indexes.  Or a list if antecendent names in column order if 1:1 relationship
+    - return a list of the predicted classes
+Any other scikit-learn methods I need to include? 
+
+
+
+
+
