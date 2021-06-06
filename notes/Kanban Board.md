@@ -17,12 +17,12 @@ kanban-plugin: basic
 
 ## In Progress
 
-- [ ] [[Implement FIS for classification - 8 sp]]
 
 
 ## Done
 
 **Complete**
 - [x] Set up dev environment
+- [x] [[Implement FIS for classification - 8 sp]]
 
 

@@ -48,7 +48,7 @@ Cool - setting the consequent defuzzifier to 'som' (smallest of max) does what I
 So all that is left is
 - [X] #task take the argmax to find the class index
 - [X] #task run fuzzy classifier on all the data and measure the performance
-- [ ] #task wrap fuzzy classifier up in a class or function that can be used with sklearn
+- [x] #task wrap fuzzy classifier up in a class or function that can be used with sklearn ✅ 2021-06-06
     - create a Classifier class - but no fit method yet
 
 The classifer was not bad - took 99ms and had an accuracy of 130/150 = 86.6%
@@ -65,7 +65,5 @@ Methods:
     - return a list of the predicted classes
 Any other scikit-learn methods I need to include? 
 
-
-
-
-
+I need a name for the package - eff?  fuzzy_forest? evolve_fuzzy?  evofuzzy? fuzzygp?
+I think I will go with evofuzzy.  
