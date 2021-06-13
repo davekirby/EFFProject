@@ -9,9 +9,9 @@ Thoughts:
 
 It should be possible to do most of this directly with the skfuzzy library high level interface. 
 
-- [ ] #task experiment with [[scikit-fuzzy]]
+- [x] #task experiment with [[scikit-fuzzy]] ✅ 2021-06-13
     - [x] create a notebook in jupyter lab
-- [ ] #task create simple iris classifier with hand-coded rules
+- [x] #task create simple iris classifier with hand-coded rules ✅ 2021-06-13
 
 So what rules do I want to implement?
 Here are the ranges of values:
