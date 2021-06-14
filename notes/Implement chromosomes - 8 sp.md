@@ -1,6 +1,13 @@
 # Thoughts on chromosome implementation
+
 - use [[DEAP]] library for GP.
 - use typed GP to control how the tree is built.
+ 
+Tasks:
+- [x] #task write a tree generator that can create a valid rule
+- [ ] #task extend the instance to a list of rules
+- [ ] #task transfer the code from a jupyter notebook to a python file, plus tests
+
 
 Should a chromosome consist of a set of rules or a single rule?  
 - If it is a set of rules then how to control varying the size of the rule set?  
