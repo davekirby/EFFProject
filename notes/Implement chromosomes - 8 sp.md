@@ -20,3 +20,5 @@ In the future I may experiment with having multi-stage mutate & mate operators, 
 
 Add elitism from ch4 of the hands-on GA book - https://github.com/PacktPublishing/Hands-On-Genetic-Algorithms-with-Python/blob/master/Chapter04/elitism.py
 
+
+
