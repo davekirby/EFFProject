@@ -5,7 +5,7 @@
  
 Tasks:
 - [x] #task write a tree generator that can create a valid rule
-- [ ] #task extend the instance to a list of rules
+- [x] #task extend the instance to a list of rules ✅ 2021-06-17
 - [ ] #task transfer the code from a jupyter notebook to a python file, plus tests
 
 
@@ -26,6 +26,8 @@ I want to keep the individual rules short, so have a small height limit.
 In the future I may experiment with having multi-stage mutate & mate operators, i.e. that do tree operations on part of the chromosome and list operations on other parts.  e.g. model the consequents and the set of rules as a variable length list, with tree M&M operations on the antecedent part of each rule.  
 
 Add elitism from ch4 of the hands-on GA book - https://github.com/PacktPublishing/Hands-On-Genetic-Algorithms-with-Python/blob/master/Chapter04/elitism.py
+
+**2021-06-15**  I have conversion from a chromosome to a fuzzy rule working, next I need to extend it to a list of rules.
 
 
 

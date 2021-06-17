@@ -26,5 +26,15 @@ Most of these are usually based on classes/functions in tools, e.g.
 - mutFlipBit for flip bit mutation
 There are lots of others - RTFD.
 
+## GP in DEAP - implementation notes
+- create a PrimitiveSetTyped instance
+- populate it with ephemeralConstants, terminals and primitives.
+- The repr of things that you add must be executable to create the thing. 
+- similarly when adding a terminal the name you give it must be resolvable to the thing.  If accessing an item in a collection it is necessary to add the collection to the primitiveSetTyped.context dictionary.  This holds the namespace that the repr will be executed in.
+-  The individual is then represented by a gp.PrimitiveTree that the mutate and mate operators can work on. 
+-  there does not seem to be an easy way to create union types like you can in the typing module.  
+-  since DEAP will try to build a tree to the height given by the limits, it will fail if there is only a terminal of a given type since it cannot build on that.  To get over this I added a noop primitive that just returned its argument and declared it of that type.
+- I managed to create a list of rules as a chromosome - had to explicitly convert the list into a PrimitiveTree when I did it.
+
 
 
