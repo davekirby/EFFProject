@@ -35,7 +35,7 @@ def test_instance_creator():
     size, elephant, mouse = _create_antecedents_and_consequents()
     config = Config(min_tree_height=4, max_tree_height=4, min_rules=3, max_rules=3)
     toolbox = base.Toolbox()
-    creator.create("RuleSetFitness", base.Fitness, weights=(-1.,))
+    creator.create("RuleSetFitness", base.Fitness, weights=(-1.0,))
     registerCreators(toolbox, config, [size], [elephant, mouse])
     individual = toolbox.individualCreator()
     assert len(individual) == 3

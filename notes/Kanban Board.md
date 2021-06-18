@@ -6,7 +6,6 @@ kanban-plugin: basic
 
 ## Backlog
 
-- [ ] Implement fitness evaluator for classification - 5sp
 - [ ] implement GP engine - 5 sp
 - [ ] extend FIS for Reinforcement Learning - 5 sp
 - [ ] Extend evaluator for RL - 5 sp
@@ -16,13 +15,14 @@ kanban-plugin: basic
 
 ## In Progress
 
-- [ ] [[Implement chromosomes - 8 sp]]
+- [ ] [[Implement fitness evaluator for classification - 5sp]]
 
 
 ## Done
 
 **Complete**
 - [x] Set up dev environment
+- [x] [[Implement chromosomes - 8 sp]]
 - [x] [[Implement FIS for classification - 8 sp]]
 
 
