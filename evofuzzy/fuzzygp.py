@@ -64,8 +64,7 @@ def _makePrimitiveSet(
     return pset
 
 
-@NamedTuple
-class Config:
+class Config(NamedTuple):
     """Hyperparameter configuration"""
 
     min_tree_height: int = 2
@@ -100,7 +99,8 @@ def registerCreators(
         ]
 
     pset = _makePrimitiveSet(antecendents, consequents)
-    creator.create("Individual", list, fitness=creator.FitnessMin, pset=pset)
+    creator.create("Individual", list, fitness=creator.RuleSetFitness, pset=pset)
+    toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
         "expr",
         genRuleSet,
