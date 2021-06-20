@@ -4,12 +4,11 @@ from deap import creator, base, tools
 import numpy as np
 import pandas as pd
 
-from evofuzzy.fuzzyclassifier import FuzzyClassifier
+from evofuzzy.fuzzyclassifier import FuzzyClassifier, _make_predictions
 from evofuzzy.fuzzygp import Config, registerCreators
 
 
-def test_pandas_simple():
-    classifier = FuzzyClassifier()
+def test_pandas_classifier():
     # build a simple dataframe and set of rules
     size, elephant, mouse = _create_antecedents_and_consequents()
     rules = [
@@ -17,8 +16,36 @@ def test_pandas_simple():
         ctrl.Rule(size["small"], mouse["likely"]),
     ]
     data = pd.DataFrame([[1], [9]], columns=["size"])
-    prediction = classifier.predict(data, rules, classes=dict(mouse=0, elephant=1))
+    prediction = _make_predictions(data, rules, classes=dict(mouse=0, elephant=1))
     assert prediction == [0, 1]
+
+
+def test_classifier_unknown_feature():
+    """Test that the classifer can handle a feature that is not covered in the
+    rule set.
+    """
+    size, elephant, mouse = _create_antecedents_and_consequents()
+    rules = [
+        ctrl.Rule(size["large"], elephant["likely"]),
+        ctrl.Rule(size["small"], mouse["likely"]),
+    ]
+    data = pd.DataFrame([[1, 2], [9, 10]], columns=["size", "bogus"])
+    prediction = _make_predictions(data, rules, classes=dict(mouse=0, elephant=1))
+    assert prediction == [0, 1]
+
+
+def test_classifier_unknown_class():
+    """Test that the classifer can handle a feature that is not covered in the
+    rule set.
+    """
+    size, elephant, mouse = _create_antecedents_and_consequents()
+    rules = [
+        ctrl.Rule(size["large"], elephant["likely"]),
+        ctrl.Rule(size["small"], mouse["likely"]),
+    ]
+    data = pd.DataFrame([[1], [9]], columns=["size"])
+    prediction = _make_predictions(data, rules, classes=dict(mouse=0, human=1, elephant=2))
+    assert prediction == [0, 2]
 
 
 def _create_antecedents_and_consequents():
@@ -33,14 +60,20 @@ def _create_antecedents_and_consequents():
 
 def test_instance_creator():
     size, elephant, mouse = _create_antecedents_and_consequents()
-    config = Config(min_tree_height=4, max_tree_height=4, min_rules=3, max_rules=3)
+    rules_size = 3
+    height = 4
+    config = Config(
+        min_tree_height=height,
+        max_tree_height=height,
+        min_rules=rules_size,
+        max_rules=rules_size,
+    )
     toolbox = base.Toolbox()
     creator.create("RuleSetFitness", base.Fitness, weights=(-1.0,))
     registerCreators(toolbox, config, [size], [elephant, mouse])
     individual = toolbox.individualCreator()
-    assert len(individual) == 3
+    assert len(individual) == rules_size
     for i in individual:
-        assert i.height == 4
+        assert i.height == height
         rule = toolbox.compile(i)
         assert isinstance(rule, ctrl.Rule)
-        print(rule)

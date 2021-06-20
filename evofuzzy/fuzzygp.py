@@ -93,9 +93,10 @@ def registerCreators(
     """
 
     def genRuleSet(pset, min_, max_, type_=None):
-        len = random.randint(config.min_rules, config.max_rules)
+        rules_len = random.randint(config.min_rules, config.max_rules)
         return [
-            gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_)) for _ in range(len)
+            gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_))
+            for _ in range(rules_len)
         ]
 
     pset = _makePrimitiveSet(antecendents, consequents)
@@ -114,3 +115,4 @@ def registerCreators(
     toolbox.register(
         "populationCreator", tools.initRepeat, list, toolbox.individualCreator
     )
+    return pset
