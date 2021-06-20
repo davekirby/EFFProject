@@ -44,7 +44,9 @@ def test_classifier_unknown_class():
         ctrl.Rule(size["small"], mouse["likely"]),
     ]
     data = pd.DataFrame([[1], [9]], columns=["size"])
-    prediction = _make_predictions(data, rules, classes=dict(mouse=0, human=1, elephant=2))
+    prediction = _make_predictions(
+        data, rules, classes=dict(mouse=0, human=1, elephant=2)
+    )
     assert prediction == [0, 2]
 
 

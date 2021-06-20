@@ -15,7 +15,9 @@ def _make_antecedents(X: pd.DataFrame, antecedent_terms):
     maxes = X.max()
     antecedents = []
     for column in X.columns:
-        antecedent = ctrl.Antecedent(np.linspace(mins[column], maxes[column], 11), column)
+        antecedent = ctrl.Antecedent(
+            np.linspace(mins[column], maxes[column], 11), column
+        )
         terms = antecedent_terms.get(column, None)
         if terms:
             antecedent.automf(names=terms)
@@ -29,9 +31,10 @@ def _make_consequents(classes):
     consequents = []
     for cls in classes:
         cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
-        cons['likely'] = fuzz.trimf(cons.universe, (0., 1., 1.))
+        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
         consequents.append(cons)
     return consequents
+
 
 class FuzzyClassifier(BaseEstimator, ClassifierMixin):
     """Class to create a fuzzy rule classifier"""
@@ -68,12 +71,13 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
             X = pd.DataFrame(data=X, columns=columns)
 
         if not hasattr(creator, "RuleSetFitness"):
-            creator.create("RuleSetFitness", base.Fitness, weights=(-1.,))
+            creator.create("RuleSetFitness", base.Fitness, weights=(-1.0,))
         self.antecedents_ = _make_antecedents(X, antecedent_terms)
         self.consequents_ = _make_consequents(classes)
 
-        self.pset_ = registerCreators(self.toolbox_, self.config_, self.antecedents_,
-            self.consequents_)
+        self.pset_ = registerCreators(
+            self.toolbox_, self.config_, self.antecedents_, self.consequents_
+        )
 
         return self
 
@@ -96,7 +100,9 @@ def _make_predictions(
 
     :returns: list of class predictions
     """
-    antecedents = {term.parent.label for rule in rules for term in rule.antecedent_terms}
+    antecedents = {
+        term.parent.label for rule in rules for term in rule.antecedent_terms
+    }
     columns = [col for col in X.columns if col in antecedents]
     X = X[columns]
     controller = ctrl.ControlSystem(rules)

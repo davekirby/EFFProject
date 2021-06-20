@@ -6,7 +6,7 @@
 Tasks:
 - [x] #task write a tree generator that can create a valid rule
 - [x] #task extend the instance to a list of rules ✅ 2021-06-17
-- [ ] #task transfer the code from a jupyter notebook to a python file, plus tests
+- [x] #task transfer the code from a jupyter notebook to a python file, plus tests ✅ 2021-06-20
 
 
 Should a chromosome consist of a set of rules or a single rule?  
