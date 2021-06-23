@@ -116,3 +116,74 @@ def registerCreators(
         "populationCreator", tools.initRepeat, list, toolbox.individualCreator
     )
     return pset
+
+
+def eaSimpleWithElitism(
+    population,
+    toolbox,
+    cxpb,
+    mutpb,
+    ngen,
+    stats=None,
+    halloffame=None,
+    verbose=True,
+):
+    """Modified version of the DEAP eaSimple function to run the evolution process
+    while keeping the top performing members in the HallOfFame from one generation to the next.
+
+    Adapted from the book "Hands-On Genetic Algorithms with Python" by Eyal Wirsansky
+
+    :param population: The initial population
+    :param toolbox: the deap toolbox with functions registered on it
+    :param cxpb: crossover probability 0 <= cxpb <= 1
+    :param mutpb: mutation probability 0 <= mupb <= 1
+    :param ngen: number of generations to run the evolution for
+    :param stats: DEAP Stats instance for recording statistics
+    :param halloffame: DEAP HallOfFame instance for recording the top performing individuals
+    :param verbose: boolean flag - if True then print stats while running
+    :return: final population and logbook
+
+    """
+
+    def evaluate_population(pop):
+        # Evaluate the individuals in population pop with an invalid fitness
+        invalid_ind = [ind for ind in pop if not ind.fitness.valid]
+        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        for ind, fit in zip(invalid_ind, fitnesses):
+            ind.fitness.values = fit
+        return len(invalid_ind)
+
+    logbook = tools.Logbook()
+    logbook.header = ["gen", "nevals"] + (stats.fields if stats else [])
+
+    invalid_count = evaluate_population(population)
+
+    if halloffame:
+        halloffame.update(population)
+        hof_size = len(halloffame.items) if halloffame.items else 0
+    else:
+        hof_size = 0
+
+    record = stats.compile(population) if stats else {}
+    logbook.record(gen=0, nevals=invalid_count, **record)
+    if verbose:
+        print(logbook.stream)
+
+    for gen in range(1, ngen + 1):
+        offspring = toolbox.select(population, len(population) - hof_size)
+        offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
+
+        invalid_count = evaluate_population(offspring)
+
+        if halloffame:
+            offspring.extend(halloffame.items)
+            halloffame.update(offspring)
+
+        population[:] = offspring
+
+        record = stats.compile(population) if stats else {}
+        logbook.record(gen=gen, nevals=invalid_count, **record)
+        if verbose:
+            print(logbook.stream)
+
+    return population, logbook
