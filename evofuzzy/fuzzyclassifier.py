@@ -105,23 +105,14 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.toolbox_.register("evaluate", self._evaluate, X=X, y=y)
         self.toolbox_.register("select", tools.selTournament, tournsize=3)
         self.toolbox_.register("mate", self._mate)
-        self.toolbox_.register("expr_mut", gp.genGrow, min_=self.mutation_min_height,
-            max_=self.mutation_max_height)
-
+        self.toolbox_.register(
+            "expr_mut",
+            gp.genGrow,
+            min_=self.mutation_min_height,
+            max_=self.mutation_max_height,
+        )
 
         self.toolbox_.register("mutate", self._mutate)
-        self.toolbox_.decorate(
-            "mate",
-            gp.staticLimit(
-                key=operator.attrgetter("height"), max_value=self.tree_height_limit
-            ),
-        )
-        self.toolbox_.decorate(
-            "mutate",
-            gp.staticLimit(
-                key=operator.attrgetter("height"), max_value=self.tree_height_limit
-            ),
-        )
 
         self.hof_ = tools.HallOfFame(self.hall_of_fame_size)
         self.stats_ = tools.Statistics(lambda ind: ind.fitness.values)
@@ -130,10 +121,14 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         population = self.toolbox_.populationCreator(n=self.population_size)
 
         self.population_, self.logbook_ = eaSimpleWithElitism(
-            population, self.toolbox_, cxpb=self.crossover_prob, mutpb=self.mutation_prob,
+            population,
+            self.toolbox_,
+            cxpb=self.crossover_prob,
+            mutpb=self.mutation_prob,
             ngen=self.max_generation,
             stats=self.stats_,
-            halloffame=self.hof_, verbose=True
+            halloffame=self.hof_,
+            verbose=True,
         )
         return self
 
@@ -145,18 +140,23 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
     def _evaluate(self, individual, X, y):
         rules = [self.toolbox_.compile(rule) for rule in individual]
         predictions = _make_predictions(X, rules, self.classes_)
-        return accuracy_score(y, predictions)
-
+        return (1-accuracy_score(y, predictions),)
 
     def _mate(self, ind1, ind2):
-        rule1 = random.choice(ind1)
-        rule2 = random.choice(ind2)
-        return gp.cxOnePoint(rule1, rule2)
-
+        rule1_idx = random.randint(0, len(ind1) - 1)
+        rule2_idx = random.randint(0, len(ind2) - 1)
+        rule1, rule2 = gp.cxOnePoint(ind1[rule1_idx], ind2[rule2_idx])
+        ind1[rule1_idx] = rule1
+        ind2[rule2_idx] = rule2
+        return ind1, ind2
 
     def _mutate(self, individual):
-        rule = random.choice(individual)
-        return gp.mutUniform(individual, expr=self.toolbox_.expr, pset=self.pset_)
+        rule_idx = random.randint(0, len(individual) - 1)
+        (rule,) = gp.mutUniform(
+            individual[rule_idx], expr=self.toolbox_.expr, pset=self.pset_
+        )
+        individual[rule_idx] = rule
+        return (individual,)
 
     @property
     def best(self):

@@ -92,25 +92,32 @@ def registerCreators(
     :return: None
     """
 
+    def genRule(pset, min_, max_, type_=None):
+        return gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_))
+
     def genRuleSet(pset, min_, max_, type_=None):
         rules_len = random.randint(config.min_rules, config.max_rules)
-        return [
-            gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_))
-            for _ in range(rules_len)
-        ]
+        return [genRule(pset, min_, max_, type_) for _ in range(rules_len)]
 
     pset = _makePrimitiveSet(antecendents, consequents)
     creator.create("Individual", list, fitness=creator.RuleSetFitness, pset=pset)
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
         "expr",
+        genRule,
+        pset=pset,
+        min_=config.min_tree_height,
+        max_=config.max_tree_height,
+    )
+    toolbox.register(
+        "rules_expr",
         genRuleSet,
         pset=pset,
         min_=config.min_tree_height,
         max_=config.max_tree_height,
     )
     toolbox.register(
-        "individualCreator", tools.initIterate, creator.Individual, toolbox.expr
+        "individualCreator", tools.initIterate, creator.Individual, toolbox.rules_expr
     )
     toolbox.register(
         "populationCreator", tools.initRepeat, list, toolbox.individualCreator
@@ -158,7 +165,7 @@ def eaSimpleWithElitism(
 
     invalid_count = evaluate_population(population)
 
-    if halloffame:
+    if halloffame is not None:
         halloffame.update(population)
         hof_size = len(halloffame.items) if halloffame.items else 0
     else:
