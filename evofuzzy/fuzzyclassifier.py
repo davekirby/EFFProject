@@ -1,11 +1,11 @@
 import operator
 import random
 from typing import Dict, List, Any, Optional
-from random import choice
 import numpy as np
 import pandas as pd
 from deap import base, creator, gp, tools
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.metrics import accuracy_score
 from skfuzzy import control as ctrl
 import skfuzzy as fuzz
 from .fuzzygp import Config, registerCreators, eaSimpleWithElitism
@@ -100,9 +100,9 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
             self.toolbox_, self.config_, self.antecedents_, self.consequents_
         )
 
-        if hasattr("evaluate", self.toolbox_):
+        if hasattr(self.toolbox_, "evaluate"):
             del self.toolbox_.evaluate
-        self.toolbox_.register("evaluate", self._evaluate, X=X)
+        self.toolbox_.register("evaluate", self._evaluate, X=X, y=y)
         self.toolbox_.register("select", tools.selTournament, tournsize=3)
         self.toolbox_.register("mate", self._mate)
         self.toolbox_.register("expr_mut", gp.genGrow, min_=self.mutation_min_height,
@@ -139,11 +139,13 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
 
     def predict(self, X: pd.DataFrame):
         individual = self.hof_[0]
-        return self._evaluate(individual, X)
-
-    def _evaluate(self, individual, X):
         rules = [self.toolbox_.compile(rule) for rule in individual]
         return _make_predictions(X, rules, self.classes_)
+
+    def _evaluate(self, individual, X, y):
+        rules = [self.toolbox_.compile(rule) for rule in individual]
+        predictions = _make_predictions(X, rules, self.classes_)
+        return accuracy_score(y, predictions)
 
 
     def _mate(self, ind1, ind2):
