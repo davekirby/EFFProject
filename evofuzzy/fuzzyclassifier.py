@@ -40,6 +40,8 @@ def _make_consequents(classes: Dict[str, Any]) -> List[ctrl.Consequent]:
         consequents.append(cons)
     return consequents
 
+def get_fitness_values(ind):
+    return ind.fitness.values
 
 class FuzzyClassifier(BaseEstimator, ClassifierMixin):
     """Class to create a fuzzy rule classifier"""
@@ -115,7 +117,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.toolbox_.register("mutate", self._mutate)
 
         self.hof_ = tools.HallOfFame(self.hall_of_fame_size)
-        self.stats_ = tools.Statistics(lambda ind: ind.fitness.values)
+        self.stats_ = tools.Statistics(get_fitness_values)
         self.stats_.register("min", np.min)
         self.stats_.register("avg", np.mean)
         population = self.toolbox_.populationCreator(n=self.population_size)

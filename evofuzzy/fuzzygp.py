@@ -1,14 +1,13 @@
 import random
+import sys
 from typing import Any, List, NamedTuple
+import operator
+from multiprocessing import Pool
+from functools import partial
 
 from deap import creator, base, algorithms, gp, tools
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
 from skfuzzy.control import Rule, Antecedent, Consequent
 from skfuzzy.control.term import Term
-import random
-import operator
-import numpy as np
 
 
 def ident(x: Any) -> Any:
@@ -16,6 +15,21 @@ def ident(x: Any) -> Any:
     Used to enable terminal/ephemeral values to be created below a tree's minimum depth.
     """
     return x
+
+
+is_windows = hasattr(sys, "getwindowsversion")
+
+class MakeConsequents:
+    """Ephemeral constant that randomly generates consequents for the rules.
+    This needs to be a class so that the repr can be defined to return something
+    that can be used by toolbox.compile
+    """
+
+    def __init__(self, cons_terms):
+        self.value = random.choice(cons_terms)
+
+    def __repr__(self):
+        return f"[{self.value}]"
 
 
 def _makePrimitiveSet(
@@ -28,21 +42,12 @@ def _makePrimitiveSet(
 
     :return:  The PrimitiveSetTyped with all the rule components registered
     """
-
-    class MakeConsequents:
-        """Ephemeral constant that randomly generates consequents for the rules."""
-
-        cons_terms = [
-            f"{cons.label}['{name}']"
-            for cons in consequents
-            for name in cons.terms.keys()
-        ]
-
-        def __init__(self):
-            self.value = random.choice(self.cons_terms)
-
-        def __repr__(self):
-            return f"[{self.value}]"
+    cons_terms = [
+        f"{cons.label}['{name}']"
+        for cons in consequents
+        for name in cons.terms.keys()
+    ]
+    makeConsequents = partial(MakeConsequents, cons_terms)
 
     pset = gp.PrimitiveSetTyped("Rule", [], Rule)
 
@@ -54,7 +59,7 @@ def _makePrimitiveSet(
     for cons in consequents:
         pset.context[cons.label] = cons
 
-    pset.addEphemeralConstant("consequents", MakeConsequents, list)
+    pset.addEphemeralConstant("consequents", makeConsequents, list)
     pset.addPrimitive(Rule, [Term, list], Rule)
     pset.addPrimitive(operator.and_, [Term, Term], Term)
     pset.addPrimitive(operator.or_, [Term, Term], Term)
@@ -71,6 +76,14 @@ class Config(NamedTuple):
     max_tree_height: int = 4
     min_rules: int = 2  # minimum number of rules to have in a chromosome
     max_rules: int = 5  # maximum number of rules to have in a chromosome
+
+
+def genRule(pset, min_, max_, type_):
+    return gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_))
+
+def genRuleSet(pset, min_, max_, type_=None, config=None):
+    rules_len = random.randint(config.min_rules, config.max_rules)
+    return [genRule(pset, min_, max_, type_) for _ in range(rules_len)]
 
 
 def registerCreators(
@@ -92,13 +105,6 @@ def registerCreators(
     :return: None
     """
 
-    def genRule(pset, min_, max_, type_=None):
-        return gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_))
-
-    def genRuleSet(pset, min_, max_, type_=None):
-        rules_len = random.randint(config.min_rules, config.max_rules)
-        return [genRule(pset, min_, max_, type_) for _ in range(rules_len)]
-
     pset = _makePrimitiveSet(antecendents, consequents)
     creator.create("Individual", list, fitness=creator.RuleSetFitness, pset=pset)
     toolbox.register("compile", gp.compile, pset=pset)
@@ -115,6 +121,7 @@ def registerCreators(
         pset=pset,
         min_=config.min_tree_height,
         max_=config.max_tree_height,
+        config=config,
     )
     toolbox.register(
         "individualCreator", tools.initIterate, creator.Individual, toolbox.rules_expr
@@ -155,7 +162,13 @@ def eaSimpleWithElitism(
     def evaluate_population(pop):
         # Evaluate the individuals in population pop with an invalid fitness
         invalid_ind = [ind for ind in pop if not ind.fitness.valid]
-        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        if is_windows:
+            # parallel processing not currently supported on Windows
+            fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        else:
+            with Pool() as pool:
+                fitnesses = pool.map(toolbox.evaluate, invalid_ind)
+
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
         return len(invalid_ind)
