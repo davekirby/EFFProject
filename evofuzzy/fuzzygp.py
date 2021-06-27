@@ -1,5 +1,4 @@
 import random
-import sys
 from typing import Any, List, NamedTuple
 import operator
 from multiprocessing import Pool
@@ -17,8 +16,6 @@ def ident(x: Any) -> Any:
     return x
 
 
-is_windows = hasattr(sys, "getwindowsversion")
-
 class MakeConsequents:
     """Ephemeral constant that randomly generates consequents for the rules.
     This needs to be a class so that the repr can be defined to return something
@@ -26,10 +23,12 @@ class MakeConsequents:
     """
 
     def __init__(self, cons_terms):
-        self.value = random.choice(cons_terms)
+        max_consequents = len(cons_terms) // 2 + 1
+        candidates = random.sample(list(cons_terms.values()), max_consequents)
+        self.values = [random.choice(term) for term in candidates]
 
     def __repr__(self):
-        return f"[{self.value}]"
+        return f"[{', '.join(value for value in self.values)}]"
 
 
 def _makePrimitiveSet(
@@ -42,11 +41,11 @@ def _makePrimitiveSet(
 
     :return:  The PrimitiveSetTyped with all the rule components registered
     """
-    cons_terms = [
-        f"{cons.label}['{name}']"
+    cons_terms = {
+        cons.label: [f"{cons.label}['{name}']" for name in cons.terms.keys()]
         for cons in consequents
-        for name in cons.terms.keys()
-    ]
+
+    }
     makeConsequents = partial(MakeConsequents, cons_terms)
 
     pset = gp.PrimitiveSetTyped("Rule", [], Rule)
@@ -162,12 +161,8 @@ def eaSimpleWithElitism(
     def evaluate_population(pop):
         # Evaluate the individuals in population pop with an invalid fitness
         invalid_ind = [ind for ind in pop if not ind.fitness.valid]
-        if is_windows:
-            # parallel processing not currently supported on Windows
-            fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        else:
-            with Pool() as pool:
-                fitnesses = pool.map(toolbox.evaluate, invalid_ind)
+        with Pool() as pool:
+            fitnesses = pool.map(toolbox.evaluate, invalid_ind)
 
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit

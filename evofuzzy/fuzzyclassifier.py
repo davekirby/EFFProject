@@ -37,6 +37,7 @@ def _make_consequents(classes: Dict[str, Any]) -> List[ctrl.Consequent]:
     for cls in classes:
         cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
         cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
+        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
         consequents.append(cons)
     return consequents
 
