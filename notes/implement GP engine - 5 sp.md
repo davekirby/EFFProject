@@ -14,8 +14,8 @@ In the FuzzyClassifier fit method, implement the GP evolution engine.
 - [x] #task Add method/attribute to expose the logbook ✅ 2021-06-27
 - [ ] #task add docstrings
 - [x] #task add parallel processing ✅ 2021-06-27
-- [ ] #task update selector to minimise chromosome size
-- [ ] #task add min and average size statistics
+- [x] #task update selector to minimise chromosome size ✅ 2021-06-27
+- [x] #task add min and average size statistics ✅ 2021-06-27
 - [ ] #task add mate & mutate at the level of whole rules
 - [x] #task generate multiple consequents for a rule ✅ 2021-06-27
 - [ ] #task try different datasets and evaluate the classifier
@@ -31,6 +31,7 @@ Instead of having a single consequent per rule, going to implement a variable nu
 
 
 ##  Limiting chromosome size
-The deap selDoubleTournament function that selects for size as well as fitness is hard coded to use len(individual) for the size calculation.  This is not what I want - I can either override the list `__len__` method to return the cumulative size, or I will have to re-implement the whole function.  Overriding `--len__` may have unforseen side effects, but is the simpler option so will give it a go.  
-I have added the 
+The deap selDoubleTournament function that selects for size as well as fitness is hard coded to use len(individual) for the size calculation.  This is not what I want - I can either override the list `__len__` method to return the cumulative size, or I will have to re-implement the whole function.  Overriding `__len__` may have unforseen side effects, but is the simpler option so will give it a go.  
+...I have added the ListOfList class and double tournaments - it seems to work OK, but not sure how much effect it has on the size TBH.
+
 

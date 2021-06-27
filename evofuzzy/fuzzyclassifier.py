@@ -126,9 +126,13 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.toolbox_.register("mutate", self._mutate)
 
         self.hof_ = tools.HallOfFame(self.hall_of_fame_size)
-        self.stats_ = tools.Statistics(get_fitness_values)
-        self.stats_.register("min", np.min)
-        self.stats_.register("avg", np.mean)
+        self.fitness_stats_ = tools.Statistics(get_fitness_values)
+        self.fitness_stats_.register("min", np.min)
+        self.fitness_stats_.register("avg", np.mean)
+        self.size_stats_ = tools.Statistics(len)
+        self.size_stats_.register("min", np.min)
+        self.size_stats_.register("avg", np.mean)
+        self.stats_ = tools.MultiStatistics(fitness=self.fitness_stats_, size=self.size_stats_)
         population = self.toolbox_.populationCreator(n=self.population_size)
 
         self.population_, self.logbook_ = eaSimpleWithElitism(
