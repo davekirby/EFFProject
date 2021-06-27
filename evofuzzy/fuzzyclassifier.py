@@ -41,8 +41,10 @@ def _make_consequents(classes: Dict[str, Any]) -> List[ctrl.Consequent]:
         consequents.append(cons)
     return consequents
 
+
 def get_fitness_values(ind):
     return ind.fitness.values
+
 
 class FuzzyClassifier(BaseEstimator, ClassifierMixin):
     """Class to create a fuzzy rule classifier"""
@@ -106,7 +108,13 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         if hasattr(self.toolbox_, "evaluate"):
             del self.toolbox_.evaluate
         self.toolbox_.register("evaluate", self._evaluate, X=X, y=y)
-        self.toolbox_.register("select", tools.selTournament, tournsize=3)
+        self.toolbox_.register(
+            "select",
+            tools.selDoubleTournament,
+            fitness_size=5,
+            parsimony_size=1.0,
+            fitness_first=True,
+        )
         self.toolbox_.register("mate", self._mate)
         self.toolbox_.register(
             "expr_mut",
@@ -143,18 +151,18 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
     def _evaluate(self, individual, X, y):
         rules = [self.toolbox_.compile(rule) for rule in individual]
         predictions = _make_predictions(X, rules, self.classes_)
-        return (1-accuracy_score(y, predictions),)
+        return (1 - accuracy_score(y, predictions),)
 
     def _mate(self, ind1, ind2):
-        rule1_idx = random.randint(0, len(ind1) - 1)
-        rule2_idx = random.randint(0, len(ind2) - 1)
+        rule1_idx = random.randint(0, ind1.true_len() - 1)
+        rule2_idx = random.randint(0, ind2.true_len() - 1)
         rule1, rule2 = gp.cxOnePoint(ind1[rule1_idx], ind2[rule2_idx])
         ind1[rule1_idx] = rule1
         ind2[rule2_idx] = rule2
         return ind1, ind2
 
     def _mutate(self, individual):
-        rule_idx = random.randint(0, len(individual) - 1)
+        rule_idx = random.randint(0, individual.true_len() - 1)
         (rule,) = gp.mutUniform(
             individual[rule_idx], expr=self.toolbox_.expr, pset=self.pset_
         )

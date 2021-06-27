@@ -44,7 +44,6 @@ def _makePrimitiveSet(
     cons_terms = {
         cons.label: [f"{cons.label}['{name}']" for name in cons.terms.keys()]
         for cons in consequents
-
     }
     makeConsequents = partial(MakeConsequents, cons_terms)
 
@@ -80,9 +79,23 @@ class Config(NamedTuple):
 def genRule(pset, min_, max_, type_):
     return gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_))
 
+
 def genRuleSet(pset, min_, max_, type_=None, config=None):
     rules_len = random.randint(config.min_rules, config.max_rules)
     return [genRule(pset, min_, max_, type_) for _ in range(rules_len)]
+
+
+class ListOfLists(list):
+    """Subclass of list that only contains list.
+    len(lol) will return the total length of all the sublists.
+    lol.true_len() will return the length of the top level list.
+    """
+
+    def __len__(self):
+        return sum(len(item) for item in self)
+
+    def true_len(self):
+        return super().__len__()
 
 
 def registerCreators(
@@ -105,7 +118,7 @@ def registerCreators(
     """
 
     pset = _makePrimitiveSet(antecendents, consequents)
-    creator.create("Individual", list, fitness=creator.RuleSetFitness, pset=pset)
+    creator.create("Individual", ListOfLists, fitness=creator.RuleSetFitness, pset=pset)
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
         "expr",
