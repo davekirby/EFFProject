@@ -76,7 +76,7 @@ class Config(NamedTuple):
     max_rules: int = 5  # maximum number of rules to have in a chromosome
 
 
-def genRule(pset, min_, max_, type_):
+def genRule(pset, min_, max_, type_=None):
     return gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_))
 
 

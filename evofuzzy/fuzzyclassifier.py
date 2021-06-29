@@ -59,6 +59,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         max_generation: int = 50,
         mutation_prob: float = 0.1,
         crossover_prob: float = 0.9,
+        whole_rule_prob: float = 0.1,
         tree_height_limit: int = 10,
         hall_of_fame_size: int = 5,
         mutation_min_height: int = 0,
@@ -72,6 +73,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.max_generation = max_generation
         self.mutation_prob = mutation_prob
         self.crossover_prob = crossover_prob
+        self.whole_rule_prob = whole_rule_prob
         self.tree_height_limit = tree_height_limit
         self.hall_of_fame_size = hall_of_fame_size
         self.mutation_min_height = mutation_min_height
@@ -160,16 +162,24 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
     def _mate(self, ind1, ind2):
         rule1_idx = random.randint(0, ind1.true_len() - 1)
         rule2_idx = random.randint(0, ind2.true_len() - 1)
-        rule1, rule2 = gp.cxOnePoint(ind1[rule1_idx], ind2[rule2_idx])
+        if random.random() < self.whole_rule_prob:
+            # swap entire rules over
+            rule2 = ind1[rule1_idx]
+            rule1 = ind2[rule2_idx]
+        else:
+            rule1, rule2 = gp.cxOnePoint(ind1[rule1_idx], ind2[rule2_idx])
         ind1[rule1_idx] = rule1
         ind2[rule2_idx] = rule2
         return ind1, ind2
 
     def _mutate(self, individual):
         rule_idx = random.randint(0, individual.true_len() - 1)
-        (rule,) = gp.mutUniform(
-            individual[rule_idx], expr=self.toolbox_.expr, pset=self.pset_
-        )
+        if random.random() < self.whole_rule_prob:
+            rule = self.toolbox_.expr()
+        else:
+            (rule,) = gp.mutUniform(
+                individual[rule_idx], expr=self.toolbox_.expr, pset=self.pset_
+            )
         individual[rule_idx] = rule
         return (individual,)
 
