@@ -112,7 +112,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
             "select",
             tools.selDoubleTournament,
             fitness_size=5,
-            parsimony_size=1.0,
+            parsimony_size=1.6,
             fitness_first=True,
         )
         self.toolbox_.register("mate", self._mate)

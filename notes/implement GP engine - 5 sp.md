@@ -13,6 +13,7 @@ In the FuzzyClassifier fit method, implement the GP evolution engine.
 - [x] #task add methods to get the rules and to get a human readable version of the rules. ✅ 2021-06-27
 - [x] #task Add method/attribute to expose the logbook ✅ 2021-06-27
 - [ ] #task add docstrings
+- [ ] #task add unit tests
 - [x] #task add parallel processing ✅ 2021-06-27
 - [x] #task update selector to minimise chromosome size ✅ 2021-06-27
 - [x] #task add min and average size statistics ✅ 2021-06-27
@@ -21,7 +22,7 @@ In the FuzzyClassifier fit method, implement the GP evolution engine.
 - [ ] #task try different datasets and evaluate the classifier
 
 
-## Performance improvements:
+## Runtime performance improvements:
 Currently with 20 chromosomes and 20 generations, it takes 35-52s to run on the iris dataset.  Going to parallelise that.  
 ... using a multiprocessing.Pool cut the time down to 10-12 seconds.    Not bad, but not 8 times faster with 8 cpus.  
 
@@ -32,6 +33,7 @@ Instead of having a single consequent per rule, going to implement a variable nu
 
 ##  Limiting chromosome size
 The deap selDoubleTournament function that selects for size as well as fitness is hard coded to use len(individual) for the size calculation.  This is not what I want - I can either override the list `__len__` method to return the cumulative size, or I will have to re-implement the whole function.  Overriding `__len__` may have unforseen side effects, but is the simpler option so will give it a go.  
-...I have added the ListOfList class and double tournaments - it seems to work OK, but not sure how much effect it has on the size TBH.
-
+...I have added the ListOfList class and double tournaments - it seems to work OK, but not sure how much effect it has on the size TBH.  
+Also added min and average size statistics so I can see what effect it has.  
+I should surface the hyperparameters for controlling it to init method.  
 

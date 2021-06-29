@@ -182,7 +182,6 @@ def eaSimpleWithElitism(
         return len(invalid_ind)
 
     logbook = tools.Logbook()
-    # logbook.header = ["gen", "nevals"] + (stats.fields if stats else [])
     logbook.header = "gen", "nevals", "fitness", "size"
     logbook.chapters["fitness"].header = "min", "avg"
     logbook.chapters["size"].header = "min", "avg"
