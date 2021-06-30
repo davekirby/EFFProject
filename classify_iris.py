@@ -5,7 +5,11 @@ import pandas as pd
 # from random import sample
 
 classifier = fuzzyclassifier.FuzzyClassifier(
-    population_size=20, hall_of_fame_size=1, max_generation=20
+    population_size=20,
+    hall_of_fame_size=1,
+    max_generation=20,
+    mutation_prob=0.9,
+    crossover_prob=0.1,
 )
 data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]

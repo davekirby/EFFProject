@@ -17,7 +17,7 @@ In the FuzzyClassifier fit method, implement the GP evolution engine.
 - [x] #task add parallel processing ✅ 2021-06-27
 - [x] #task update selector to minimise chromosome size ✅ 2021-06-27
 - [x] #task add min and average size statistics ✅ 2021-06-27
-- [ ] #task add mate & mutate at the level of whole rules
+- [x] #task add mate & mutate at the level of whole rules ✅ 2021-06-30
 - [x] #task generate multiple consequents for a rule ✅ 2021-06-27
 - [ ] #task try different datasets and evaluate the classifier
 

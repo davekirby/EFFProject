@@ -24,7 +24,8 @@ class MakeConsequents:
 
     def __init__(self, cons_terms):
         max_consequents = len(cons_terms) // 2 + 1
-        candidates = random.sample(list(cons_terms.values()), max_consequents)
+        sample_size = random.randint(1, max_consequents)
+        candidates = random.sample(list(cons_terms.values()), sample_size)
         self.values = [random.choice(term) for term in candidates]
 
     def __repr__(self):

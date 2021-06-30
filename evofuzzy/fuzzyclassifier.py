@@ -134,7 +134,9 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.size_stats_ = tools.Statistics(len)
         self.size_stats_.register("min", np.min)
         self.size_stats_.register("avg", np.mean)
-        self.stats_ = tools.MultiStatistics(fitness=self.fitness_stats_, size=self.size_stats_)
+        self.stats_ = tools.MultiStatistics(
+            fitness=self.fitness_stats_, size=self.size_stats_
+        )
         population = self.toolbox_.populationCreator(n=self.population_size)
 
         self.population_, self.logbook_ = eaSimpleWithElitism(
