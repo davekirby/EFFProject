@@ -1,3 +1,4 @@
+from collections import Counter
 from evofuzzy import fuzzyclassifier
 from sklearn.datasets import load_iris
 import pandas as pd
@@ -21,3 +22,5 @@ classes = {name: val for (name, val) in zip(data.target_names, range(3))}
 classifier.fit(iris, y, classes)
 print(f"Best Rule:  size = {len(classifier.best)}")
 print("\n".join(classifier.best_strs))
+
+print(Counter(x.true_len() for x in classifier.population_))

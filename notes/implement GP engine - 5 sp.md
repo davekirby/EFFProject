@@ -37,3 +37,7 @@ The deap selDoubleTournament function that selects for size as well as fitness i
 Also added min and average size statistics so I can see what effect it has.  
 I should surface the hyperparameters for controlling it to init method.  
 
+## replacing worst performers.  
+I have added code to replace the N worst performing individuals with newly generated ones to prevent loss of diversity.  It seems to work well for keeping a range of ruleset sizes - before it was rapidly converging to a single size.  This happens if you randomly select values from a small range with replacement.  Also with tournament selection of k individuals the worst k-1 individuals will never get selected and the kth worst is highly unlikely to.   The only cost is computing the fitness of the new individuals.  
+
+

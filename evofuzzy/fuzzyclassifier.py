@@ -64,6 +64,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         hall_of_fame_size: int = 5,
         mutation_min_height: int = 0,
         mutation_max_height: int = 2,
+        replacements: int = 5,
     ):
         self.min_tree_height = min_tree_height
         self.max_tree_height = max_tree_height
@@ -78,6 +79,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.hall_of_fame_size = hall_of_fame_size
         self.mutation_min_height = mutation_min_height
         self.mutation_max_height = mutation_max_height
+        self.replacements = replacements
 
     def fit(
         self,
@@ -145,6 +147,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
             cxpb=self.crossover_prob,
             mutpb=self.mutation_prob,
             ngen=self.max_generation,
+            replacements=self.replacements,
             stats=self.stats_,
             halloffame=self.hof_,
             verbose=True,

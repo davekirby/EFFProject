@@ -1,3 +1,4 @@
+import heapq
 import random
 from typing import Any, List, NamedTuple
 import operator
@@ -151,6 +152,7 @@ def eaSimpleWithElitism(
     cxpb,
     mutpb,
     ngen,
+    replacements,
     stats=None,
     halloffame=None,
     verbose=True,
@@ -206,6 +208,10 @@ def eaSimpleWithElitism(
 
         invalid_count = evaluate_population(offspring)
 
+        # replace the worst performing individuals with newly generated ones
+        _replace_worst(toolbox, offspring, replacements)
+        invalid_count += evaluate_population(offspring)
+
         if halloffame:
             offspring.extend(halloffame.items)
             halloffame.update(offspring)
@@ -218,3 +224,20 @@ def eaSimpleWithElitism(
             print(logbook.stream)
 
     return population, logbook
+
+
+def _replace_worst(toolbox, population, replacements):
+    """Find the worst performers and replace them with new random individuals.
+    N.B. the population is updated in-place.
+
+    :param toolbox:
+    :param population: list of individuals
+    :param replacements: number of individuals to replace
+    :return:
+    """
+    replacement_idx = heapq.nlargest(
+        replacements,
+        ((ind.fitness.values, idx) for (idx, ind) in enumerate(population))
+    )
+    for (_, idx) in replacement_idx:
+        population[idx] = toolbox.individualCreator()
