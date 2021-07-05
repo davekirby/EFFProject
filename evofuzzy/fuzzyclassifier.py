@@ -165,8 +165,8 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         return (1 - accuracy_score(y, predictions),)
 
     def _mate(self, ind1, ind2):
-        rule1_idx = random.randint(0, ind1.true_len() - 1)
-        rule2_idx = random.randint(0, ind2.true_len() - 1)
+        rule1_idx = random.randint(0, ind1.length - 1)
+        rule2_idx = random.randint(0, ind2.length - 1)
         if random.random() < self.whole_rule_prob:
             # swap entire rules over
             rule2 = ind1[rule1_idx]
@@ -178,7 +178,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         return ind1, ind2
 
     def _mutate(self, individual):
-        rule_idx = random.randint(0, individual.true_len() - 1)
+        rule_idx = random.randint(0, individual.length - 1)
         if random.random() < self.whole_rule_prob:
             rule = self.toolbox_.expr()
         else:

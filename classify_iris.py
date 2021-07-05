@@ -3,7 +3,8 @@ from evofuzzy import fuzzyclassifier
 from sklearn.datasets import load_iris
 import pandas as pd
 
-# from random import sample
+"""Script for testing the classifier by running it on the iris dataset.
+"""
 
 classifier = fuzzyclassifier.FuzzyClassifier(
     population_size=20,
@@ -16,11 +17,13 @@ data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]
 iris = pd.DataFrame(data.data, columns=cols)
 y = pd.Series(data.target)
-# idx = sample(range(len(y)), 10)
 
 classes = {name: val for (name, val) in zip(data.target_names, range(3))}
 classifier.fit(iris, y, classes)
 print(f"Best Rule:  size = {len(classifier.best)}")
 print("\n".join(classifier.best_strs))
 
-print(Counter(x.true_len() for x in classifier.population_))
+print(
+    "Final length of rules sets",
+    dict(Counter(x.length for x in classifier.population_)),
+)

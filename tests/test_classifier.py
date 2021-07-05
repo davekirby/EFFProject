@@ -74,7 +74,7 @@ def test_instance_creator():
     creator.create("RuleSetFitness", base.Fitness, weights=(-1.0,))
     registerCreators(toolbox, config, [size], [elephant, mouse])
     individual = toolbox.individualCreator()
-    assert len(individual) == rules_size
+    assert individual.length == rules_size
     for i in individual:
         assert i.height == height
         rule = toolbox.compile(i)

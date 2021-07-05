@@ -90,13 +90,14 @@ def genRuleSet(pset, min_, max_, type_=None, config=None):
 class ListOfLists(list):
     """Subclass of list that only contains list.
     len(lol) will return the total length of all the sublists.
-    lol.true_len() will return the length of the top level list.
+    lol.length will return the length of the top level list.
     """
 
     def __len__(self):
         return sum(len(item) for item in self)
 
-    def true_len(self):
+    @property
+    def length(self):
         return super().__len__()
 
 
@@ -154,6 +155,7 @@ def eaSimpleWithElitism(
     ngen,
     replacements,
     stats=None,
+    tensorboard_writer=None,
     halloffame=None,
     verbose=True,
 ):
@@ -168,6 +170,8 @@ def eaSimpleWithElitism(
     :param mutpb: mutation probability 0 <= mupb <= 1
     :param ngen: number of generations to run the evolution for
     :param stats: DEAP Stats instance for recording statistics
+    :param tensorboard_writer: Optional tensorboard SummaryWriter instance to log
+            results to tensorboard.
     :param halloffame: DEAP HallOfFame instance for recording the top performing individuals
     :param verbose: boolean flag - if True then print stats while running
     :return: final population and logbook
@@ -197,10 +201,9 @@ def eaSimpleWithElitism(
     else:
         hof_size = 0
 
-    record = stats.compile(population) if stats else {}
-    logbook.record(gen=0, nevals=invalid_count, **record)
-    if verbose:
-        print(logbook.stream)
+    write_stats(
+        population, 0, invalid_count, verbose, logbook, stats, tensorboard_writer
+    )
 
     for gen in range(1, ngen + 1):
         offspring = toolbox.select(population, len(population) - hof_size)
@@ -218,12 +221,23 @@ def eaSimpleWithElitism(
 
         population[:] = offspring
 
-        record = stats.compile(population) if stats else {}
-        logbook.record(gen=gen, nevals=invalid_count, **record)
-        if verbose:
-            print(logbook.stream)
+        write_stats(
+            population, gen, invalid_count, verbose, logbook, stats, tensorboard_writer
+        )
 
     return population, logbook
+
+
+def write_stats(
+    population, generation, invalid_count, verbose, logbook, stats, tensorboard_writer
+):
+    record = stats.compile(population) if stats else {}
+    logbook.record(gen=generation, nevals=invalid_count, **record)
+    if verbose:
+        print(logbook.stream)
+    if tensorboard_writer:
+        pass  # TODO: add tensorboard support
+
 
 
 def _replace_worst(toolbox, population, replacements):
@@ -237,7 +251,7 @@ def _replace_worst(toolbox, population, replacements):
     """
     replacement_idx = heapq.nlargest(
         replacements,
-        ((ind.fitness.values, idx) for (idx, ind) in enumerate(population))
+        ((ind.fitness.values, idx) for (idx, ind) in enumerate(population)),
     )
     for (_, idx) in replacement_idx:
         population[idx] = toolbox.individualCreator()

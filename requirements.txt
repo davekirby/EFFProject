@@ -3,3 +3,4 @@ scikit-fuzzy>=0.4.2
 scikit-learn>=0.24
 pandas>=1.2.4
 numpy>=1.20
+tensorboard>=2.5.0

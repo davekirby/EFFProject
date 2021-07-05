@@ -12,14 +12,11 @@ In the FuzzyClassifier fit method, implement the GP evolution engine.
 - [ ] #task add plot method to FuzzyClassifier?
 - [x] #task add methods to get the rules and to get a human readable version of the rules. ✅ 2021-06-27
 - [x] #task Add method/attribute to expose the logbook ✅ 2021-06-27
-- [ ] #task add docstrings
-- [ ] #task add unit tests
 - [x] #task add parallel processing ✅ 2021-06-27
 - [x] #task update selector to minimise chromosome size ✅ 2021-06-27
 - [x] #task add min and average size statistics ✅ 2021-06-27
 - [x] #task add mate & mutate at the level of whole rules ✅ 2021-06-30
 - [x] #task generate multiple consequents for a rule ✅ 2021-06-27
-- [ ] #task try different datasets and evaluate the classifier
 
 
 ## Runtime performance improvements:
