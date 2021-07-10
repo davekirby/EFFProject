@@ -18,8 +18,12 @@ https://neptune.ai/blog/the-best-tensorboard-alternatives
 (by Neptune, so probably biased)
 and blog by thoughtworks - probably less biased:
 https://www.thoughtworks.com/radar/tools/experiment-tracking-tools-for-machine-learning
+Comet is another option: https://www.comet.ml
 
 also may be useful:  https://dvc.org/ for versioning large data using git.  
+
+Found https://github.com/lanpa/tensorboardX - a tensorflow-free writer for tensorboard.   Docs at https://tensorboardx.readthedocs.io/en/latest/index.html.  Going to go with this since it is reasonably up to date and maintained.
+
 
 
 

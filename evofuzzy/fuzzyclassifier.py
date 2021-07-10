@@ -88,7 +88,14 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         classes: Dict[str, Any],
         antecedent_terms: Optional[Dict[str, List[str]]] = None,
         columns: Optional[List[str]] = None,
+        tensorboard_writer=None,
     ):
+        if tensorboard_writer:
+            hparams = "\n".join(
+                f"* {k}: {v}" for (k, v) in self.__dict__.items() if not k.endswith("_")
+            )
+            tensorboard_writer.add_text("hparams", hparams)
+
         self.classes_ = classes
         self.toolbox_ = base.Toolbox()
         self.config_ = Config(
@@ -149,9 +156,12 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
             ngen=self.max_generation,
             replacements=self.replacements,
             stats=self.stats_,
+            tensorboard_writer=tensorboard_writer,
             halloffame=self.hof_,
             verbose=True,
         )
+        if tensorboard_writer:
+            tensorboard_writer.add_text("best_ruleset", "\n\n".join(self.best_strs))
         return self
 
     def predict(self, X: pd.DataFrame):

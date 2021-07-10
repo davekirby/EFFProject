@@ -5,6 +5,7 @@ import operator
 from multiprocessing import Pool
 from functools import partial
 
+import numpy as np
 from deap import creator, base, algorithms, gp, tools
 from skfuzzy.control import Rule, Antecedent, Consequent
 from skfuzzy.control.term import Term
@@ -236,8 +237,23 @@ def write_stats(
     if verbose:
         print(logbook.stream)
     if tensorboard_writer:
-        pass  # TODO: add tensorboard support
-
+        for (name, val) in record.items():
+            if isinstance(val, dict):
+                for (subname, subval) in val.items():
+                    tensorboard_writer.add_scalar(
+                        f"{name}/{subname}", subval, generation
+                    )
+            else:
+                tensorboard_writer.add_scalar(name, val, generation)
+        tensorboard_writer.add_histogram(
+            "fitnesses", np.array([i.fitness.values[0] for i in population]), generation
+        )
+        tensorboard_writer.add_histogram(
+            "sizes", np.array([len(i) for i in population]), generation
+        )
+        tensorboard_writer.add_histogram(
+            "rule_count", np.array([i.length for i in population]), generation
+        )
 
 
 def _replace_worst(toolbox, population, replacements):
