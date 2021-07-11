@@ -60,6 +60,10 @@ def _makePrimitiveSet(
     for cons in consequents:
         pset.context[cons.label] = cons
 
+    # the DEAP gp module caches the consequents function as a module level attribute
+    # and fails if it already exists
+    if hasattr(gp, 'consequents'):
+        del gp.consequents
     pset.addEphemeralConstant("consequents", makeConsequents, list)
     pset.addPrimitive(Rule, [Term, list], Rule)
     pset.addPrimitive(operator.and_, [Term, Term], Term)

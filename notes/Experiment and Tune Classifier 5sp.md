@@ -25,13 +25,15 @@ also may be useful:  https://dvc.org/ for versioning large data using git.
 Found https://github.com/lanpa/tensorboardX - a tensorflow-free writer for tensorboard.   Docs at https://tensorboardx.readthedocs.io/en/latest/index.html.  Going to go with this since it is reasonably up to date and maintained.
 
 
-
-
 # Tasks 
-- [ ] #task set up tensorboard (or other) and extend DEAP logging code to use it
-- [ ] #task add more hyperparameters
+- [x] #task set up tensorboard (or other) and extend DEAP logging code to use it ✅ 2021-07-11
+- [x] #task add more configurable hyperparameters ✅ 2021-07-11
+    - parsimony and fitness_size for double tornament
+    - linspace for fuzzy variables?
 - [ ] #task create notebook for running tests & committing to git
-    - [ ] reload gp module each time
+    - [ ] reload gp module each time?
+    - or write a python script?
 - [ ] #task pick some datasets to try out
 - [ ] #task change code to do mini-batch learning for performance improvement
+- [ ] #task add function to [[remove redundancy]] in rules
 

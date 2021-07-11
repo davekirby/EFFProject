@@ -65,6 +65,8 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         mutation_min_height: int = 0,
         mutation_max_height: int = 2,
         replacements: int = 5,
+        tournament_size: int = 5,
+        parsimony_size: float = 1.9,
     ):
         self.min_tree_height = min_tree_height
         self.max_tree_height = max_tree_height
@@ -80,6 +82,8 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.mutation_min_height = mutation_min_height
         self.mutation_max_height = mutation_max_height
         self.replacements = replacements
+        self.tournament_size = tournament_size
+        self.parsimony_size = parsimony_size
 
     def fit(
         self,
@@ -122,8 +126,8 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.toolbox_.register(
             "select",
             tools.selDoubleTournament,
-            fitness_size=5,
-            parsimony_size=1.6,
+            fitness_size=self.tournament_size,
+            parsimony_size=self.parsimony_size,
             fitness_first=True,
         )
         self.toolbox_.register("mate", self._mate)
@@ -162,6 +166,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         )
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", "\n\n".join(self.best_strs))
+            tensorboard_writer.add_text("size_of_best_ruleset", str(len(self.best)))
         return self
 
     def predict(self, X: pd.DataFrame):
