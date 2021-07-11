@@ -147,6 +147,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.size_stats_ = tools.Statistics(len)
         self.size_stats_.register("min", np.min)
         self.size_stats_.register("avg", np.mean)
+        self.size_stats_.register("best", self.best_size)
         self.stats_ = tools.MultiStatistics(
             fitness=self.fitness_stats_, size=self.size_stats_
         )
@@ -166,7 +167,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         )
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", "\n\n".join(self.best_strs))
-            tensorboard_writer.add_text("size_of_best_ruleset", str(len(self.best)))
+            tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
         return self
 
     def predict(self, X: pd.DataFrame):
@@ -206,6 +207,9 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
     @property
     def best(self):
         return self.hof_[0]
+
+    def best_size(self, *args):
+        return len(self.best)
 
     @property
     def best_strs(self):

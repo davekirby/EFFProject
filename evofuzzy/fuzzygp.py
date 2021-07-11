@@ -62,7 +62,7 @@ def _makePrimitiveSet(
 
     # the DEAP gp module caches the consequents function as a module level attribute
     # and fails if it already exists
-    if hasattr(gp, 'consequents'):
+    if hasattr(gp, "consequents"):
         del gp.consequents
     pset.addEphemeralConstant("consequents", makeConsequents, list)
     pset.addPrimitive(Rule, [Term, list], Rule)
@@ -210,7 +210,7 @@ def eaSimpleWithElitism(
         population, 0, invalid_count, verbose, logbook, stats, tensorboard_writer
     )
 
-    for gen in range(1, ngen + 1):
+    for gen in range(1, ngen):
         offspring = toolbox.select(population, len(population) - hof_size)
         offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
 

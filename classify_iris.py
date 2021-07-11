@@ -11,15 +11,8 @@ import tensorboardX
 
 logdir = Path(f"tb_logs/iris/{datetime.now().strftime('%Y%m%d-%H%M%S')}")
 logdir.mkdir(parents=True, exist_ok=True)
-tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
-
-classifier = fuzzyclassifier.FuzzyClassifier(
-    population_size=50,
-    hall_of_fame_size=1,
-    max_generation=20,
-    mutation_prob=1.0,
-    crossover_prob=0.0,
-)
+#tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
+tensorboard_writer = None
 
 data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]
@@ -37,8 +30,13 @@ for i in range(5):
         population_size=50,
         hall_of_fame_size=1,
         max_generation=20,
-        mutation_prob=1.0,
-        crossover_prob=0.0,
+        mutation_prob=0.1,
+        crossover_prob=0.9,
+        min_tree_height=1,
+        max_tree_height=3,
+        max_rules=3,
+        whole_rule_prob=0.2,
+        tree_height_limit=5,
     )
     classifier.fit(iris, y, classes, tensorboard_writer=tensorboard_writer)
     tensorboard_writer.close()
