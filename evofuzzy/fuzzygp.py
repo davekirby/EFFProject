@@ -92,10 +92,10 @@ def genRuleSet(pset, min_, max_, type_=None, config=None):
     return [genRule(pset, min_, max_, type_) for _ in range(rules_len)]
 
 
-class ListOfLists(list):
-    """Subclass of list that only contains list.
-    len(lol) will return the total length of all the sublists.
-    lol.length will return the length of the top level list.
+class RuleSet(list):
+    """Subclass of list that contains lists, used to hold a sets of fuzzy rules.
+    len(ruleset) will return the total length of all the contained lists.
+    The ruleset.length property will return the length of the top level list.
     """
 
     def __len__(self):
@@ -126,7 +126,7 @@ def registerCreators(
     """
 
     pset = _makePrimitiveSet(antecendents, consequents)
-    creator.create("Individual", ListOfLists, fitness=creator.RuleSetFitness, pset=pset)
+    creator.create("Individual", RuleSet, fitness=creator.RuleSetFitness, pset=pset)
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
         "expr",
@@ -152,7 +152,7 @@ def registerCreators(
     return pset
 
 
-def eaSimpleWithElitism(
+def ea_with_elitism_and_replacement(
     population,
     toolbox,
     cxpb,
@@ -195,8 +195,8 @@ def eaSimpleWithElitism(
 
     logbook = tools.Logbook()
     logbook.header = "gen", "nevals", "fitness", "size"
-    logbook.chapters["fitness"].header = "min", "avg"
-    logbook.chapters["size"].header = "min", "avg"
+    logbook.chapters["fitness"].header = "max", "avg"
+    logbook.chapters["size"].header = "min", "avg", "best"
 
     invalid_count = evaluate_population(population)
 
@@ -269,7 +269,7 @@ def _replace_worst(toolbox, population, replacements):
     :param replacements: number of individuals to replace
     :return:
     """
-    replacement_idx = heapq.nlargest(
+    replacement_idx = heapq.nsmallest(
         replacements,
         ((ind.fitness.values, idx) for (idx, ind) in enumerate(population)),
     )

@@ -8,7 +8,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
 from skfuzzy import control as ctrl
 import skfuzzy as fuzz
-from .fuzzygp import Config, registerCreators, eaSimpleWithElitism
+from .fuzzygp import Config, registerCreators, ea_with_elitism_and_replacement
 
 
 def _make_antecedents(
@@ -112,7 +112,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
             X = pd.DataFrame(data=X, columns=columns)
 
         if not hasattr(creator, "RuleSetFitness"):
-            creator.create("RuleSetFitness", base.Fitness, weights=(-1.0,))
+            creator.create("RuleSetFitness", base.Fitness, weights=(1.0,))
         self.antecedents_ = _make_antecedents(X, antecedent_terms)
         self.consequents_ = _make_consequents(classes)
 
@@ -142,7 +142,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
 
         self.hof_ = tools.HallOfFame(self.hall_of_fame_size)
         self.fitness_stats_ = tools.Statistics(get_fitness_values)
-        self.fitness_stats_.register("min", np.min)
+        self.fitness_stats_.register("max", np.max)
         self.fitness_stats_.register("avg", np.mean)
         self.size_stats_ = tools.Statistics(len)
         self.size_stats_.register("min", np.min)
@@ -153,7 +153,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         )
         population = self.toolbox_.populationCreator(n=self.population_size)
 
-        self.population_, self.logbook_ = eaSimpleWithElitism(
+        self.population_, self.logbook_ = ea_with_elitism_and_replacement(
             population,
             self.toolbox_,
             cxpb=self.crossover_prob,
@@ -178,7 +178,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
     def _evaluate(self, individual, X, y):
         rules = [self.toolbox_.compile(rule) for rule in individual]
         predictions = _make_predictions(X, rules, self.classes_)
-        return (1 - accuracy_score(y, predictions),)
+        return (accuracy_score(y, predictions),)
 
     def _mate(self, ind1, ind2):
         rule1_idx = random.randint(0, ind1.length - 1)

@@ -10,11 +10,6 @@ import tensorboardX
 """Script for testing the classifier by running it on the iris dataset.
 """
 
-logdir = Path(f"tb_logs/iris/{datetime.now().strftime('%Y%m%d-%H%M%S')}")
-logdir.mkdir(parents=True, exist_ok=True)
-tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
-# tensorboard_writer = None
-
 data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]
 iris = pd.DataFrame(data.data, columns=cols)
@@ -35,13 +30,13 @@ for i in range(5):
 
     classifier = fuzzyclassifier.FuzzyClassifier(
         population_size=50,
-        hall_of_fame_size=1,
+        hall_of_fame_size=10,
         max_generation=20,
-        mutation_prob=0.1,
-        crossover_prob=0.9,
+        mutation_prob=0.5,
+        crossover_prob=0.5,
         min_tree_height=1,
         max_tree_height=3,
-        max_rules=3,
+        max_rules=4,
         whole_rule_prob=0.2,
         tree_height_limit=5,
     )
@@ -52,7 +47,6 @@ for i in range(5):
         antecedent_terms=antecendent_terms,
         tensorboard_writer=tensorboard_writer,
     )
-    tensorboard_writer.close()
 
     print(f"Best Rule:  size = {len(classifier.best)}")
     print("\n".join(classifier.best_strs))
@@ -61,4 +55,8 @@ for i in range(5):
         dict(Counter(x.length for x in classifier.population_)),
     )
     predictions = classifier.predict(iris)
-    print(confusion_matrix(y, predictions))
+    confusion = pd.DataFrame(data=confusion_matrix(y, predictions), columns=data.target_names,
+    index=data.target_names)
+    print(confusion)
+    tensorboard_writer.add_text("confusion", confusion.to_markdown() )
+    tensorboard_writer.close()
