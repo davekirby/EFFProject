@@ -2,6 +2,7 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from sklearn.datasets import load_iris
+from sklearn.metrics import confusion_matrix
 import pandas as pd
 from evofuzzy import fuzzyclassifier
 import tensorboardX
@@ -11,8 +12,8 @@ import tensorboardX
 
 logdir = Path(f"tb_logs/iris/{datetime.now().strftime('%Y%m%d-%H%M%S')}")
 logdir.mkdir(parents=True, exist_ok=True)
-#tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
-tensorboard_writer = None
+tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
+# tensorboard_writer = None
 
 data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]
@@ -20,6 +21,12 @@ iris = pd.DataFrame(data.data, columns=cols)
 y = pd.Series(data.target)
 
 classes = {name: val for (name, val) in zip(data.target_names, range(3))}
+antecendent_terms = {
+    col: ["v.narrow", "narrow", "medium", "wide", "v.wide"]
+    if "width" in col
+    else ["v.short", "short", "medium", "long", "v.long"]
+    for col in cols
+}
 
 for i in range(5):
     logdir = Path(f"tb_logs/iris/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
@@ -38,7 +45,13 @@ for i in range(5):
         whole_rule_prob=0.2,
         tree_height_limit=5,
     )
-    classifier.fit(iris, y, classes, tensorboard_writer=tensorboard_writer)
+    classifier.fit(
+        iris,
+        y,
+        classes,
+        antecedent_terms=antecendent_terms,
+        tensorboard_writer=tensorboard_writer,
+    )
     tensorboard_writer.close()
 
     print(f"Best Rule:  size = {len(classifier.best)}")
@@ -47,3 +60,5 @@ for i in range(5):
         "Final length of rules sets",
         dict(Counter(x.length for x in classifier.population_)),
     )
+    predictions = classifier.predict(iris)
+    print(confusion_matrix(y, predictions))
