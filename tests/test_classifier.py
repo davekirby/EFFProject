@@ -1,11 +1,14 @@
 import skfuzzy as fuzz
 import skfuzzy.control as ctrl
-from deap import creator, base, tools
+from deap import creator, base
+from deap.gp import PrimitiveTree
 import numpy as np
 import pandas as pd
+import pytest
 
 from evofuzzy.fuzzyclassifier import FuzzyClassifier, _make_predictions
-from evofuzzy.fuzzygp import Config, registerCreators
+from evofuzzy.fuzzygp import Config, registerCreators, _makePrimitiveSet
+from evofuzzy.fuzzygp import prune_rule
 
 
 def test_pandas_classifier():
@@ -51,6 +54,10 @@ def test_classifier_unknown_class():
 
 
 def _create_antecedents_and_consequents():
+    """Create Antecedent and Consequent instances for testing.
+    There is one Antecendent 'size' which can have the terms 'small', 'medium' or 'large'
+    and two Consequents, 'mouse' and 'elephant',  which can have the term 'likely'.
+    """
     size = ctrl.Antecedent(np.linspace(0, 10, 11), "size")
     size.automf(names="small medium large".split())
     elephant = ctrl.Consequent(np.linspace(0, 1, 10), "elephant", "som")
@@ -79,3 +86,46 @@ def test_instance_creator():
         assert i.height == height
         rule = toolbox.compile(i)
         assert isinstance(rule, ctrl.Rule)
+
+pset = None
+
+@pytest.mark.parametrize("input, output",
+    [
+        (
+            "Rule(invert(invert(or_(size['medium'], size['large']))), [])",
+            "Rule(or_(size['medium'], size['large']), [])",
+        ),
+        (
+            "Rule(invert(invert(invert(or_(size['medium'], size['large'])))), [])",
+            "Rule(invert(or_(size['medium'], size['large'])), [])",
+        ),
+        (
+            "Rule(invert(invert(invert(invert(or_(size['medium'], size['large']))))), [])",
+            "Rule(or_(size['medium'], size['large']), [])",
+        ),
+        (
+            "Rule(or_(size['medium'], size['medium']))), [])",
+            "Rule(size['medium'], [])",
+        ),
+        (
+            "Rule(and_(size['medium'], size['medium']))), [])",
+            "Rule(size['medium'], [])",
+        ),
+    ]
+)
+def test_rule_pruner(input, output):
+    global pset
+    if pset is None:
+        # create the test pset if it does not exist - this is never
+        # modified so can be shared between tests
+        size, elephant, mouse = _create_antecedents_and_consequents()
+        pset = _makePrimitiveSet([size], [mouse, elephant])
+
+    # from evofuzzy.fuzzygp import genRule
+    # print("=" * 20)
+    # print(genRule(pset, 3, 10))
+    # print("=" * 20)
+
+    rule = PrimitiveTree.from_string(input, pset)
+    pruned_rule = prune_rule(rule, pset)
+    assert str(pruned_rule) == output

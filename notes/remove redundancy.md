@@ -24,4 +24,24 @@ The PrimitiveSet is a list subclassed with some helper functions:
 - searchSubtree returns the subtree at a given node.  This will be the most useful.
 It would be useful to have a function that give a binary node, returns the two subtrees.  However I think searchSubtree could be used for that - get first subtree and use that to find the top of the second subtree and call searchSubtree again to get that.  
 Thought:  Do a scan through the tree once and build up an index of where the subtrees are for each top node.  But that will fall apart if I start removing nodes.  Will have to sleep on this.
+It should be OK if I only delete nodes in front of the current position.
+
+Initial algorithm pseudocode:
+```python
+pos = 0
+while pos < len(rule):
+  if rule[pos] == NOT and rule[pos+1] == NOT:
+    del rule[pos+1]
+    continue
+  if rule[pos] in (AND, OR):
+    lhs = rule.searchSubtree(pos+1)
+    rhs = rule.searchSubtree(lhs.stop)
+    if lhs == rhs:
+       rule[pos:rhs.stop] = rule[lhs]
+       continue
+    pos += 1 
+```
+Can add test for NOT(AND(NOT(X), NOT(Y))) etc later.
+-> replace with OR(X, Y)  and vice versa.
+I can use the primitiveTree methods for converting to & from strings to create the unit tests.  Will work on that tomorrow.
 
