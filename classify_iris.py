@@ -9,6 +9,7 @@ import tensorboardX
 
 """Script for testing the classifier by running it on the iris dataset.
 """
+TO_TENSORBOARD = True
 
 data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]
@@ -24,9 +25,12 @@ antecendent_terms = {
 }
 
 for i in range(5):
-    logdir = Path(f"tb_logs/iris/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
-    logdir.mkdir(parents=True, exist_ok=True)
-    tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
+    if TO_TENSORBOARD:
+        logdir = Path(f"tb_logs/iris/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+        logdir.mkdir(parents=True, exist_ok=True)
+        tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
+    else:
+        tensorboard_writer = None
 
     classifier = fuzzyclassifier.FuzzyClassifier(
         population_size=50,
@@ -58,5 +62,6 @@ for i in range(5):
     confusion = pd.DataFrame(data=confusion_matrix(y, predictions), columns=data.target_names,
     index=data.target_names)
     print(confusion)
-    tensorboard_writer.add_text("confusion", confusion.to_markdown() )
-    tensorboard_writer.close()
+    if tensorboard_writer:
+        tensorboard_writer.add_text("confusion", confusion.to_markdown() )
+        tensorboard_writer.close()

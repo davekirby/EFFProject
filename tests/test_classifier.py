@@ -104,11 +104,19 @@ pset = None
             "Rule(or_(size['medium'], size['large']), [])",
         ),
         (
-            "Rule(or_(size['medium'], size['medium']))), [])",
+            "Rule(or_(size['medium'], size['medium']), [])",
             "Rule(size['medium'], [])",
         ),
         (
-            "Rule(and_(size['medium'], size['medium']))), [])",
+            "Rule(and_(size['medium'], size['medium']), [])",
+            "Rule(size['medium'], [])",
+        ),
+        (
+            "Rule(and_(size['medium'], size['large']), [])",
+            "Rule(and_(size['medium'], size['large']), [])",
+        ),
+        (
+            "Rule(invert(invert(and_(size['medium'], size['medium']))), [])",
             "Rule(size['medium'], [])",
         ),
     ]
@@ -120,11 +128,6 @@ def test_rule_pruner(input, output):
         # modified so can be shared between tests
         size, elephant, mouse = _create_antecedents_and_consequents()
         pset = _makePrimitiveSet([size], [mouse, elephant])
-
-    # from evofuzzy.fuzzygp import genRule
-    # print("=" * 20)
-    # print(genRule(pset, 3, 10))
-    # print("=" * 20)
 
     rule = PrimitiveTree.from_string(input, pset)
     pruned_rule = prune_rule(rule, pset)

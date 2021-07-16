@@ -11,7 +11,7 @@ from skfuzzy.control import Rule, Antecedent, Consequent
 from skfuzzy.control.term import Term
 
 
-def ident(x: Any) -> Any:
+def identity(x: Any) -> Any:
     """Identity function - returns the parameter unchanged.
     Used to enable terminal/ephemeral values to be created below a tree's minimum depth.
     """
@@ -69,7 +69,7 @@ def _makePrimitiveSet(
     pset.addPrimitive(operator.and_, [Term, Term], Term)
     pset.addPrimitive(operator.or_, [Term, Term], Term)
     pset.addPrimitive(operator.invert, [Term], Term)
-    pset.addPrimitive(ident, [list], list)
+    pset.addPrimitive(identity, [list], list)
 
     return pset
 
@@ -149,6 +149,7 @@ def registerCreators(
     toolbox.register(
         "populationCreator", tools.initRepeat, list, toolbox.individualCreator
     )
+    toolbox.register("get_pset", identity, pset)
     return pset
 
 
@@ -185,13 +186,15 @@ def ea_with_elitism_and_replacement(
 
     def evaluate_population(pop):
         # Evaluate the individuals in population pop with an invalid fitness
-        invalid_ind = [ind for ind in pop if not ind.fitness.valid]
+        invalid_population = [ind for ind in pop if not ind.fitness.valid]
+        # prune any rules that have not been evaluated
+        prune_population(invalid_population, toolbox.get_pset())
         with Pool() as pool:
-            fitnesses = pool.map(toolbox.evaluate, invalid_ind)
+            fitnesses = pool.map(toolbox.evaluate, invalid_population)
 
-        for ind, fit in zip(invalid_ind, fitnesses):
+        for ind, fit in zip(invalid_population, fitnesses):
             ind.fitness.values = fit
-        return len(invalid_ind)
+        return len(invalid_population)
 
     logbook = tools.Logbook()
     logbook.header = "gen", "nevals", "fitness", "size"
@@ -294,3 +297,15 @@ def prune_rule(rule, pset):
                 continue
         pos += 1
     return rule
+
+
+def prune_population(population, pset):
+    pruned = 0
+    for ind in population:
+        for rule in ind:
+            start_len = len(rule)
+            prune_rule(rule, pset)
+            if len(rule) != start_len:
+                pruned += start_len - len(rule)
+
+    print("*** Pruned", pruned)
