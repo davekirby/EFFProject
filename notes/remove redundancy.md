@@ -45,3 +45,5 @@ Can add test for NOT(AND(NOT(X), NOT(Y))) etc later.
 -> replace with OR(X, Y)  and vice versa.
 I can use the primitiveTree methods for converting to & from strings to create the unit tests.  Will work on that tomorrow.
 
+Implementation added.  For the iris rules it does not make much difference, but increasing the rule size parameters does result in significant reduction of 30-40 primitives per generation in a population of 50.  
+

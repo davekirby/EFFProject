@@ -9,7 +9,8 @@ import tensorboardX
 
 """Script for testing the classifier by running it on the iris dataset.
 """
-TO_TENSORBOARD = True
+
+TO_TENSORBOARD = True  # write results and stats to tensorboard?
 
 data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]
@@ -59,9 +60,12 @@ for i in range(5):
         dict(Counter(x.length for x in classifier.population_)),
     )
     predictions = classifier.predict(iris)
-    confusion = pd.DataFrame(data=confusion_matrix(y, predictions), columns=data.target_names,
-    index=data.target_names)
+    confusion = pd.DataFrame(
+        data=confusion_matrix(y, predictions),
+        columns=data.target_names,
+        index=data.target_names,
+    )
     print(confusion)
     if tensorboard_writer:
-        tensorboard_writer.add_text("confusion", confusion.to_markdown() )
+        tensorboard_writer.add_text("confusion", confusion.to_markdown())
         tensorboard_writer.close()

@@ -285,15 +285,15 @@ def prune_rule(rule, pset):
     while pos < len(rule):
         name = rule[pos].name
         # if there are two consecutive inverts then delete them both
-        if name == "invert" and rule[pos+1].name == "invert":
-            del rule[pos:pos+2]
+        if name == "invert" and rule[pos + 1].name == "invert":
+            del rule[pos : pos + 2]
             continue
         if name in ("and_", "or_"):
             # merge duplicate branches
             lhs = rule.searchSubtree(pos + 1)
             rhs = rule.searchSubtree(lhs.stop)
             if rule[lhs] == rule[rhs]:
-                rule[pos:rhs.stop] = rule[lhs]
+                rule[pos : rhs.stop] = rule[lhs]
                 continue
         pos += 1
     return rule

@@ -87,9 +87,12 @@ def test_instance_creator():
         rule = toolbox.compile(i)
         assert isinstance(rule, ctrl.Rule)
 
+
 pset = None
 
-@pytest.mark.parametrize("input, output",
+
+@pytest.mark.parametrize(
+    "input, output",
     [
         (
             "Rule(invert(invert(or_(size['medium'], size['large']))), [])",
@@ -119,7 +122,7 @@ pset = None
             "Rule(invert(invert(and_(size['medium'], size['medium']))), [])",
             "Rule(size['medium'], [])",
         ),
-    ]
+    ],
 )
 def test_rule_pruner(input, output):
     global pset

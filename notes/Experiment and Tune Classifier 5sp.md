@@ -37,3 +37,24 @@ Found https://github.com/lanpa/tensorboardX - a tensorflow-free writer for tenso
 - [ ] #task change code to do mini-batch learning for performance improvement
 - [ ] #task add function to [[remove redundancy]] in rules
 
+
+#  Resources for finding datasets:
+https://machinelearningmastery.com/standard-machine-learning-datasets/
+https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research
+https://www.openml.org/home (loadable directly in sklearn)
+https://machinelearningmastery.com/results-for-standard-classification-and-regression-machine-learning-datasets/
+
+## Candidate data sets
+https://archive.ics.uci.edu/ml/datasets/Statlog+%28Image+Segmentation%29
+ - 2310 rows
+ - 19 features
+ - 7 classes
+Results from statlog experiments:
+http://www.is.umk.pl/~duch/projects/projects/datasets-stat.html#Image
+Best error on the test set is about 0.02, or 98% accuracy.  A high bar!  Most algorithms are in the 95-96% accuracy range.
+Please cite: [UCI](http://archive.ics.uci.edu/ml/citation_policy.html)
+This looks like the same dataset on openML: https://www.openml.org/d/40984
+
+
+
+
