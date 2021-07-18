@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 from evofuzzy.fuzzyclassifier import FuzzyClassifier, _make_predictions
-from evofuzzy.fuzzygp import Config, registerCreators, _makePrimitiveSet
+from evofuzzy.fuzzygp import CreatorConfig, registerCreators, _makePrimitiveSet
 from evofuzzy.fuzzygp import prune_rule
 
 
@@ -71,7 +71,7 @@ def test_instance_creator():
     size, elephant, mouse = _create_antecedents_and_consequents()
     rules_size = 3
     height = 4
-    config = Config(
+    config = CreatorConfig(
         min_tree_height=height,
         max_tree_height=height,
         min_rules=rules_size,

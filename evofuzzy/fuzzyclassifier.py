@@ -8,7 +8,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
 from skfuzzy import control as ctrl
 import skfuzzy as fuzz
-from .fuzzygp import Config, registerCreators, ea_with_elitism_and_replacement
+from .fuzzygp import CreatorConfig, registerCreators, ea_with_elitism_and_replacement
 
 
 def _make_antecedents(
@@ -102,7 +102,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
 
         self.classes_ = classes
         self.toolbox_ = base.Toolbox()
-        self.config_ = Config(
+        self.config_ = CreatorConfig(
             self.min_tree_height, self.max_tree_height, self.min_rules, self.max_rules
         )
 

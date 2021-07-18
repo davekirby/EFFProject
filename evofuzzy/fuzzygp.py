@@ -74,8 +74,8 @@ def _makePrimitiveSet(
     return pset
 
 
-class Config(NamedTuple):
-    """Hyperparameter configuration"""
+class CreatorConfig(NamedTuple):
+    """Hyperparameter configuration for creating instances"""
 
     min_tree_height: int = 2
     max_tree_height: int = 4
@@ -108,7 +108,7 @@ class RuleSet(list):
 
 def registerCreators(
     toolbox: base.Toolbox,
-    config: Config,
+    config: CreatorConfig,
     antecendents: List[Antecedent],
     consequents: List[Consequent],
 ):
@@ -300,12 +300,6 @@ def prune_rule(rule, pset):
 
 
 def prune_population(population, pset):
-    pruned = 0
     for ind in population:
         for rule in ind:
-            start_len = len(rule)
             prune_rule(rule, pset)
-            if len(rule) != start_len:
-                pruned += start_len - len(rule)
-
-    print("*** Pruned", pruned)
