@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from sklearn.datasets import load_iris
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import KFold, train_test_split
 import pandas as pd
 from evofuzzy import fuzzyclassifier
 import tensorboardX
@@ -25,9 +26,12 @@ antecendent_terms = {
     for col in cols
 }
 
-for i in range(5):
+train_x, test_x, train_y, test_y = train_test_split(iris, y, test_size=30, shuffle=True)
+kfold = KFold(n_splits=5)
+
+for (i, (train_idx, test_idx)) in enumerate(kfold.split(train_x)):
     if TO_TENSORBOARD:
-        logdir = Path(f"tb_logs/iris/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+        logdir = Path(f"tb_logs/iris_cv/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
         logdir.mkdir(parents=True, exist_ok=True)
         tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
     else:
@@ -46,8 +50,8 @@ for i in range(5):
         tree_height_limit=5,
     )
     classifier.fit(
-        iris,
-        y,
+        train_x.iloc[train_idx],
+        train_y.iloc[train_idx],
         classes,
         antecedent_terms=antecendent_terms,
         tensorboard_writer=tensorboard_writer,
@@ -59,9 +63,13 @@ for i in range(5):
         "Final length of rules sets",
         dict(Counter(x.length for x in classifier.population_)),
     )
-    predictions = classifier.predict(iris)
+    predictions = classifier.predict(train_x.iloc[test_idx])
+    actual = train_y.iloc[test_idx]
+    tensorboard_writer.add_text(
+        "cv_accuracy", str(sum(actual == predictions) / len(actual))
+    )
     confusion = pd.DataFrame(
-        data=confusion_matrix(y, predictions),
+        data=confusion_matrix(actual, predictions),
         columns=data.target_names,
         index=data.target_names,
     )
