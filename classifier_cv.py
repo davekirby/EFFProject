@@ -1,3 +1,7 @@
+"""
+Cross-validation function for the FuzzyClassifier class.
+"""
+
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -90,3 +94,4 @@ def cross_validate(train_x, train_y, hyperparams, antecendent_terms, classes, te
             tensorboard_writer.add_text("cv_accuracy", accuracy)
             tensorboard_writer.add_text("confusion", confusion.to_markdown())
             tensorboard_writer.close()
+            
