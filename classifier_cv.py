@@ -5,7 +5,7 @@ Cross-validation function for the FuzzyClassifier class.
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 import pandas as pd
 import tensorboardX
@@ -32,16 +32,21 @@ class HyperParams(NamedTuple):
     replacements: int = 5
     tournament_size: int = 5
     parsimony_size: float = 1.9
+    batch_size: Optional[int] = None
 
 
-def cross_validate(train_x, train_y, hyperparams, antecendent_terms, classes, tensorboard_dir):
+def cross_validate(
+    train_x, train_y, hyperparams, antecendent_terms, classes, tensorboard_dir
+):
     kfold = KFold(n_splits=5, shuffle=True)
     if tensorboard_dir and tensorboard_dir[-1] == "/":
         tensorboard_dir = tensorboard_dir[:-1]
 
     for (i, (train_idx, test_idx)) in enumerate(kfold.split(train_x)):
         if tensorboard_dir:
-            logdir = Path(f"{tensorboard_dir}/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+            logdir = Path(
+                f"{tensorboard_dir}/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            )
             logdir.mkdir(parents=True, exist_ok=True)
             tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
         else:
@@ -64,6 +69,7 @@ def cross_validate(train_x, train_y, hyperparams, antecendent_terms, classes, te
             replacements=hyperparams.replacements,
             tournament_size=hyperparams.tournament_size,
             parsimony_size=hyperparams.parsimony_size,
+            batch_size=hyperparams.batch_size,
         )
         classifier.fit(
             train_x.iloc[train_idx],
@@ -94,4 +100,3 @@ def cross_validate(train_x, train_y, hyperparams, antecendent_terms, classes, te
             tensorboard_writer.add_text("cv_accuracy", accuracy)
             tensorboard_writer.add_text("confusion", confusion.to_markdown())
             tensorboard_writer.close()
-            

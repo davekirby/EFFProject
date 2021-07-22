@@ -1,5 +1,6 @@
 import heapq
 import random
+from itertools import repeat
 from typing import Any, List, NamedTuple
 import operator
 from multiprocessing import Pool
@@ -164,6 +165,7 @@ def ea_with_elitism_and_replacement(
     tensorboard_writer=None,
     halloffame=None,
     verbose=True,
+    context=None,
 ):
     """Modified version of the DEAP eaSimple function to run the evolution process
     while keeping the top performing members in the HallOfFame from one generation to the next.
@@ -180,17 +182,20 @@ def ea_with_elitism_and_replacement(
             results to tensorboard.
     :param halloffame: DEAP HallOfFame instance for recording the top performing individuals
     :param verbose: boolean flag - if True then print stats while running
+    :param context: additional information to be passed the the evaluate function
     :return: final population and logbook
 
     """
 
-    def evaluate_population(pop):
+    def evaluate_population(pop, context):
         # Evaluate the individuals in population pop with an invalid fitness
         invalid_population = [ind for ind in pop if not ind.fitness.valid]
         # prune any rules that have not been evaluated
         prune_population(invalid_population, toolbox.get_pset())
         with Pool() as pool:
-            fitnesses = pool.map(toolbox.evaluate, invalid_population)
+            fitnesses = pool.starmap(
+                toolbox.evaluate, zip(invalid_population, repeat(context))
+            )
 
         for ind, fit in zip(invalid_population, fitnesses):
             ind.fitness.values = fit
@@ -201,7 +206,7 @@ def ea_with_elitism_and_replacement(
     logbook.chapters["fitness"].header = "max", "avg"
     logbook.chapters["size"].header = "min", "avg", "best"
 
-    invalid_count = evaluate_population(population)
+    invalid_count = evaluate_population(population, context)
 
     if halloffame is not None:
         halloffame.update(population)
@@ -217,11 +222,11 @@ def ea_with_elitism_and_replacement(
         offspring = toolbox.select(population, len(population) - hof_size)
         offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
 
-        invalid_count = evaluate_population(offspring)
+        invalid_count = evaluate_population(offspring, context)
 
         # replace the worst performing individuals with newly generated ones
         _replace_worst(toolbox, offspring, replacements)
-        invalid_count += evaluate_population(offspring)
+        invalid_count += evaluate_population(offspring, context)
 
         if halloffame:
             offspring.extend(halloffame.items)

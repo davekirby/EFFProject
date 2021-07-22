@@ -12,7 +12,7 @@ tensorboard_dir = None
 hyperparams = HyperParams(
     population_size=50,
     hall_of_fame_size=10,
-    max_generation=20,
+    max_generation=5,
     mutation_prob=0.5,
     crossover_prob=0.5,
     min_tree_height=2,
@@ -20,6 +20,7 @@ hyperparams = HyperParams(
     max_rules=6,
     whole_rule_prob=0.2,
     tree_height_limit=8,
+    batch_size=100,
 )
 
 data, y = fetch_openml(data_id=40984, as_frame=True, return_X_y=True)

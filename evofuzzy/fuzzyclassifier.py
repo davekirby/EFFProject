@@ -1,4 +1,3 @@
-import operator
 import random
 from typing import Dict, List, Any, Optional
 import numpy as np
@@ -67,6 +66,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         replacements: int = 5,
         tournament_size: int = 5,
         parsimony_size: float = 1.9,
+        batch_size: Optional[int] = None,
     ):
         self.min_tree_height = min_tree_height
         self.max_tree_height = max_tree_height
@@ -84,6 +84,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.replacements = replacements
         self.tournament_size = tournament_size
         self.parsimony_size = parsimony_size
+        self.batch_size = batch_size
 
     def fit(
         self,
@@ -153,18 +154,22 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         )
         population = self.toolbox_.populationCreator(n=self.population_size)
 
-        self.population_, self.logbook_ = ea_with_elitism_and_replacement(
-            population,
-            self.toolbox_,
-            cxpb=self.crossover_prob,
-            mutpb=self.mutation_prob,
-            ngen=self.max_generation,
-            replacements=self.replacements,
-            stats=self.stats_,
-            tensorboard_writer=tensorboard_writer,
-            halloffame=self.hof_,
-            verbose=True,
-        )
+        slices = batches_slices(len(X), self.batch_size)
+        for slice_no, batch_slice in enumerate(slices):
+            print("*** Slice", slice_no, "of", len(slices), "***")
+            self.population_, self.logbook_ = ea_with_elitism_and_replacement(
+                population,
+                self.toolbox_,
+                cxpb=self.crossover_prob,
+                mutpb=self.mutation_prob,
+                ngen=self.max_generation,
+                replacements=self.replacements,
+                stats=self.stats_,
+                tensorboard_writer=tensorboard_writer,
+                halloffame=self.hof_,
+                verbose=True,
+                context=batch_slice,
+            )
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", "\n\n".join(self.best_strs))
             tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
@@ -175,7 +180,9 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         rules = [self.toolbox_.compile(rule) for rule in individual]
         return _make_predictions(X, rules, self.classes_)
 
-    def _evaluate(self, individual, X, y):
+    def _evaluate(self, individual, batch_slice, X, y):
+        X = X.iloc[batch_slice]
+        y = y.iloc[batch_slice]
         rules = [self.toolbox_.compile(rule) for rule in individual]
         predictions = _make_predictions(X, rules, self.classes_)
         return (accuracy_score(y, predictions),)
@@ -245,3 +252,19 @@ def _make_predictions(
         class_val = class_vals[class_idx]
         prediction.append(class_val)
     return prediction
+
+
+def batches_slices(max_size, batch_size=None):
+    """generate slices to split an array-like object into smaller batches.
+    If batch size is not given then yield a slice that covers the whole thing.
+    """
+    if batch_size is None:
+        yield slice(0, max_size)
+    else:
+        r = iter(range(0, max_size, batch_size))
+        start = next(r)
+        for end in r:
+            yield slice(start, end)
+            start = end
+        if start != max_size:
+            yield slice(start, max_size)
