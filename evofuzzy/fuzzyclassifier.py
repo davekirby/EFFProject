@@ -65,7 +65,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         mutation_max_height: int = 2,
         replacements: int = 5,
         tournament_size: int = 5,
-        parsimony_size: float = 1.9,
+        parsimony_size: float = 1.7,
         batch_size: Optional[int] = None,
     ):
         self.min_tree_height = min_tree_height
@@ -154,7 +154,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         )
         population = self.toolbox_.populationCreator(n=self.population_size)
 
-        slices = batches_slices(len(X), self.batch_size)
+        slices = list(batches_slices(len(X), self.batch_size))
         for slice_no, batch_slice in enumerate(slices):
             print("*** Slice", slice_no, "of", len(slices), "***")
             self.population_, self.logbook_ = ea_with_elitism_and_replacement(
@@ -261,9 +261,9 @@ def batches_slices(max_size, batch_size=None):
     if batch_size is None:
         yield slice(0, max_size)
     else:
-        r = iter(range(0, max_size, batch_size))
-        start = next(r)
-        for end in r:
+        range_iter = iter(range(0, max_size, batch_size))
+        start = next(range_iter)
+        for end in range_iter:
             yield slice(start, end)
             start = end
         if start != max_size:
