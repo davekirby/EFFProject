@@ -11,6 +11,8 @@ from deap import creator, base, algorithms, gp, tools
 from skfuzzy.control import Rule, Antecedent, Consequent
 from skfuzzy.control.term import Term
 
+BIG_INT = 1 << 64
+
 
 def identity(x: Any) -> Any:
     """Identity function - returns the parameter unchanged.
@@ -165,7 +167,7 @@ def ea_with_elitism_and_replacement(
     tensorboard_writer=None,
     halloffame=None,
     verbose=True,
-    context=None,
+    slices=None,
 ):
     """Modified version of the DEAP eaSimple function to run the evolution process
     while keeping the top performing members in the HallOfFame from one generation to the next.
@@ -182,19 +184,22 @@ def ea_with_elitism_and_replacement(
             results to tensorboard.
     :param halloffame: DEAP HallOfFame instance for recording the top performing individuals
     :param verbose: boolean flag - if True then print stats while running
-    :param context: additional information to be passed the the evaluate function
+    :param slices: optional list of slice objects to run EA on small batches
     :return: final population and logbook
 
     """
 
-    def evaluate_population(pop, context):
+    if slices is None:
+        slices = [slice(0, BIG_INT)]
+
+    def evaluate_population(pop, slice):
         # Evaluate the individuals in population pop with an invalid fitness
         invalid_population = [ind for ind in pop if not ind.fitness.valid]
         # prune any rules that have not been evaluated
         prune_population(invalid_population, toolbox.get_pset())
         with Pool() as pool:
             fitnesses = pool.starmap(
-                toolbox.evaluate, zip(invalid_population, repeat(context))
+                toolbox.evaluate, zip(invalid_population, repeat(slice))
             )
 
         for ind, fit in zip(invalid_population, fitnesses):
@@ -206,7 +211,7 @@ def ea_with_elitism_and_replacement(
     logbook.chapters["fitness"].header = "max", "avg"
     logbook.chapters["size"].header = "min", "avg", "best"
 
-    invalid_count = evaluate_population(population, context)
+    invalid_count = evaluate_population(population, slices[0])
 
     if halloffame is not None:
         halloffame.update(population)
@@ -219,21 +224,25 @@ def ea_with_elitism_and_replacement(
     )
 
     for gen in range(1, ngen):
-        offspring = toolbox.select(population, len(population) - hof_size)
-        offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
+        print("Batch: ", end="")
+        for idx, slice in enumerate(slices):
+            print(idx, end=", ")
+            offspring = toolbox.select(population, len(population) - hof_size)
+            offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
+            invalid_count = 0
+            invalid_count += evaluate_population(offspring, slice)
 
-        invalid_count = evaluate_population(offspring, context)
+            # replace the worst performing individuals with newly generated ones
+            _replace_worst(toolbox, offspring, replacements)
+            invalid_count += evaluate_population(offspring, slice)
 
-        # replace the worst performing individuals with newly generated ones
-        _replace_worst(toolbox, offspring, replacements)
-        invalid_count += evaluate_population(offspring, context)
+            if halloffame:
+                offspring.extend(halloffame.items)
+                halloffame.update(offspring)
 
-        if halloffame:
-            offspring.extend(halloffame.items)
-            halloffame.update(offspring)
+            population[:] = offspring
 
-        population[:] = offspring
-
+        print()
         write_stats(
             population, gen, invalid_count, verbose, logbook, stats, tensorboard_writer
         )

@@ -155,21 +155,19 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         population = self.toolbox_.populationCreator(n=self.population_size)
 
         slices = list(batches_slices(len(X), self.batch_size))
-        for slice_no, batch_slice in enumerate(slices):
-            print("*** Slice", slice_no, "of", len(slices), "***")
-            self.population_, self.logbook_ = ea_with_elitism_and_replacement(
-                population,
-                self.toolbox_,
-                cxpb=self.crossover_prob,
-                mutpb=self.mutation_prob,
-                ngen=self.max_generation,
-                replacements=self.replacements,
-                stats=self.stats_,
-                tensorboard_writer=tensorboard_writer,
-                halloffame=self.hof_,
-                verbose=True,
-                context=batch_slice,
-            )
+        self.population_, self.logbook_ = ea_with_elitism_and_replacement(
+            population,
+            self.toolbox_,
+            cxpb=self.crossover_prob,
+            mutpb=self.mutation_prob,
+            ngen=self.max_generation,
+            replacements=self.replacements,
+            stats=self.stats_,
+            tensorboard_writer=tensorboard_writer,
+            halloffame=self.hof_,
+            verbose=True,
+            slices=slices,
+        )
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", "\n\n".join(self.best_strs))
             tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))

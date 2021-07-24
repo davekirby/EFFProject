@@ -10,7 +10,7 @@ from typing import NamedTuple, Optional
 import pandas as pd
 import tensorboardX
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 
 from evofuzzy import fuzzyclassifier
 
@@ -38,11 +38,11 @@ class HyperParams(NamedTuple):
 def cross_validate(
     train_x, train_y, hyperparams, antecendent_terms, classes, tensorboard_dir
 ):
-    kfold = KFold(n_splits=5, shuffle=True)
+    kfold = StratifiedKFold(n_splits=5, shuffle=True)
     if tensorboard_dir and tensorboard_dir[-1] == "/":
         tensorboard_dir = tensorboard_dir[:-1]
 
-    for (i, (train_idx, test_idx)) in enumerate(kfold.split(train_x)):
+    for (i, (train_idx, test_idx)) in enumerate(kfold.split(train_x, train_y)):
         if tensorboard_dir:
             logdir = Path(
                 f"{tensorboard_dir}/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}"

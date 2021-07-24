@@ -6,8 +6,8 @@ from classifier_cv import cross_validate, HyperParams
 """Script for cross-validating the image segmentation dataset.
 """
 
-# tensorboard_dir = "tb_logs/segment_cv/"
-tensorboard_dir = None
+tensorboard_dir = "tb_logs/segment_cv/"
+# tensorboard_dir = None
 
 hyperparams = HyperParams(
     population_size=50,
