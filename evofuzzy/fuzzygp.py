@@ -196,7 +196,7 @@ def ea_with_elitism_and_replacement(
         # Evaluate the individuals in population pop with an invalid fitness
         invalid_population = [ind for ind in pop if not ind.fitness.valid]
         # prune any rules that have not been evaluated
-        prune_population(invalid_population, toolbox.get_pset())
+        prune_population(invalid_population)
         with Pool() as pool:
             fitnesses = pool.starmap(
                 toolbox.evaluate, zip(invalid_population, repeat(slice))
@@ -224,12 +224,12 @@ def ea_with_elitism_and_replacement(
     )
 
     for gen in range(1, ngen):
+        invalid_count = 0
         print("Batch: ", end="")
         for idx, slice in enumerate(slices):
             print(idx, end=", ")
             offspring = toolbox.select(population, len(population) - hof_size)
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-            invalid_count = 0
             invalid_count += evaluate_population(offspring, slice)
 
             # replace the worst performing individuals with newly generated ones
@@ -294,7 +294,7 @@ def _replace_worst(toolbox, population, replacements):
         population[idx] = toolbox.individualCreator()
 
 
-def prune_rule(rule, pset):
+def prune_rule(rule):
     pos = 0
     while pos < len(rule):
         name = rule[pos].name
@@ -313,7 +313,7 @@ def prune_rule(rule, pset):
     return rule
 
 
-def prune_population(population, pset):
+def prune_population(population):
     for ind in population:
         for rule in ind:
-            prune_rule(rule, pset)
+            prune_rule(rule)

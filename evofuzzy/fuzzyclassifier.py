@@ -5,6 +5,7 @@ import pandas as pd
 from deap import base, creator, gp, tools
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
+from sklearn.utils import shuffle
 from skfuzzy import control as ctrl
 import skfuzzy as fuzz
 from .fuzzygp import CreatorConfig, registerCreators, ea_with_elitism_and_replacement
@@ -101,6 +102,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
             )
             tensorboard_writer.add_text("hparams", hparams)
 
+        X, y = shuffle(X, y)
         self.classes_ = classes
         self.toolbox_ = base.Toolbox()
         self.config_ = CreatorConfig(
