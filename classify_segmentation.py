@@ -19,9 +19,9 @@ hyperparams = HyperParams(
     max_tree_height=4,
     min_rules=7,
     max_rules=10,
-    whole_rule_prob=0.2,
+    whole_rule_prob=0.1,
     tree_height_limit=6,
-    batch_size=10,
+    batch_size=50,
 )
 
 data, y = fetch_openml(data_id=40984, as_frame=True, return_X_y=True)

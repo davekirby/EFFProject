@@ -193,25 +193,22 @@ def ea_with_elitism_and_replacement(
         slices = [slice(0, BIG_INT)]
 
     def evaluate_population(pop, slice):
-        # Evaluate the individuals in population pop with an invalid fitness
-        invalid_population = [ind for ind in pop if not ind.fitness.valid]
         # prune any rules that have not been evaluated
-        prune_population(invalid_population)
+        prune_population(pop)
         with Pool() as pool:
             fitnesses = pool.starmap(
-                toolbox.evaluate, zip(invalid_population, repeat(slice))
+                toolbox.evaluate, zip(pop, repeat(slice))
             )
 
-        for ind, fit in zip(invalid_population, fitnesses):
+        for ind, fit in zip(pop, fitnesses):
             ind.fitness.values = fit
-        return len(invalid_population)
 
     logbook = tools.Logbook()
-    logbook.header = "gen", "nevals", "fitness", "size"
+    logbook.header = "gen", "fitness", "size"
     logbook.chapters["fitness"].header = "max", "avg"
     logbook.chapters["size"].header = "min", "avg", "best"
 
-    invalid_count = evaluate_population(population, slices[0])
+    evaluate_population(population, slices[0])
 
     if halloffame is not None:
         halloffame.update(population)
@@ -220,41 +217,42 @@ def ea_with_elitism_and_replacement(
         hof_size = 0
 
     write_stats(
-        population, 0, invalid_count, verbose, logbook, stats, tensorboard_writer
+        population, 0, verbose, logbook, stats, tensorboard_writer
     )
 
     for gen in range(1, ngen):
-        invalid_count = 0
         print("Batch: ", end="")
         for idx, slice in enumerate(slices):
             print(idx, end=", ")
             offspring = toolbox.select(population, len(population) - hof_size)
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-            invalid_count += evaluate_population(offspring, slice)
+            evaluate_population(offspring, slice)
 
             # replace the worst performing individuals with newly generated ones
             _replace_worst(toolbox, offspring, replacements)
-            invalid_count += evaluate_population(offspring, slice)
+            evaluate_population(offspring, slice)
 
             if halloffame:
                 offspring.extend(halloffame.items)
+                halloffame.items[:] = []
+                halloffame.keys[:] = []
                 halloffame.update(offspring)
 
             population[:] = offspring
 
         print()
         write_stats(
-            population, gen, invalid_count, verbose, logbook, stats, tensorboard_writer
+            population, gen, verbose, logbook, stats, tensorboard_writer
         )
 
     return population, logbook
 
 
 def write_stats(
-    population, generation, invalid_count, verbose, logbook, stats, tensorboard_writer
+    population, generation, verbose, logbook, stats, tensorboard_writer
 ):
     record = stats.compile(population) if stats else {}
-    logbook.record(gen=generation, nevals=invalid_count, **record)
+    logbook.record(gen=generation, **record)
     if verbose:
         print(logbook.stream)
     if tensorboard_writer:
