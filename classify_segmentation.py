@@ -30,4 +30,6 @@ data.columns = [c.replace(".", "_") for c in data.columns]
 
 classes = {name: name for name in y.dtype.categories}
 
-cross_validate(data, y, hyperparams, None, classes, tensorboard_dir)
+antecendent_terms = {col: ["low", "medium", "high"] for col in data.columns}
+
+cross_validate(data, y, hyperparams, antecendent_terms, classes, tensorboard_dir)
