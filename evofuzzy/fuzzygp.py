@@ -192,15 +192,18 @@ def ea_with_elitism_and_replacement(
     if slices is None:
         slices = [slice(0, BIG_INT)]
 
-    def evaluate_population(pop, slice):
-        # prune any rules that have not been evaluated
-        prune_population(pop)
+    def evaluate_population(population, batch_slice, no_batches):
+        if no_batches:
+            # Only evaluate the individuals in population that have not been evaluated already
+            population = [ind for ind in population if not ind.fitness.valid]
+        # prune the rules that are going to be evaluated
+        prune_population(population)
         with Pool() as pool:
             fitnesses = pool.starmap(
-                toolbox.evaluate, zip(pop, repeat(slice))
+                toolbox.evaluate, zip(population, repeat(batch_slice))
             )
 
-        for ind, fit in zip(pop, fitnesses):
+        for ind, fit in zip(population, fitnesses):
             ind.fitness.values = fit
 
     logbook = tools.Logbook()
@@ -208,7 +211,8 @@ def ea_with_elitism_and_replacement(
     logbook.chapters["fitness"].header = "max", "avg"
     logbook.chapters["size"].header = "min", "avg", "best"
 
-    evaluate_population(population, slices[0])
+    no_batches = len(slices) == 1
+    evaluate_population(population, slices[0], no_batches)
 
     if halloffame is not None:
         halloffame.update(population)
@@ -216,9 +220,7 @@ def ea_with_elitism_and_replacement(
     else:
         hof_size = 0
 
-    write_stats(
-        population, 0, verbose, logbook, stats, tensorboard_writer
-    )
+    write_stats(population, 0, verbose, logbook, stats, tensorboard_writer)
 
     for gen in range(1, ngen):
         print("Batch: ", end="")
@@ -226,11 +228,11 @@ def ea_with_elitism_and_replacement(
             print(idx, end=", ")
             offspring = toolbox.select(population, len(population) - hof_size)
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-            evaluate_population(offspring, slice)
+            evaluate_population(offspring, slice, no_batches)
 
             # replace the worst performing individuals with newly generated ones
             _replace_worst(toolbox, offspring, replacements)
-            evaluate_population(offspring, slice)
+            evaluate_population(offspring, slice, no_batches)
 
             if halloffame:
                 offspring.extend(halloffame.items)
@@ -241,16 +243,12 @@ def ea_with_elitism_and_replacement(
             population[:] = offspring
 
         print()
-        write_stats(
-            population, gen, verbose, logbook, stats, tensorboard_writer
-        )
+        write_stats(population, gen, verbose, logbook, stats, tensorboard_writer)
 
     return population, logbook
 
 
-def write_stats(
-    population, generation, verbose, logbook, stats, tensorboard_writer
-):
+def write_stats(population, generation, verbose, logbook, stats, tensorboard_writer):
     record = stats.compile(population) if stats else {}
     logbook.record(gen=generation, **record)
     if verbose:

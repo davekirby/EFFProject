@@ -56,3 +56,4 @@ Best error on the test set is about 0.02, or 98% accuracy.  A high bar!  Most al
 Please cite: [UCI](http://archive.ics.uci.edu/ml/citation_policy.html)
 This looks like the same dataset on openML: https://www.openml.org/d/40984
 
+#[[Experiments for Segmentation Classifer]]

@@ -20,6 +20,7 @@ hyperparams = HyperParams(
     max_rules=4,
     whole_rule_prob=0.2,
     tree_height_limit=5,
+    batch_size=30,
 )
 
 data = load_iris()
