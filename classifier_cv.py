@@ -80,7 +80,7 @@ def cross_validate(
         )
 
         print(f"Best Rule:  size = {len(classifier.best)}")
-        print("\n".join(classifier.best_strs))
+        print(classifier.best_str)
         print(
             "Final length of rules sets",
             dict(Counter(x.length for x in classifier.population_)),

@@ -1,3 +1,4 @@
+import random
 from typing import Optional
 
 import numpy as np
@@ -67,7 +68,7 @@ class FuzzyBase:
             slices=slices,
         )
         if tensorboard_writer:
-            tensorboard_writer.add_text("best_ruleset", "\n\n".join(self.best_strs))
+            tensorboard_writer.add_text("best_ruleset", self.best_str)
             tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
         return self
 
@@ -113,6 +114,43 @@ class FuzzyBase:
             fitness=self.fitness_stats_, size=self.size_stats_
         )
 
+    def _mate(self, ind1, ind2):
+        rule1_idx = random.randint(0, ind1.length - 1)
+        rule2_idx = random.randint(0, ind2.length - 1)
+        if random.random() < self.whole_rule_prob:
+            # swap entire rules over
+            rule2 = ind1[rule1_idx]
+            rule1 = ind2[rule2_idx]
+        else:
+            rule1, rule2 = gp.cxOnePoint(ind1[rule1_idx], ind2[rule2_idx])
+        ind1[rule1_idx] = rule1
+        ind2[rule2_idx] = rule2
+        return ind1, ind2
+
+    def _mutate(self, individual):
+        rule_idx = random.randint(0, individual.length - 1)
+        if random.random() < self.whole_rule_prob:
+            rule = self.toolbox_.expr()
+        else:
+            (rule,) = gp.mutUniform(
+                individual[rule_idx], expr=self.toolbox_.expr, pset=self.pset_
+            )
+        individual[rule_idx] = rule
+        return (individual,)
+
+    @property
+    def best(self):
+        return self.hof_[0]
+
+    def best_size(self, *args):
+        return len(self.best)
+
+    @property
+    def best_str(self):
+        return self.individual_to_str(self.best)
+
+    def individual_to_str(self, individual):
+        return '\n'.join(str(self.toolbox_.compile(r)).splitlines()[0] for r in individual)
 
 def get_fitness_values(ind):
     return ind.fitness.values

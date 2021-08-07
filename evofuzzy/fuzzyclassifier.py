@@ -1,8 +1,6 @@
-import random
 from typing import Dict, List, Any, Optional
 import numpy as np
 import pandas as pd
-from deap import gp
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
 from sklearn.utils import shuffle
@@ -88,41 +86,6 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
         rules = [self.toolbox_.compile(rule) for rule in individual]
         predictions = _make_predictions(X, rules, self.classes_)
         return (accuracy_score(y, predictions),)
-
-    def _mate(self, ind1, ind2):
-        rule1_idx = random.randint(0, ind1.length - 1)
-        rule2_idx = random.randint(0, ind2.length - 1)
-        if random.random() < self.whole_rule_prob:
-            # swap entire rules over
-            rule2 = ind1[rule1_idx]
-            rule1 = ind2[rule2_idx]
-        else:
-            rule1, rule2 = gp.cxOnePoint(ind1[rule1_idx], ind2[rule2_idx])
-        ind1[rule1_idx] = rule1
-        ind2[rule2_idx] = rule2
-        return ind1, ind2
-
-    def _mutate(self, individual):
-        rule_idx = random.randint(0, individual.length - 1)
-        if random.random() < self.whole_rule_prob:
-            rule = self.toolbox_.expr()
-        else:
-            (rule,) = gp.mutUniform(
-                individual[rule_idx], expr=self.toolbox_.expr, pset=self.pset_
-            )
-        individual[rule_idx] = rule
-        return (individual,)
-
-    @property
-    def best(self):
-        return self.hof_[0]
-
-    def best_size(self, *args):
-        return len(self.best)
-
-    @property
-    def best_strs(self):
-        return [str(self.toolbox_.compile(r)).splitlines()[0] for r in self.best]
 
 
 def _make_predictions(

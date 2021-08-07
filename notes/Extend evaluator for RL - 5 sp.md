@@ -26,6 +26,8 @@ Class  GymRunner
 `_evaluate` method
 - implements the gym run loop and returns the score
 
+`play` method
+- run the best individual and render the result
 
 ## Refactorings:
 - [x] create a base class
@@ -33,7 +35,7 @@ Class  GymRunner
 - [x] in the fit method, move common code together
 - [x] refactor out common code into a helper method
 - [x] move helper method to base class
-- [ ] move base class to a new file
+- [x] move base class to a new file
 - [ ] maybe split into smaller functions?
 - [ ] add GymRunner subclass
 
