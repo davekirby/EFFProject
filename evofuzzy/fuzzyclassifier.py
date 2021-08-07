@@ -10,44 +10,8 @@ from skfuzzy import control as ctrl
 import skfuzzy as fuzz
 from .fuzzygp import CreatorConfig, registerCreators, ea_with_elitism_and_replacement
 
-
-def _make_antecedents(
-    X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
-) -> List[ctrl.Antecedent]:
-    if antecedent_terms is None:
-        antecedent_terms = {}
-    mins = X.min()
-    maxes = X.max()
-    antecedents = []
-    for column in X.columns:
-        antecedent = ctrl.Antecedent(
-            np.linspace(mins[column], maxes[column], 11), column
-        )
-        terms = antecedent_terms.get(column, None)
-        if terms:
-            antecedent.automf(names=terms)
-        else:
-            antecedent.automf(variable_type="quant")
-        antecedents.append(antecedent)
-    return antecedents
-
-
-def _make_consequents(classes: Dict[str, Any]) -> List[ctrl.Consequent]:
-    consequents = []
-    for cls in classes:
-        cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
-        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
-        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
-        consequents.append(cons)
-    return consequents
-
-
-def get_fitness_values(ind):
-    return ind.fitness.values
-
-
-class FuzzyClassifier(BaseEstimator, ClassifierMixin):
-    """Class to create a fuzzy rule classifier"""
+class FuzzyBase:
+    """Common base class for FuzzyClassifier and GymRunner"""
 
     def __init__(
         self,
@@ -87,6 +51,45 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         self.parsimony_size = parsimony_size
         self.batch_size = batch_size
 
+
+def _make_antecedents(
+    X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
+) -> List[ctrl.Antecedent]:
+    if antecedent_terms is None:
+        antecedent_terms = {}
+    mins = X.min()
+    maxes = X.max()
+    antecedents = []
+    for column in X.columns:
+        antecedent = ctrl.Antecedent(
+            np.linspace(mins[column], maxes[column], 11), column
+        )
+        terms = antecedent_terms.get(column, None)
+        if terms:
+            antecedent.automf(names=terms)
+        else:
+            antecedent.automf(variable_type="quant")
+        antecedents.append(antecedent)
+    return antecedents
+
+
+def _make_consequents(classes: Dict[str, Any]) -> List[ctrl.Consequent]:
+    consequents = []
+    for cls in classes:
+        cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
+        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
+        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
+        consequents.append(cons)
+    return consequents
+
+
+def get_fitness_values(ind):
+    return ind.fitness.values
+
+
+class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
+    """Class to create a fuzzy rule classifier"""
+
     def fit(
         self,
         X,
@@ -96,67 +99,32 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         columns: Optional[List[str]] = None,
         tensorboard_writer=None,
     ):
-        if tensorboard_writer:
-            hparams = "\n".join(
-                f"* {k}: {v}" for (k, v) in self.__dict__.items() if not k.endswith("_")
-            )
-            tensorboard_writer.add_text("hparams", hparams)
+        # ---- common
 
+        # ---- classifier
         X, y = shuffle(X, y)
         self.classes_ = classes
-        self.toolbox_ = base.Toolbox()
-        self.config_ = CreatorConfig(
-            self.min_tree_height, self.max_tree_height, self.min_rules, self.max_rules
-        )
 
         if columns:
             # if columns is provided then assume either X is a numpy array or the user
             # want to rename the dataframe columns
             X = pd.DataFrame(data=X, columns=columns)
 
-        if not hasattr(creator, "RuleSetFitness"):
-            creator.create("RuleSetFitness", base.Fitness, weights=(1.0,))
         self.antecedents_ = _make_antecedents(X, antecedent_terms)
         self.consequents_ = _make_consequents(classes)
 
-        self.pset_ = registerCreators(
-            self.toolbox_, self.config_, self.antecedents_, self.consequents_
-        )
+        self.initialise(tensorboard_writer)
 
         if hasattr(self.toolbox_, "evaluate"):
             del self.toolbox_.evaluate
         self.toolbox_.register("evaluate", self._evaluate, X=X, y=y)
-        self.toolbox_.register(
-            "select",
-            tools.selDoubleTournament,
-            fitness_size=self.tournament_size,
-            parsimony_size=self.parsimony_size,
-            fitness_first=True,
-        )
-        self.toolbox_.register("mate", self._mate)
-        self.toolbox_.register(
-            "expr_mut",
-            gp.genGrow,
-            min_=self.mutation_min_height,
-            max_=self.mutation_max_height,
-        )
-
-        self.toolbox_.register("mutate", self._mutate)
-
-        self.hof_ = tools.HallOfFame(self.hall_of_fame_size)
-        self.fitness_stats_ = tools.Statistics(get_fitness_values)
-        self.fitness_stats_.register("max", np.max)
-        self.fitness_stats_.register("avg", np.mean)
-        self.size_stats_ = tools.Statistics(len)
-        self.size_stats_.register("min", np.min)
-        self.size_stats_.register("avg", np.mean)
-        self.size_stats_.register("best", self.best_size)
-        self.stats_ = tools.MultiStatistics(
-            fitness=self.fitness_stats_, size=self.size_stats_
-        )
-        population = self.toolbox_.populationCreator(n=self.population_size)
 
         slices = list(batches_slices(len(X), self.batch_size))
+
+        return self.execute(slices, tensorboard_writer)
+
+    def execute(self, slices, tensorboard_writer):
+        population = self.toolbox_.populationCreator(n=self.population_size)
         self.population_, self.logbook_ = ea_with_elitism_and_replacement(
             population,
             self.toolbox_,
@@ -174,6 +142,48 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
             tensorboard_writer.add_text("best_ruleset", "\n\n".join(self.best_strs))
             tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
         return self
+
+    def initialise(self, tensorboard_writer):
+        if tensorboard_writer:
+            hparams = "\n".join(
+                f"* {k}: {v}" for (k, v) in self.__dict__.items() if not k.endswith("_")
+            )
+            tensorboard_writer.add_text("hparams", hparams)
+        self.toolbox_ = base.Toolbox()
+        self.config_ = CreatorConfig(
+            self.min_tree_height, self.max_tree_height, self.min_rules, self.max_rules
+        )
+        if not hasattr(creator, "RuleSetFitness"):
+            creator.create("RuleSetFitness", base.Fitness, weights=(1.0,))
+        self.pset_ = registerCreators(
+            self.toolbox_, self.config_, self.antecedents_, self.consequents_
+        )
+        self.toolbox_.register(
+            "select",
+            tools.selDoubleTournament,
+            fitness_size=self.tournament_size,
+            parsimony_size=self.parsimony_size,
+            fitness_first=True,
+        )
+        self.toolbox_.register("mate", self._mate)
+        self.toolbox_.register(
+            "expr_mut",
+            gp.genGrow,
+            min_=self.mutation_min_height,
+            max_=self.mutation_max_height,
+        )
+        self.toolbox_.register("mutate", self._mutate)
+        self.hof_ = tools.HallOfFame(self.hall_of_fame_size)
+        self.fitness_stats_ = tools.Statistics(get_fitness_values)
+        self.fitness_stats_.register("max", np.max)
+        self.fitness_stats_.register("avg", np.mean)
+        self.size_stats_ = tools.Statistics(len)
+        self.size_stats_.register("min", np.min)
+        self.size_stats_.register("avg", np.mean)
+        self.size_stats_.register("best", self.best_size)
+        self.stats_ = tools.MultiStatistics(
+            fitness=self.fitness_stats_, size=self.size_stats_
+        )
 
     def predict(self, X: pd.DataFrame):
         individual = self.hof_[0]
