@@ -129,6 +129,8 @@ def registerCreators(
     """
 
     pset = _makePrimitiveSet(antecendents, consequents)
+    if hasattr(creator, "Individual"):
+        del creator.Individual
     creator.create("Individual", RuleSet, fitness=creator.RuleSetFitness, pset=pset)
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(

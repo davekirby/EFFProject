@@ -28,11 +28,12 @@ Class  GymRunner
 
 
 ## Refactorings:
-- [ ] create a base class
-- [ ] move the init method to the base class
-- [ ] in the fit method, move common code together
-- [ ] refactor out common code into a helper method
-- [ ] move helper method to base class
+- [x] create a base class
+- [x] move the init method to the base class
+- [x] in the fit method, move common code together
+- [x] refactor out common code into a helper method
+- [x] move helper method to base class
+- [ ] move base class to a new file
 - [ ] maybe split into smaller functions?
 - [ ] add GymRunner subclass
 
