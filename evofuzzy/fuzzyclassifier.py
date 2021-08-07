@@ -51,78 +51,6 @@ class FuzzyBase:
         self.parsimony_size = parsimony_size
         self.batch_size = batch_size
 
-
-def _make_antecedents(
-    X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
-) -> List[ctrl.Antecedent]:
-    if antecedent_terms is None:
-        antecedent_terms = {}
-    mins = X.min()
-    maxes = X.max()
-    antecedents = []
-    for column in X.columns:
-        antecedent = ctrl.Antecedent(
-            np.linspace(mins[column], maxes[column], 11), column
-        )
-        terms = antecedent_terms.get(column, None)
-        if terms:
-            antecedent.automf(names=terms)
-        else:
-            antecedent.automf(variable_type="quant")
-        antecedents.append(antecedent)
-    return antecedents
-
-
-def _make_consequents(classes: Dict[str, Any]) -> List[ctrl.Consequent]:
-    consequents = []
-    for cls in classes:
-        cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
-        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
-        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
-        consequents.append(cons)
-    return consequents
-
-
-def get_fitness_values(ind):
-    return ind.fitness.values
-
-
-class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
-    """Class to create a fuzzy rule classifier"""
-
-    def fit(
-        self,
-        X,
-        y,
-        classes: Dict[str, Any],
-        antecedent_terms: Optional[Dict[str, List[str]]] = None,
-        columns: Optional[List[str]] = None,
-        tensorboard_writer=None,
-    ):
-        # ---- common
-
-        # ---- classifier
-        X, y = shuffle(X, y)
-        self.classes_ = classes
-
-        if columns:
-            # if columns is provided then assume either X is a numpy array or the user
-            # want to rename the dataframe columns
-            X = pd.DataFrame(data=X, columns=columns)
-
-        self.antecedents_ = _make_antecedents(X, antecedent_terms)
-        self.consequents_ = _make_consequents(classes)
-
-        self.initialise(tensorboard_writer)
-
-        if hasattr(self.toolbox_, "evaluate"):
-            del self.toolbox_.evaluate
-        self.toolbox_.register("evaluate", self._evaluate, X=X, y=y)
-
-        slices = list(batches_slices(len(X), self.batch_size))
-
-        return self.execute(slices, tensorboard_writer)
-
     def execute(self, slices, tensorboard_writer):
         population = self.toolbox_.populationCreator(n=self.population_size)
         self.population_, self.logbook_ = ea_with_elitism_and_replacement(
@@ -184,6 +112,76 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
         self.stats_ = tools.MultiStatistics(
             fitness=self.fitness_stats_, size=self.size_stats_
         )
+
+
+def _make_antecedents(
+    X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
+) -> List[ctrl.Antecedent]:
+    if antecedent_terms is None:
+        antecedent_terms = {}
+    mins = X.min()
+    maxes = X.max()
+    antecedents = []
+    for column in X.columns:
+        antecedent = ctrl.Antecedent(
+            np.linspace(mins[column], maxes[column], 11), column
+        )
+        terms = antecedent_terms.get(column, None)
+        if terms:
+            antecedent.automf(names=terms)
+        else:
+            antecedent.automf(variable_type="quant")
+        antecedents.append(antecedent)
+    return antecedents
+
+
+def _make_consequents(classes: Dict[str, Any]) -> List[ctrl.Consequent]:
+    consequents = []
+    for cls in classes:
+        cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
+        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
+        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
+        consequents.append(cons)
+    return consequents
+
+
+def get_fitness_values(ind):
+    return ind.fitness.values
+
+
+class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
+    """Class to create a fuzzy rule classifier"""
+
+    def fit(
+        self,
+        X,
+        y,
+        classes: Dict[str, Any],
+        antecedent_terms: Optional[Dict[str, List[str]]] = None,
+        columns: Optional[List[str]] = None,
+        tensorboard_writer=None,
+    ):
+
+        X, y = shuffle(X, y)
+        self.classes_ = classes
+
+        if columns:
+            # if columns is provided then assume either X is a numpy array or the user
+            # want to rename the dataframe columns
+            X = pd.DataFrame(data=X, columns=columns)
+
+        self.antecedents_ = _make_antecedents(X, antecedent_terms)
+        self.consequents_ = _make_consequents(classes)
+
+        self.initialise(tensorboard_writer)
+
+        if hasattr(self.toolbox_, "evaluate"):
+            del self.toolbox_.evaluate
+        self.toolbox_.register("evaluate", self._evaluate, X=X, y=y)
+
+        slices = list(batches_slices(len(X), self.batch_size))
+
+        return self.execute(slices, tensorboard_writer)
 
     def predict(self, X: pd.DataFrame):
         individual = self.hof_[0]
