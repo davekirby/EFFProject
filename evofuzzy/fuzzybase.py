@@ -1,8 +1,11 @@
 import random
-from typing import Optional
+from typing import Optional, Dict, List, Any, Iterable
 
 import numpy as np
+import pandas as pd
+import skfuzzy as fuzz
 from deap import base, creator, tools, gp
+from skfuzzy import control as ctrl
 
 from evofuzzy.fuzzygp import (
     ea_with_elitism_and_replacement,
@@ -150,7 +153,44 @@ class FuzzyBase:
         return self.individual_to_str(self.best)
 
     def individual_to_str(self, individual):
-        return '\n'.join(str(self.toolbox_.compile(r)).splitlines()[0] for r in individual)
+        return "\n".join(
+            str(self.toolbox_.compile(r)).splitlines()[0] for r in individual
+        )
+
 
 def get_fitness_values(ind):
     return ind.fitness.values
+
+
+def make_antecedent(name, min, max, terms=None):
+    antecedent = ctrl.Antecedent(np.linspace(min, max, 11), name)
+    if terms:
+        antecedent.automf(names=terms)
+    else:
+        antecedent.automf(variable_type="quant")
+    return antecedent
+
+
+def make_antecedents(
+    X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
+) -> List[ctrl.Antecedent]:
+    if antecedent_terms is None:
+        antecedent_terms = {}
+    mins = X.min()
+    maxes = X.max()
+    antecedents = []
+    for column in X.columns:
+        terms = antecedent_terms.get(column, None)
+        antecedent = make_antecedent(column, mins[column], maxes[column], terms)
+        antecedents.append(antecedent)
+    return antecedents
+
+
+def make_consequents(classes: Iterable[str]) -> List[ctrl.Consequent]:
+    consequents = []
+    for cls in classes:
+        cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
+        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
+        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
+        consequents.append(cons)
+    return consequents

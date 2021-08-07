@@ -5,40 +5,8 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
 from sklearn.utils import shuffle
 from skfuzzy import control as ctrl
-import skfuzzy as fuzz
 
-from .fuzzybase import FuzzyBase
-
-
-def _make_antecedents(
-    X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
-) -> List[ctrl.Antecedent]:
-    if antecedent_terms is None:
-        antecedent_terms = {}
-    mins = X.min()
-    maxes = X.max()
-    antecedents = []
-    for column in X.columns:
-        antecedent = ctrl.Antecedent(
-            np.linspace(mins[column], maxes[column], 11), column
-        )
-        terms = antecedent_terms.get(column, None)
-        if terms:
-            antecedent.automf(names=terms)
-        else:
-            antecedent.automf(variable_type="quant")
-        antecedents.append(antecedent)
-    return antecedents
-
-
-def _make_consequents(classes: Dict[str, Any]) -> List[ctrl.Consequent]:
-    consequents = []
-    for cls in classes:
-        cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
-        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
-        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
-        consequents.append(cons)
-    return consequents
+from .fuzzybase import FuzzyBase, make_antecedents, make_consequents
 
 
 class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
@@ -62,8 +30,8 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
             # want to rename the dataframe columns
             X = pd.DataFrame(data=X, columns=columns)
 
-        self.antecedents_ = _make_antecedents(X, antecedent_terms)
-        self.consequents_ = _make_consequents(classes)
+        self.antecedents_ = make_antecedents(X, antecedent_terms)
+        self.consequents_ = make_consequents(classes.keys())
 
         self.initialise(tensorboard_writer)
 
