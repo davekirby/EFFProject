@@ -226,15 +226,15 @@ def ea_with_elitism_and_replacement(
 
     for gen in range(1, ngen):
         print("Batch: ", end="")
-        for idx, slice in enumerate(slices):
+        for idx, slice_ in enumerate(slices):
             print(idx, end=", ")
             offspring = toolbox.select(population, len(population) - hof_size)
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-            evaluate_population(offspring, slice, no_batches)
+            evaluate_population(offspring, slice_, no_batches)
 
             # replace the worst performing individuals with newly generated ones
             _replace_worst(toolbox, offspring, replacements)
-            evaluate_population(offspring, slice, no_batches)
+            evaluate_population(offspring, slice_, no_batches)
 
             if halloffame:
                 offspring.extend(halloffame.items)

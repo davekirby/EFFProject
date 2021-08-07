@@ -4,9 +4,9 @@ from evofuzzy.fuzzybase import FuzzyBase, make_antecedent, make_consequents
 
 env = gym.make("CartPole-v0")
 runner = GymRunner(
-    population_size=10,
+    population_size=50,
     hall_of_fame_size=1,
-    max_generation=2,
+    max_generation=10,
     mutation_prob=0.9,
     crossover_prob=0.2,
     min_tree_height=1,

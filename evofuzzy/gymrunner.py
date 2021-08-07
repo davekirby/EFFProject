@@ -23,22 +23,29 @@ class GymRunner(FuzzyBase):
         """
         total_reward = 0
         rules = [self.toolbox_.compile(rule) for rule in individual]
+        antecedents = {
+            term.parent.label for rule in rules for term in rule.antecedent_terms
+        }
         controller = ctrl.ControlSystem(rules)
         simulator = ctrl.ControlSystemSimulation(controller)
 
         observation = env.reset()
-        for _ in range(self.max_generation):
-            action = self._evaluate_action(observation, simulator)
+        for _ in range(1000):
+            action = self._evaluate_action(observation, simulator, antecedents)
             observation, reward, done, _ = env.step(action)
             total_reward += reward
             if done:
                 break
-        return total_reward
+        return (total_reward,)
 
-    def _evaluate_action(self, observation, simulator):
+    def _evaluate_action(self, observation, simulator, antecedents):
         action_names = list(self.actions_.keys())
         action_vals = list(self.actions_.values())
-        obs_vals = {ant.label: ob for (ant, ob) in zip(self.antecedents_, observation)}
+        obs_vals = {
+            ant.label: ob
+            for (ant, ob) in zip(self.antecedents_, observation)
+            if ant.label in antecedents
+        }
         simulator.inputs(obs_vals)
         simulator.compute()
         action_idx = np.argmax([simulator.output.get(name, 0) for name in action_names])
