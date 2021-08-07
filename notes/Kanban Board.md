@@ -6,7 +6,6 @@ kanban-plugin: basic
 
 ## Backlog
 
-- [ ] Extend evaluator for RL - 5 sp
 - [ ] extend FIS for Reinforcement Learning - 5 sp
 - [ ] Write project report - 13 sp
 - [ ] [[code cleanup - add docstrings and unit tests - 3 sp]]
@@ -14,6 +13,11 @@ kanban-plugin: basic
 
 
 ## In Progress
+
+- [ ] [[Extend evaluator for RL - 5 sp]]
+
+
+## On Hold
 
 - [ ] [[Experiment and Tune Classifier 5sp]]
 

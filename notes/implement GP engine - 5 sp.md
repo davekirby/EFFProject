@@ -9,7 +9,7 @@ In the FuzzyClassifier fit method, implement the GP evolution engine.
 - [x] #task add methods for tuning GP and register them in the toolbox ✅ 2021-06-27
 - [x] #task call eaSimpleWithElitism from fit method ✅ 2021-06-27
 - [x] #task add HOF and stats ✅ 2021-06-27
-- [ ] #task add plot method to FuzzyClassifier?
+- [x] #task add plot method to FuzzyClassifier? ✅ 2021-08-05
 - [x] #task add methods to get the rules and to get a human readable version of the rules. ✅ 2021-06-27
 - [x] #task Add method/attribute to expose the logbook ✅ 2021-06-27
 - [x] #task add parallel processing ✅ 2021-06-27

@@ -133,5 +133,5 @@ def test_rule_pruner(input, output):
         pset = _makePrimitiveSet([size], [mouse, elephant])
 
     rule = PrimitiveTree.from_string(input, pset)
-    pruned_rule = prune_rule(rule, pset)
+    pruned_rule = prune_rule(rule)
     assert str(pruned_rule) == output

@@ -56,7 +56,7 @@ class FuzzyClassifier(BaseEstimator, ClassifierMixin):
         min_rules: int = 2,
         max_rules: int = 5,
         population_size: int = 100,
-        max_generation: int = 50,
+        max_generation: int = 20,
         mutation_prob: float = 0.1,
         crossover_prob: float = 0.9,
         whole_rule_prob: float = 0.1,
