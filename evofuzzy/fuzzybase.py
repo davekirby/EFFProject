@@ -16,6 +16,7 @@ from evofuzzy.fuzzygp import (
 
 class FuzzyBase:
     """Common base class for FuzzyClassifier and GymRunner"""
+    always_evaluate_ = False
 
     def __init__(
         self,
@@ -69,6 +70,7 @@ class FuzzyBase:
             halloffame=self.hof_,
             verbose=True,
             slices=slices,
+            always_evalute=self.always_evaluate_,
         )
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", self.best_str)

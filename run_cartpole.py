@@ -26,4 +26,6 @@ actions = {
     "left": 0,
     "right": 1,
 }
-runner.run(env, antecedents, actions, None)
+runner.train(env, antecedents, actions, None)
+print(runner.best_str)
+runner.play(env)

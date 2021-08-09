@@ -5,7 +5,8 @@ from .fuzzybase import FuzzyBase, make_consequents
 
 
 class GymRunner(FuzzyBase):
-    def run(self, env, antecendents, actions, tensorboard_writer):
+    always_evaluate_ = True
+    def train(self, env, antecendents, actions, tensorboard_writer):
         self.antecedents_ = antecendents
         self.consequents_ = make_consequents(actions)
         self.actions_ = actions
@@ -17,7 +18,12 @@ class GymRunner(FuzzyBase):
         self.toolbox_.register("evaluate", self._evaluate, env=env)
         return self.execute(None, tensorboard_writer)
 
-    def _evaluate(self, individual, batch, env):
+    def play(self, env):
+        """Display the best individual playing in the evironment"""
+        reward = self._evaluate(self.best, None, env, True)
+        print("Finished with reward of", reward[0])
+
+    def _evaluate(self, individual, batch, env, render=False):
         """Evaluate one individual by running the gym environment with the
         fuzzy rules represented by the individual as the agent.
         """
@@ -31,6 +37,8 @@ class GymRunner(FuzzyBase):
 
         observation = env.reset()
         for _ in range(1000):
+            if render:
+                env.render()
             action = self._evaluate_action(observation, simulator, antecedents)
             observation, reward, done, _ = env.step(action)
             total_reward += reward

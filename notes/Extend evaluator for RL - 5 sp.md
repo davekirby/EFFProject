@@ -3,10 +3,13 @@ Re-implement the GP engine to do reinforcement learning against OpenAI Gym.
 
 ## Tasks
 - [x] #task Install Gym ✅ 2021-08-05
-- [ ] #task implement interface between GP engine and Gym
-    - [ ] refactor to reuse code
-- [ ] #task Choose simple reinforcement task
-- [ ] #task get GP working with the reinforcement task
+- [x] #task implement interface between GP engine and Gym ✅ 2021-08-09
+    - [x] refactor to reuse code
+- [x] #task Choose simple reinforcement task ✅ 2021-08-09
+- [x] #task get GP working with the reinforcement task ✅ 2021-08-09
+- [x] #task print the best rule at the end of the run ✅ 2021-08-09
+- [x] #task add a method to render the best rule in action and show it after the last run ✅ 2021-08-09
+- [ ] #task generalise GymRunner to more environments
 
 
 ## Class design 
@@ -36,7 +39,7 @@ Class  GymRunner
 - [x] refactor out common code into a helper method
 - [x] move helper method to base class
 - [x] move base class to a new file
-- [ ] maybe split into smaller functions?
-- [ ] add GymRunner subclass
+- [x] maybe split into smaller functions?
+- [x] add GymRunner subclass
 
 

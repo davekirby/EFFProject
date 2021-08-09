@@ -170,6 +170,7 @@ def ea_with_elitism_and_replacement(
     halloffame=None,
     verbose=True,
     slices=None,
+    always_evalute=False,
 ):
     """Modified version of the DEAP eaSimple function to run the evolution process
     while keeping the top performing members in the HallOfFame from one generation to the next.
@@ -192,11 +193,14 @@ def ea_with_elitism_and_replacement(
     """
 
     if slices is None:
+        batched = False
         slices = [slice(0, BIG_INT)]
+    else:
+        batched = True
 
-    def evaluate_population(population, batch_slice, no_batches):
-        if no_batches:
-            # Only evaluate the individuals in population that have not been evaluated already
+    def evaluate_population(population, batch_slice):
+        if not always_evalute and not batched:
+            # Only evaluate the individuals in the population that have not been evaluated already
             population = [ind for ind in population if not ind.fitness.valid]
         # prune the rules that are going to be evaluated
         prune_population(population)
@@ -213,8 +217,7 @@ def ea_with_elitism_and_replacement(
     logbook.chapters["fitness"].header = "max", "avg"
     logbook.chapters["size"].header = "min", "avg", "best"
 
-    no_batches = len(slices) == 1
-    evaluate_population(population, slices[0], no_batches)
+    evaluate_population(population, slices[0])
 
     if halloffame is not None:
         halloffame.update(population)
@@ -225,16 +228,18 @@ def ea_with_elitism_and_replacement(
     write_stats(population, 0, verbose, logbook, stats, tensorboard_writer)
 
     for gen in range(1, ngen):
-        print("Batch: ", end="")
+        if batched:
+            print("Batch: ", end="")
         for idx, slice_ in enumerate(slices):
-            print(idx, end=", ")
+            if batched:
+                print(idx, end=", ")
             offspring = toolbox.select(population, len(population) - hof_size)
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-            evaluate_population(offspring, slice_, no_batches)
+            evaluate_population(offspring, slice_)
 
             # replace the worst performing individuals with newly generated ones
             _replace_worst(toolbox, offspring, replacements)
-            evaluate_population(offspring, slice_, no_batches)
+            evaluate_population(offspring, slice_)
 
             if halloffame:
                 offspring.extend(halloffame.items)
