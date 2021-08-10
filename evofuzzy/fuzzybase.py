@@ -168,7 +168,7 @@ class FuzzyBase:
 
     def save(self, filename):
         with open(filename, "wb") as f:
-            pickle.dump(self.population_, f)
+            pickle.dump(self.population_, f, -1)
 
     def load(self, filename):
         with open(filename, "rb") as f:
