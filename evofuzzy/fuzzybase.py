@@ -16,6 +16,7 @@ from evofuzzy.fuzzygp import (
 
 class FuzzyBase:
     """Common base class for FuzzyClassifier and GymRunner"""
+
     always_evaluate_ = False
 
     def __init__(

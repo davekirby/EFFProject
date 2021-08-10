@@ -1,6 +1,17 @@
+from datetime import datetime
+from pathlib import Path
+import tensorboardX
 import gym
 from evofuzzy.gymrunner import GymRunner
 from evofuzzy.fuzzybase import FuzzyBase, make_antecedent, make_consequents
+
+tensorboard_dir = "tb_logs/cartpole-v0"
+if tensorboard_dir:
+    logdir = Path(f"{tensorboard_dir}/{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+    logdir.mkdir(parents=True, exist_ok=True)
+    tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
+else:
+    tensorboard_writer = None
 
 env = gym.make("CartPole-v0")
 runner = GymRunner(
@@ -26,6 +37,6 @@ actions = {
     "left": 0,
     "right": 1,
 }
-runner.train(env, antecedents, actions, None)
+runner.train(env, antecedents, actions, tensorboard_writer)
 print(runner.best_str)
 runner.play(env)

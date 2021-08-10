@@ -6,6 +6,7 @@ from .fuzzybase import FuzzyBase, make_consequents
 
 class GymRunner(FuzzyBase):
     always_evaluate_ = True
+
     def train(self, env, antecendents, actions, tensorboard_writer):
         self.antecedents_ = antecendents
         self.consequents_ = make_consequents(actions)
