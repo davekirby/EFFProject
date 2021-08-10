@@ -91,6 +91,27 @@ def test_instance_creator():
 pset = None
 
 
+def test_save_and_load():
+    classifier = FuzzyClassifier(
+        population_size=3,
+        max_generation=2,
+    )
+    filename = "test.pkl"
+    X = pd.DataFrame({"size": [10, 1]})
+    y = pd.Series([1, 0])
+    classes = {"mouse": 0, "elephant": 1}
+    classifier.fit(X, y, classes)
+    classifier.save(filename)
+    del classifier
+    classifier = FuzzyClassifier(
+        population_size=3,
+        max_generation=2,
+    )
+    classifier.load(filename)
+    classifier.fit(X, y, classes)
+
+
+
 @pytest.mark.parametrize(
     "input, output",
     [

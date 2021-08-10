@@ -1,3 +1,4 @@
+import pickle
 import random
 from typing import Optional, Dict, List, Any, Iterable
 
@@ -18,6 +19,7 @@ class FuzzyBase:
     """Common base class for FuzzyClassifier and GymRunner"""
 
     always_evaluate_ = False
+    population_ = None
 
     def __init__(
         self,
@@ -58,7 +60,11 @@ class FuzzyBase:
         self.batch_size = batch_size
 
     def execute(self, slices, tensorboard_writer):
-        population = self.toolbox_.populationCreator(n=self.population_size)
+        if self.population_ is None:
+            population = self.toolbox_.populationCreator(n=self.population_size)
+        else:
+            population = self.population_
+
         self.population_, self.logbook_ = ea_with_elitism_and_replacement(
             population,
             self.toolbox_,
@@ -159,6 +165,14 @@ class FuzzyBase:
         return "\n".join(
             str(self.toolbox_.compile(r)).splitlines()[0] for r in individual
         )
+
+    def save(self, filename):
+        with open(filename, "wb") as f:
+            pickle.dump(self.population_, f)
+
+    def load(self, filename):
+        with open(filename, "rb") as f:
+            self.population_ = pickle.load(f)
 
 
 def get_fitness_values(ind):
