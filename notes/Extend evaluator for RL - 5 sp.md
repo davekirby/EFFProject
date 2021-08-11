@@ -42,4 +42,5 @@ Class  GymRunner
 - [x] maybe split into smaller functions?
 - [x] add GymRunner subclass
 
-
+## Extending to handle Box action states
+Currently the code takes a dict mapping Discrete output states to their values and generates & defuzzifies consequents the same way as the classifier does - taking the argmax of the values and using that to pick the chosen output.
