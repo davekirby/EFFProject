@@ -189,7 +189,7 @@ def make_antecedents(
     return antecedents
 
 
-def make_consequents(classes: Iterable[str]) -> List[ctrl.Consequent]:
+def make_binary_consequents(classes: Iterable[str]) -> List[ctrl.Consequent]:
     consequents = []
     for cls in classes:
         cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")

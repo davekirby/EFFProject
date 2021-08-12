@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.utils import shuffle
 from skfuzzy import control as ctrl
 
-from .fuzzybase import FuzzyBase, make_antecedents, make_consequents
+from .fuzzybase import FuzzyBase, make_antecedents, make_binary_consequents
 
 
 class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
@@ -31,7 +31,7 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
             X = pd.DataFrame(data=X, columns=columns)
 
         self.antecedents_ = make_antecedents(X, antecedent_terms)
-        self.consequents_ = make_consequents(classes.keys())
+        self.consequents_ = make_binary_consequents(classes.keys())
 
         self.initialise(tensorboard_writer)
 

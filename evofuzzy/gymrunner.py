@@ -1,34 +1,54 @@
-from typing import NamedTuple
+from itertools import count
+
+import gym
 import numpy as np
 from skfuzzy import control as ctrl
 
-from .fuzzybase import FuzzyBase, make_consequents
+from .fuzzybase import FuzzyBase, make_antecedent, make_binary_consequents
 
 
-class Action(NamedTuple):
-    min: float
-    max: float
-    terms: int = 5
+def make_box_consequent(name, low, high):
+    cons = ctrl.Consequent(np.linspace(low, high, 10), name, "som")
+    cons.automf(5, "quant")
+    return cons
 
 
-def make_box_consequents(action):
-    cons = ctrl.Consequent(np.linspace(action.min, action.max, 10), "action", "som")
-    cons.automf(action.terms, "quant")
-    return [cons]
+def antecedents_from_env(env: gym.Env):
+    observations = env.observation_space
+    assert isinstance(
+        observations, gym.spaces.Box
+    ), "Only Box observation spaces supported"
+    assert (
+        len(observations.shape) == 1
+    ), "Only one dimensional observation spaces supported"
+    return [
+        make_antecedent(f"obs_{i}", low, high)
+        for (i, low, high) in zip(count(), observations.low, observations.high)
+    ]
+
+
+def consequents_from_env(env: gym.Env):
+    actions = env.action_space
+    if isinstance(actions, gym.spaces.Box):
+        assert len(actions.shape) == 1, "Only one dimensional action spaces supported"
+        return [
+            make_box_consequent(f"action_{i}", low, high)
+            for (i, low, high) in zip(count(), actions.low, actions.high)
+        ], True
+    assert isinstance(actions, gym.spaces.Discrete), "Only Box and Discrete actions supported"
+    return make_binary_consequents(f"action_{i}" for i in range(actions.n)), False
 
 
 class GymRunner(FuzzyBase):
     always_evaluate_ = True
 
-    def train(self, env, antecendents, actions, tensorboard_writer):
-        self.antecedents_ = antecendents
-        if isinstance(actions, Action):
-            self.consequents_ = make_box_consequents(actions)
-            self.box_actions_ = True
+    def train(self, env, tensorboard_writer, antecedents=None):
+        if antecedents:
+            self.antecedents_ = antecedents
         else:
-            self.consequents_ = make_consequents(actions)
-            self.actions_ = actions
-            self.box_actions_ = False
+            self.antecedents_ = antecedents_from_env(env)
+
+        self.consequents_, self.box_actions_ = consequents_from_env(env)
 
         self.initialise(tensorboard_writer)
 
@@ -72,22 +92,16 @@ class GymRunner(FuzzyBase):
             for (ant, ob) in zip(self.antecedents_, observation)
             if ant.label in antecedents
         }
+        simulator.inputs(obs_vals)
+        simulator.compute()
         if self.box_actions_:
-            return self._evaluate_continuous_actions(obs_vals, simulator)
+            return self._evaluate_continuous_actions(simulator)
         else:
-            return self._evaluate_discrete_actions(obs_vals, simulator)
+            return self._evaluate_discrete_actions(simulator)
 
-    def _evaluate_discrete_actions(self, obs_vals, simulator):
-        action_names = list(self.actions_.keys())
-        action_vals = list(self.actions_.values())
-        simulator.inputs(obs_vals)
-        simulator.compute()
-        action_idx = np.argmax([simulator.output.get(name, 0) for name in action_names])
-        action_val = action_vals[action_idx]
-        return action_val
+    def _evaluate_discrete_actions(self, simulator):
+        action_names = [cons.label for cons in self.consequents_]
+        return np.argmax([simulator.output.get(name, 0) for name in action_names])
 
-    def _evaluate_continuous_actions(self, obs_vals, simulator):
-        simulator.inputs(obs_vals)
-        simulator.compute()
-        action = simulator.output.get("action", 0)
-        return [action]
+    def _evaluate_continuous_actions(self, simulator):
+        return [simulator.output.get(f"action_{i}", 0) for i in range(len(self.consequents_))]

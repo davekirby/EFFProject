@@ -3,7 +3,7 @@ from pathlib import Path
 import tensorboardX
 import gym
 from evofuzzy.gymrunner import GymRunner
-from evofuzzy.fuzzybase import FuzzyBase, make_antecedent, make_consequents
+from evofuzzy.fuzzybase import FuzzyBase, make_antecedent
 
 tensorboard_dir = "tb_logs/cartpole-v0"
 if tensorboard_dir:
@@ -33,10 +33,7 @@ antecedents = [
     make_antecedent("angle", -0.25, 0.25),
     make_antecedent("angular_velocity", -2, 2),
 ]
-actions = {
-    "left": 0,
-    "right": 1,
-}
-runner.train(env, antecedents, actions, tensorboard_writer)
+
+runner.train(env, tensorboard_writer, antecedents)
 print(runner.best_str)
 runner.play(env)

@@ -2,8 +2,7 @@ from datetime import datetime
 from pathlib import Path
 import tensorboardX
 import gym
-from evofuzzy.gymrunner import GymRunner, Action
-from evofuzzy.fuzzybase import FuzzyBase, make_antecedent, make_consequents
+from evofuzzy.gymrunner import GymRunner
 
 tensorboard_dir = "tb_logs/mountaincar-v0"
 if tensorboard_dir:
@@ -27,13 +26,6 @@ runner = GymRunner(
     tree_height_limit=5,
 )
 
-antecedents = [
-    make_antecedent("obs_1", -1.2, 0.6),
-    make_antecedent("obs_2", -0.07, 0.07),
-]
-
-action = Action(-1, 1, 5)
-
-runner.train(env, antecedents, action, tensorboard_writer)
+runner.train(env, tensorboard_writer)
 print(runner.best_str)
 runner.play(env)
