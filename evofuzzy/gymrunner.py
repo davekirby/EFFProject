@@ -13,7 +13,7 @@ class Action(NamedTuple):
 
 def make_box_consequents(action):
     cons = ctrl.Consequent(np.linspace(action.min, action.max, 10), "action", "som")
-    cons.automf(action.terms, 'quant')
+    cons.automf(action.terms, "quant")
     return [cons]
 
 

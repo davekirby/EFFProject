@@ -37,4 +37,3 @@ action = Action(-1, 1, 5)
 runner.train(env, antecedents, action, tensorboard_writer)
 print(runner.best_str)
 runner.play(env)
-
