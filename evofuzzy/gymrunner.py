@@ -13,7 +13,7 @@ def make_box_consequent(name, low, high):
     return cons
 
 
-def antecedents_from_env(env: gym.Env):
+def antecedents_from_env(env: gym.Env, min_obs=-100, max_obs=100):
     observations = env.observation_space
     assert isinstance(
         observations, gym.spaces.Box
@@ -22,8 +22,9 @@ def antecedents_from_env(env: gym.Env):
         len(observations.shape) == 1
     ), "Only one dimensional observation spaces supported"
     return [
-        make_antecedent(f"obs_{i}", low, high)
-        for (i, low, high) in zip(count(), observations.low, observations.high)
+        make_antecedent(f"obs_{i}", max(low, min_obs), min(high, max_obs))
+        for (i, low, high)
+        in zip(count(), observations.low, observations.high)
     ]
 
 

@@ -6,13 +6,13 @@ kanban-plugin: basic
 
 ## Backlog
 
-- [ ] Write project report - 13 sp
 - [ ] [[code cleanup - add docstrings and unit tests - 3 sp]]
 
 
 ## In Progress
 
 - [ ] Experiment and Tune RL 8sp
+- [ ] [[Write project report - 13 sp]]
 
 
 ## On Hold
