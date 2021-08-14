@@ -18,6 +18,7 @@ class FuzzyBase:
     """Common base class for FuzzyClassifier and GymRunner"""
 
     always_evaluate_ = False
+    population_ = None
 
     def __init__(
         self,
@@ -68,7 +69,7 @@ class FuzzyBase:
             replacements=self.replacements,
             stats=self.stats_,
             tensorboard_writer=tensorboard_writer,
-            halloffame=self.hof_,
+            hof_size=self.hall_of_fame_size,
             verbose=True,
             slices=slices,
             always_evalute=self.always_evaluate_,
@@ -108,7 +109,6 @@ class FuzzyBase:
             max_=self.mutation_max_height,
         )
         self.toolbox_.register("mutate", self._mutate)
-        self.hof_ = tools.HallOfFame(self.hall_of_fame_size)
         self.fitness_stats_ = tools.Statistics(get_fitness_values)
         self.fitness_stats_.register("max", np.max)
         self.fitness_stats_.register("avg", np.mean)
@@ -146,10 +146,10 @@ class FuzzyBase:
 
     @property
     def best(self):
-        return self.hof_[0]
+        return self.population_[-1] if self.population_ else None
 
     def best_size(self, *args):
-        return len(self.best)
+        return len(self.best) if self.best else 0
 
     @property
     def best_str(self):

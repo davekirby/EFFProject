@@ -164,10 +164,10 @@ def ea_with_elitism_and_replacement(
     cxpb,
     mutpb,
     ngen,
-    replacements,
+    replacements=0,
     stats=None,
     tensorboard_writer=None,
-    halloffame=None,
+    hof_size=1,
     verbose=True,
     slices=None,
     always_evalute=False,
@@ -182,10 +182,11 @@ def ea_with_elitism_and_replacement(
     :param cxpb: crossover probability 0 <= cxpb <= 1
     :param mutpb: mutation probability 0 <= mupb <= 1
     :param ngen: number of generations to run the evolution for
+    :param replacements: number of poor performers to replace with new individuals
     :param stats: DEAP Stats instance for recording statistics
     :param tensorboard_writer: Optional tensorboard SummaryWriter instance to log
             results to tensorboard.
-    :param halloffame: DEAP HallOfFame instance for recording the top performing individuals
+    :param hof_size: the number of top performers to carry over to the next generation
     :param verbose: boolean flag - if True then print stats while running
     :param slices: optional list of slice objects to run EA on small batches
     :return: final population and logbook
@@ -218,12 +219,7 @@ def ea_with_elitism_and_replacement(
     logbook.chapters["size"].header = "min", "avg", "best"
 
     evaluate_population(population, slices[0])
-
-    if halloffame is not None:
-        halloffame.update(population)
-        hof_size = len(halloffame.items) if halloffame.items else 0
-    else:
-        hof_size = 0
+    population.sort(key=lambda ind: ind.fitness.values)
 
     write_stats(population, 0, verbose, logbook, stats, tensorboard_writer)
 
@@ -233,21 +229,21 @@ def ea_with_elitism_and_replacement(
         for idx, slice_ in enumerate(slices):
             if batched:
                 print(idx, end=", ")
-            offspring = toolbox.select(population, len(population) - hof_size)
+
+            replacing = toolbox.populationCreator(replacements)
+
+            offspring = toolbox.select(population[replacements:], len(population) - (
+                hof_size+replacements))
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-            evaluate_population(offspring, slice_)
 
-            # replace the worst performing individuals with newly generated ones
-            _replace_worst(toolbox, offspring, replacements)
-            evaluate_population(offspring, slice_)
-
-            if halloffame:
-                offspring.extend(halloffame.items)
-                halloffame.items[:] = []
-                halloffame.keys[:] = []
-                halloffame.update(offspring)
+            if hof_size:
+                offspring.extend(population[-hof_size:])
+            if replacements:
+                offspring.extend(replacing)
 
             population[:] = offspring
+            evaluate_population(population, slice_)
+            population.sort(key=lambda ind: ind.fitness.values)
 
         print()
         write_stats(population, gen, verbose, logbook, stats, tensorboard_writer)
