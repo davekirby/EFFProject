@@ -10,20 +10,38 @@ Proposed outline from the tutorial PDF:
 
 ## Abstract
 
+## Table of Contents
+
+## List of figures and tables
+
 ## Introduction
-- give reader context of the project
-## Background (may be a subsection in the introduction)
+- context and motivation of the project
+- introduce the structure of the report
+
+## Background
+- history of FIS and GP
+- don't repeat 
 
 ## Overall results and "Project Trailer"
+
 ## Main features/requirements 
+
 ## Software architecture and design
+
+## Implementation
+
 ## Testing
+### Results
+
 ## Methodology and Schedule
 ## Tools and technologies
 ## Summary and Conclusions
+- possible future work
+
 ## References
 ## Appendix: 
 - User Manual
 - Full listing of code
 - Elaborate requirements list
 - anything that should not be in the main body of the report
+- 
