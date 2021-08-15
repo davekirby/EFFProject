@@ -66,7 +66,7 @@ class FuzzyBase:
             cxpb=self.crossover_prob,
             mutpb=self.mutation_prob,
             ngen=self.max_generation,
-            replacements=self.replacements,
+            replacement_size=self.replacements,
             stats=self.stats_,
             tensorboard_writer=tensorboard_writer,
             hof_size=self.hall_of_fame_size,
@@ -153,7 +153,7 @@ class FuzzyBase:
 
     @property
     def best_str(self):
-        return self.individual_to_str(self.best)
+        return self.individual_to_str(self.best) if self.best else "Unevaluated"
 
     def individual_to_str(self, individual):
         return "\n".join(

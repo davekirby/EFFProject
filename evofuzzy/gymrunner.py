@@ -23,8 +23,7 @@ def antecedents_from_env(env: gym.Env, min_obs=-100, max_obs=100):
     ), "Only one dimensional observation spaces supported"
     return [
         make_antecedent(f"obs_{i}", max(low, min_obs), min(high, max_obs))
-        for (i, low, high)
-        in zip(count(), observations.low, observations.high)
+        for (i, low, high) in zip(count(), observations.low, observations.high)
     ]
 
 
@@ -36,7 +35,9 @@ def consequents_from_env(env: gym.Env):
             make_box_consequent(f"action_{i}", low, high)
             for (i, low, high) in zip(count(), actions.low, actions.high)
         ], True
-    assert isinstance(actions, gym.spaces.Discrete), "Only Box and Discrete actions supported"
+    assert isinstance(
+        actions, gym.spaces.Discrete
+    ), "Only Box and Discrete actions supported"
     return make_binary_consequents(f"action_{i}" for i in range(actions.n)), False
 
 
@@ -105,4 +106,7 @@ class GymRunner(FuzzyBase):
         return np.argmax([simulator.output.get(name, 0) for name in action_names])
 
     def _evaluate_continuous_actions(self, simulator):
-        return [simulator.output.get(f"action_{i}", 0) for i in range(len(self.consequents_))]
+        return [
+            simulator.output.get(f"action_{i}", 0)
+            for i in range(len(self.consequents_))
+        ]

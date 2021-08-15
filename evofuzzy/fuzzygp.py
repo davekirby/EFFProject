@@ -164,7 +164,7 @@ def ea_with_elitism_and_replacement(
     cxpb,
     mutpb,
     ngen,
-    replacements=0,
+    replacement_size=0,
     stats=None,
     tensorboard_writer=None,
     hof_size=1,
@@ -182,7 +182,7 @@ def ea_with_elitism_and_replacement(
     :param cxpb: crossover probability 0 <= cxpb <= 1
     :param mutpb: mutation probability 0 <= mupb <= 1
     :param ngen: number of generations to run the evolution for
-    :param replacements: number of poor performers to replace with new individuals
+    :param replacement_size: number of poor performers to replace with new individuals
     :param stats: DEAP Stats instance for recording statistics
     :param tensorboard_writer: Optional tensorboard SummaryWriter instance to log
             results to tensorboard.
@@ -224,28 +224,29 @@ def ea_with_elitism_and_replacement(
     write_stats(population, 0, verbose, logbook, stats, tensorboard_writer)
 
     for gen in range(1, ngen):
-        if batched:
+        if batched and verbose:
             print("Batch: ", end="")
         for idx, slice_ in enumerate(slices):
-            if batched:
+            if batched and verbose:
                 print(idx, end=", ")
 
-            replacing = toolbox.populationCreator(replacements)
+            replacements = toolbox.populationCreator(replacement_size)
 
-            offspring = toolbox.select(population[replacements:], len(population) - (
-                hof_size+replacements))
+            offspring = toolbox.select(
+                population[replacement_size:],
+                len(population) - (hof_size + replacement_size),
+            )
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
 
             if hof_size:
                 offspring.extend(population[-hof_size:])
-            if replacements:
-                offspring.extend(replacing)
+            if replacement_size:
+                offspring.extend(replacements)
 
             population[:] = offspring
             evaluate_population(population, slice_)
             population.sort(key=lambda ind: ind.fitness.values)
 
-        print()
         write_stats(population, gen, verbose, logbook, stats, tensorboard_writer)
 
     return population, logbook
@@ -255,6 +256,7 @@ def write_stats(population, generation, verbose, logbook, stats, tensorboard_wri
     record = stats.compile(population) if stats else {}
     logbook.record(gen=generation, **record)
     if verbose:
+        print()
         print(logbook.stream)
     if tensorboard_writer:
         for (name, val) in record.items():
@@ -274,23 +276,6 @@ def write_stats(population, generation, verbose, logbook, stats, tensorboard_wri
         tensorboard_writer.add_histogram(
             "rule_count", np.array([i.length for i in population]), generation
         )
-
-
-def _replace_worst(toolbox, population, replacements):
-    """Find the worst performers and replace them with new random individuals.
-    N.B. the population is updated in-place.
-
-    :param toolbox:
-    :param population: list of individuals
-    :param replacements: number of individuals to replace
-    :return:
-    """
-    replacement_idx = heapq.nsmallest(
-        replacements,
-        ((ind.fitness.values, idx) for (idx, ind) in enumerate(population)),
-    )
-    for (_, idx) in replacement_idx:
-        population[idx] = toolbox.individualCreator()
 
 
 def prune_rule(rule):
