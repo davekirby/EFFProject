@@ -39,9 +39,10 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
             del self.toolbox_.evaluate
         self.toolbox_.register("evaluate", self._evaluate, X=X, y=y)
 
-        slices = list(batches_slices(len(X), self.batch_size))
+        slices = list(batch_slices(len(X), self.batch_size))
 
-        return self.execute(slices, tensorboard_writer)
+        self.execute(slices, tensorboard_writer)
+        return self
 
     def predict(self, X: pd.DataFrame):
         individual = self.best or []
@@ -87,7 +88,7 @@ def _make_predictions(
     return prediction
 
 
-def batches_slices(max_size, batch_size=None):
+def batch_slices(max_size, batch_size=None):
     """generate slices to split an array-like object into smaller batches.
     If batch size is not given then yield a slice that covers the whole thing.
     """

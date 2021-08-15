@@ -21,14 +21,17 @@ Proposed outline from the tutorial PDF:
 - introduce the structure of the report
 
 ## Background
+[[Background Notes]]
 - history of FIS and GP
 - don't repeat too much from the proposal - rewrite if I do take stuff.
 
 ## Overall results and "Project Trailer"
+[[Project Results]]
 
 ## Main features/requirements 
-
+[[Features]]
 ## Software architecture and design
+[[architecture and design]]
 
 ## Implementation
 

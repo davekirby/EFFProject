@@ -1,4 +1,3 @@
-import heapq
 import random
 from itertools import repeat
 from typing import Any, List, NamedTuple
@@ -174,8 +173,6 @@ def ea_with_elitism_and_replacement(
 ):
     """Modified version of the DEAP eaSimple function to run the evolution process
     while keeping the top performing members in the HallOfFame from one generation to the next.
-
-    Adapted from the book "Hands-On Genetic Algorithms with Python" by Eyal Wirsansky
 
     :param population: The initial population
     :param toolbox: the deap toolbox with functions registered on it

@@ -1,5 +1,10 @@
+#report 
+
 - aims of the project
+- create classifier and RL agent using GP & FL.
     - usefulness?
-    - interpretability
+        - interpretability
+        - simplicity
+            - no gradients
     - 
 

@@ -77,7 +77,6 @@ class FuzzyBase:
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", self.best_str)
             tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
-        return self
 
     def initialise(self, tensorboard_writer):
         if tensorboard_writer:

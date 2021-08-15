@@ -58,7 +58,7 @@ class GymRunner(FuzzyBase):
         if hasattr(self.toolbox_, "evaluate"):
             del self.toolbox_.evaluate
         self.toolbox_.register("evaluate", self._evaluate, env=env)
-        return self.execute(None, tensorboard_writer)
+        self.execute(None, tensorboard_writer)
 
     def play(self, env):
         """Display the best individual playing in the environment"""
