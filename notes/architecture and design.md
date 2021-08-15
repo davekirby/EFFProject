@@ -67,7 +67,12 @@ Test scripts
  - classify_segmentation.py
  - run_cartpole.py
  - run_mountain_car.py
- - 
+
+Architecture diagrams?
+- package/class
+- update activity diagram from proposal
+- 
+
 
 
 

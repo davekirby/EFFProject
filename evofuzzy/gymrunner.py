@@ -9,7 +9,7 @@ from .fuzzybase import FuzzyBase, make_antecedent, make_binary_consequents
 
 
 def make_box_consequent(name, low, high):
-    cons = ctrl.Consequent(np.linspace(low, high, 10), name, "som")
+    cons = ctrl.Consequent(np.linspace(low, high, 11), name, "som")
     cons.automf(5, "quant")
     return cons
 
