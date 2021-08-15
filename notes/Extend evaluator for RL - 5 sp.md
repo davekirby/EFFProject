@@ -9,7 +9,7 @@ Re-implement the GP engine to do reinforcement learning against OpenAI Gym.
 - [x] #task get GP working with the reinforcement task ✅ 2021-08-09
 - [x] #task print the best rule at the end of the run ✅ 2021-08-09
 - [x] #task add a method to render the best rule in action and show it after the last run ✅ 2021-08-09
-- [ ] #task generalise GymRunner to more environments
+- [x] #task generalise GymRunner to more environments ✅ 2021-08-15
 
 
 ## Class design 

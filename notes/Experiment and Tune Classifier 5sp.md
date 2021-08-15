@@ -33,7 +33,7 @@ Found https://github.com/lanpa/tensorboardX - a tensorflow-free writer for tenso
 - [x] #task create notebook for running tests & committing to git ✅ 2021-08-05
     - [ ] reload gp module each time?
     - or write a python script?
-- [ ] #task pick some datasets to try out
+- [x] #task pick some datasets to try out ✅ 2021-08-15
 - [x] #task change code to do mini-batch learning for performance improvement ✅ 2021-08-05
 - [x] #task add function to [[remove redundancy]] in rules ✅ 2021-08-05
 

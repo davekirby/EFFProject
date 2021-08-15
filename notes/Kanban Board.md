@@ -7,6 +7,7 @@ kanban-plugin: basic
 ## Backlog
 
 - [ ] [[code cleanup - add docstrings and unit tests - 3 sp]]
+- [ ] Write user guide 3sp
 
 
 ## In Progress

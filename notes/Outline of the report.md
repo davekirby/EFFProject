@@ -1,3 +1,4 @@
+#report
 Proposed outline from the tutorial PDF:
 
 # Title page
@@ -15,12 +16,13 @@ Proposed outline from the tutorial PDF:
 ## List of figures and tables
 
 ## Introduction
+[[Introduction Notes]]
 - context and motivation of the project
 - introduce the structure of the report
 
 ## Background
 - history of FIS and GP
-- don't repeat 
+- don't repeat too much from the proposal - rewrite if I do take stuff.
 
 ## Overall results and "Project Trailer"
 

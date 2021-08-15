@@ -284,7 +284,7 @@ def prune_rule(rule):
         name = rule[pos].name
         # if there are two consecutive inverts then delete them both
         if name == "invert" and rule[pos + 1].name == "invert":
-            del rule[pos : pos + 2]
+            del rule[pos:pos + 2]
             continue
         if name in ("and_", "or_"):
             # merge duplicate branches

@@ -165,7 +165,11 @@ def get_fitness_values(ind):
     return ind.fitness.values
 
 
-def make_antecedent(name, min, max, terms=None):
+def make_antecedent(name, min, max, terms=None, inf_limit=None):
+    if inf_limit is not None and min == -np.inf:
+        min = -inf_limit
+    if inf_limit is not None and max == np.inf:
+       max = inf_limit
     antecedent = ctrl.Antecedent(np.linspace(min, max, 11), name)
     if terms:
         antecedent.automf(names=terms)

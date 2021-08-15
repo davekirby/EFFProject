@@ -1,4 +1,5 @@
 from itertools import count
+from typing import Optional
 
 import gym
 import numpy as np
@@ -13,7 +14,7 @@ def make_box_consequent(name, low, high):
     return cons
 
 
-def antecedents_from_env(env: gym.Env, min_obs=-100, max_obs=100):
+def antecedents_from_env(env: gym.Env, inf_limit: Optional[float]=None):
     observations = env.observation_space
     assert isinstance(
         observations, gym.spaces.Box
@@ -22,7 +23,7 @@ def antecedents_from_env(env: gym.Env, min_obs=-100, max_obs=100):
         len(observations.shape) == 1
     ), "Only one dimensional observation spaces supported"
     return [
-        make_antecedent(f"obs_{i}", max(low, min_obs), min(high, max_obs))
+        make_antecedent(f"obs_{i}", low, high, inf_limit=inf_limit)
         for (i, low, high) in zip(count(), observations.low, observations.high)
     ]
 
@@ -44,11 +45,11 @@ def consequents_from_env(env: gym.Env):
 class GymRunner(FuzzyBase):
     always_evaluate_ = True
 
-    def train(self, env, tensorboard_writer, antecedents=None):
+    def train(self, env, tensorboard_writer, antecedents=None, inf_limit=None):
         if antecedents:
             self.antecedents_ = antecedents
         else:
-            self.antecedents_ = antecedents_from_env(env)
+            self.antecedents_ = antecedents_from_env(env, inf_limit)
 
         self.consequents_, self.box_actions_ = consequents_from_env(env)
 
