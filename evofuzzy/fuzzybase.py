@@ -58,11 +58,12 @@ class FuzzyBase:
         self.parsimony_size = parsimony_size
         self.batch_size = batch_size
 
-    def execute(self, slices, tensorboard_writer, warm_start=True):
-        if not warm_start:
-            population = self.toolbox_.populationCreator(n=self.population_size)
+    def execute(self, slices, tensorboard_writer, warm_start=False):
+        if not warm_start or self.population_ is None:
+            self.population_ = self.toolbox_.populationCreator(n=self.population_size)
+
         self.population_, self.logbook_ = ea_with_elitism_and_replacement(
-            population,
+            self.population_,
             self.toolbox_,
             cxpb=self.crossover_prob,
             mutpb=self.mutation_prob,
