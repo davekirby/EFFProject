@@ -17,6 +17,8 @@
     - reasons for choice
 - use of openai gym
 
+# Choice of libraries
+- reasons for the choices
 ## DEAP overview
 ## skfuzzy overview
 
@@ -71,4 +73,5 @@ Test scripts
 Architecture diagrams?
 - package/class
 - update activity diagram from proposal
-- 
+
+

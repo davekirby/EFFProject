@@ -34,8 +34,9 @@ Proposed outline from the tutorial PDF:
 [[architecture and design]]
 
 ## Implementation
+[[Implementation Notes]]
+## Testing and Evaluation
 
-## Testing
 ### Results
 
 ## Methodology and Schedule
