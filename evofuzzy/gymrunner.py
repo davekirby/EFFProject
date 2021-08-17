@@ -14,7 +14,7 @@ def make_box_consequent(name, low, high):
     return cons
 
 
-def antecedents_from_env(env: gym.Env, inf_limit: Optional[float]=None):
+def antecedents_from_env(env: gym.Env, inf_limit: Optional[float] = None):
     observations = env.observation_space
     assert isinstance(
         observations, gym.spaces.Box
@@ -32,10 +32,13 @@ def consequents_from_env(env: gym.Env):
     actions = env.action_space
     if isinstance(actions, gym.spaces.Box):
         assert len(actions.shape) == 1, "Only one dimensional action spaces supported"
-        return [
-            make_box_consequent(f"action_{i}", low, high)
-            for (i, low, high) in zip(count(), actions.low, actions.high)
-        ], True
+        return (
+            [
+                make_box_consequent(f"action_{i}", low, high)
+                for (i, low, high) in zip(count(), actions.low, actions.high)
+            ],
+            True,
+        )
     assert isinstance(
         actions, gym.spaces.Discrete
     ), "Only Box and Discrete actions supported"

@@ -36,13 +36,21 @@ class HyperParams(NamedTuple):
 
 
 def cross_validate(
-    train_x, train_y, hyperparams, antecendent_terms, classes, tensorboard_dir
+    train_x,
+    train_y,
+    hyperparams,
+    antecendent_terms,
+    classes,
+    tensorboard_dir,
+    train_test_swap=False,
 ):
     kfold = StratifiedKFold(n_splits=5, shuffle=True)
     if tensorboard_dir and tensorboard_dir[-1] == "/":
         tensorboard_dir = tensorboard_dir[:-1]
 
     for (i, (train_idx, test_idx)) in enumerate(kfold.split(train_x, train_y)):
+        if train_test_swap:
+            train_idx, test_idx = test_idx, train_idx
         if tensorboard_dir:
             logdir = Path(
                 f"{tensorboard_dir}/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}"

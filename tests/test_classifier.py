@@ -106,14 +106,8 @@ pset = None
             "Rule(invert(invert(invert(invert(or_(size['medium'], size['large']))))), [])",
             "Rule(or_(size['medium'], size['large']), [])",
         ),
-        (
-            "Rule(or_(size['medium'], size['medium']), [])",
-            "Rule(size['medium'], [])",
-        ),
-        (
-            "Rule(and_(size['medium'], size['medium']), [])",
-            "Rule(size['medium'], [])",
-        ),
+        ("Rule(or_(size['medium'], size['medium']), [])", "Rule(size['medium'], [])",),
+        ("Rule(and_(size['medium'], size['medium']), [])", "Rule(size['medium'], [])",),
         (
             "Rule(and_(size['medium'], size['large']), [])",
             "Rule(and_(size['medium'], size['large']), [])",
