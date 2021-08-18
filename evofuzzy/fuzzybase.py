@@ -58,28 +58,6 @@ class FuzzyBase:
         self.parsimony_size = parsimony_size
         self.batch_size = batch_size
 
-    def execute(self, slices, tensorboard_writer, warm_start=False):
-        if not warm_start or self.population_ is None:
-            self.population_ = self.toolbox_.populationCreator(n=self.population_size)
-
-        self.population_, self.logbook_ = ea_with_elitism_and_replacement(
-            self.population_,
-            self.toolbox_,
-            cxpb=self.crossover_prob,
-            mutpb=self.mutation_prob,
-            ngen=self.max_generation,
-            replacement_size=self.replacements,
-            stats=self.stats_,
-            tensorboard_writer=tensorboard_writer,
-            hof_size=self.hall_of_fame_size,
-            verbose=True,
-            slices=slices,
-            always_evalute=self.always_evaluate_,
-        )
-        if tensorboard_writer:
-            tensorboard_writer.add_text("best_ruleset", self.best_str)
-            tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
-
     def initialise(self, tensorboard_writer):
         if tensorboard_writer:
             hparams = "\n".join(
@@ -103,13 +81,8 @@ class FuzzyBase:
             fitness_first=True,
         )
         self.toolbox_.register("mate", self._mate)
-        self.toolbox_.register(
-            "expr_mut",
-            gp.genGrow,
-            min_=self.mutation_min_height,
-            max_=self.mutation_max_height,
-        )
         self.toolbox_.register("mutate", self._mutate)
+
         self.fitness_stats_ = tools.Statistics(get_fitness_values)
         self.fitness_stats_.register("max", np.max)
         self.fitness_stats_.register("avg", np.mean)
@@ -120,6 +93,28 @@ class FuzzyBase:
         self.stats_ = tools.MultiStatistics(
             fitness=self.fitness_stats_, size=self.size_stats_
         )
+
+    def execute(self, slices, tensorboard_writer, warm_start=False):
+        if not warm_start or self.population_ is None:
+            self.population_ = self.toolbox_.populationCreator(n=self.population_size)
+
+        self.population_, self.logbook_ = ea_with_elitism_and_replacement(
+            self.population_,
+            self.toolbox_,
+            cxpb=self.crossover_prob,
+            mutpb=self.mutation_prob,
+            ngen=self.max_generation,
+            replacement_size=self.replacements,
+            stats=self.stats_,
+            tensorboard_writer=tensorboard_writer,
+            hof_size=self.hall_of_fame_size,
+            verbose=True,
+            slices=slices,
+            always_evalute=self.always_evaluate_,
+        )
+        if tensorboard_writer:
+            tensorboard_writer.add_text("best_ruleset", self.best_str)
+            tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
 
     def _mate(self, ind1, ind2):
         rule1_idx = random.randint(0, ind1.length - 1)

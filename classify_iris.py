@@ -6,8 +6,8 @@ from classifier_cv import cross_validate, HyperParams
 """Script for testing the classifier by running it on the iris dataset.
 """
 
-tensorboard_dir = "tb_logs/iris_cv/"
-# tensorboard_dir = None
+# tensorboard_dir = "tb_logs/iris_cv/"
+tensorboard_dir = None
 
 hyperparams = HyperParams(
     population_size=50,
