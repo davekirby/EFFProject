@@ -128,9 +128,13 @@ def registerCreators(
     """
 
     pset = _makePrimitiveSet(antecendents, consequents)
+    if not hasattr(creator, "RuleSetFitness"):
+        creator.create("RuleSetFitness", base.Fitness, weights=(1.0,))
+
     if hasattr(creator, "Individual"):
         del creator.Individual
     creator.create("Individual", RuleSet, fitness=creator.RuleSetFitness, pset=pset)
+
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
         "expr",
@@ -170,6 +174,7 @@ def ea_with_elitism_and_replacement(
     verbose=True,
     slices=None,
     always_evalute=False,
+    forgetting=1,
 ):
     """Modified version of the DEAP eaSimple function to run the evolution process
     while keeping the top performing members in the HallOfFame from one generation to the next.
@@ -186,6 +191,9 @@ def ea_with_elitism_and_replacement(
     :param hof_size: the number of top performers to carry over to the next generation
     :param verbose: boolean flag - if True then print stats while running
     :param slices: optional list of slice objects to run EA on small batches
+    :param always_evalute: flag to force evalutation of fitness
+    :param forgetting: value between 0 and 1 to control how much weight to put on previous fitness
+            values
     :return: final population and logbook
 
     """
@@ -208,7 +216,12 @@ def ea_with_elitism_and_replacement(
             )
 
         for ind, fit in zip(population, fitnesses):
-            ind.fitness.values = fit
+            if ind.fitness.valid:
+                old_fitness = ind.fitness.values
+                new_fit = fit[0] * forgetting + (old_fitness[0] * (1 - forgetting))
+                ind.fitness.values = (new_fit,)
+            else:
+                ind.fitness.values = fit
 
     logbook = tools.Logbook()
     logbook.header = "gen", "fitness", "size"

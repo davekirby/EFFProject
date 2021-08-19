@@ -1,3 +1,5 @@
+#report 
+
 # Scikit-fuzzy library
 Summarise how to use skfuzzy.
 - fuzzy variables and terms
@@ -141,3 +143,20 @@ call classify_cv.cross_validate on the iris data set and segmentation data set.
 
 ## gymrunner_testbed.ipynb
 Notebook for running different gym environments and logging the result to tensorboard.
+
+
+# Design Decisions
+Document design decisions and why they were made, and perhaps give alternative options.
+
+## Improvements
+- pruning
+- replace losers
+- batching
+    - trade-off of more evaluations but faster convergence
+- multiprocessing - 4-5 x speedup on 8 cores
+
+## Issues and problems
+- interface between skfuzzy antecedents/consequents and deap primitives - had to add a `__repr__` to get the right string format
+- prune columns not covered by any rule to stop skfuzzy barfing
+- saving population not working due to classes being created on the fly
+- 

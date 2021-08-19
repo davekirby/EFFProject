@@ -39,6 +39,7 @@ class FuzzyBase:
         tournament_size: int = 5,
         parsimony_size: float = 1.7,
         batch_size: Optional[int] = None,
+        forgetting: float = 1,
     ):
         self.min_tree_height = min_tree_height
         self.max_tree_height = max_tree_height
@@ -57,6 +58,7 @@ class FuzzyBase:
         self.tournament_size = tournament_size
         self.parsimony_size = parsimony_size
         self.batch_size = batch_size
+        self.forgetting = forgetting
 
     def initialise(self, tensorboard_writer):
         if tensorboard_writer:
@@ -68,8 +70,6 @@ class FuzzyBase:
         self.config_ = CreatorConfig(
             self.min_tree_height, self.max_tree_height, self.min_rules, self.max_rules
         )
-        if not hasattr(creator, "RuleSetFitness"):
-            creator.create("RuleSetFitness", base.Fitness, weights=(1.0,))
         self.pset_ = registerCreators(
             self.toolbox_, self.config_, self.antecedents_, self.consequents_
         )
@@ -111,6 +111,7 @@ class FuzzyBase:
             verbose=True,
             slices=slices,
             always_evalute=self.always_evaluate_,
+            forgetting=self.forgetting,
         )
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", self.best_str)
