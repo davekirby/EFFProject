@@ -2,9 +2,11 @@
 % David Kirby,  Birkbeck College, University Of London
 % Spring Term 2021
 
+\newpage
 # Introduction
 blah blah...
 
+\newpage
 # Background
 
 etc
