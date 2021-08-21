@@ -31,4 +31,8 @@
     - 89% of time spent in the fuzzy library
 - can get stuck in local minima (like most ML libraries)
 - speed tolerable for RL
+- 
+
+# Results
+- show typical results for different environments and classification datasets.
 

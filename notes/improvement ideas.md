@@ -10,4 +10,3 @@
 - for batch and RL, have a weighted exponential average of the previous scores, so if it does well on one batch/session and badly on the next, the previous success will be remembered to some extent.
 
 
-

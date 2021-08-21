@@ -41,13 +41,15 @@ Proposed outline from the tutorial PDF:
 ### Results
 
 ## Methodology and Schedule
-## Tools and technologies
+[[Methodology notes]]
 ## Summary and Conclusions
 - possible future work
+[[Conclusion notes]]
 
 ## References
 ## Appendix: 
 - User Manual
+    - [[User Manual notes]]
 - Full listing of code
 - Elaborate requirements list
 - anything that should not be in the main body of the report

@@ -33,7 +33,7 @@ class HyperParams(NamedTuple):
     tournament_size: int = 5
     parsimony_size: float = 1.9
     batch_size: Optional[int] = None
-    forgetting = 1
+    forgetting: float = 1
 
 
 def cross_validate(

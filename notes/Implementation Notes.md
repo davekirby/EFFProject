@@ -154,6 +154,7 @@ Document design decisions and why they were made, and perhaps give alternative o
 - batching
     - trade-off of more evaluations but faster convergence
 - multiprocessing - 4-5 x speedup on 8 cores
+- EWMA of the fitness
 
 ## Issues and problems
 - interface between skfuzzy antecedents/consequents and deap primitives - had to add a `__repr__` to get the right string format
