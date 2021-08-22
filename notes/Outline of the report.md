@@ -51,6 +51,16 @@ Proposed outline from the tutorial PDF:
 - User Manual
     - [[User Manual notes]]
 - Full listing of code
-- Elaborate requirements list
+    - fuzzygp.py
+    - fuzzybase.py
+    - fuzzyclassifier.py
+    - gymrunner.py
+    - gymrunner_testbed.ipynb (move and rename?)
+    - classifier_cv.py
+    - classify_iris.py
+    - classify_segmentation.py
+    - requirements.txt
+    - requirements-dev.txt
+    - 
 - anything that should not be in the main body of the report
 - 

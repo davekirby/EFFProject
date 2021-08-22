@@ -17,17 +17,16 @@ explicitly acknowledged.
 \hypertarget{abstract}{%
 \section*{Abstract}\label{abstract}}
 
-Fuzzy inference systems are AI systems combining fuzzy set theory
-developed by Lofti Zadeh {[}@Zadeh-Fuzzy-1965{]} with IF-THEN rules to
-model some aspect of the real world. They have been used for feedback
-control systems, classification and expert systems. Fuzzy rules are
-explainable and comprehensible to laymen, but can be difficult to create
-and tune by hand.
+A python framework was created for evolving sets of fuzzy inference
+rules using genetic programming. The framework was applied in two ways:
+Firstly it was used for classification of simple datasets. Although it
+was found to be slower and sometimes less accurate than other methods,
+it could be useful in situations where explainability was important
+since the rule set could be output in a form understandable to
+non-experts.
 
-This project will implement an algorithm and python library for learning
-fuzzy rule systems from data through genetic programming techniques.~
-The algorithm and generated fuzzy rules will be evaluated against
-classification tasks and simple reinforcement learning applications and
-its strengths and weaknesses explored.~~
+Secondly it was used for reinforcement learning in several openAI gym
+environments. It was found to be effective at solving the RL problems it
+was tried on.
 
 \newpage
