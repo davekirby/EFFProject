@@ -95,7 +95,7 @@ def genRuleSet(pset, min_, max_, type_=None, config=None):
 
 
 class RuleSet(list):
-    """Subclass of list that contains lists, used to hold a sets of fuzzy rules.
+    """Subclass of list that contains lists, used to hold a set of fuzzy rules.
     len(ruleset) will return the total length of all the contained lists.
     The ruleset.length property will return the length of the top level list.
     """

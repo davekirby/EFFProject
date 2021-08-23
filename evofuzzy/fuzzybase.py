@@ -10,7 +10,7 @@ from skfuzzy import control as ctrl
 from evofuzzy.fuzzygp import (
     ea_with_elitism_and_replacement,
     CreatorConfig,
-    registerCreators,
+    registerCreators, RuleSet,
 )
 
 
@@ -157,6 +157,14 @@ class FuzzyBase:
             str(self.toolbox_.compile(r)).splitlines()[0] for r in individual
         )
 
+    def best_n(self, n=1):
+        """Create a new rule set that combines the top n individuals"""
+        if n == 1:
+            return self.best
+        rules = RuleSet()
+        for individual in self.population_[-n:]:
+            rules.extend(individual)
+        return rules
 
 def get_fitness_values(ind):
     return ind.fitness.values

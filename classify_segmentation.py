@@ -41,4 +41,5 @@ cross_validate(
     classes,
     tensorboard_dir,
     train_test_swap=False,
+    number_of_predictors=5
 )

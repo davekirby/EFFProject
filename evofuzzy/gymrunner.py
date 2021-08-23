@@ -63,9 +63,9 @@ class GymRunner(FuzzyBase):
         self.toolbox_.register("evaluate", self._evaluate, env=env)
         self.execute(None, tensorboard_writer)
 
-    def play(self, env):
+    def play(self, env, n=1):
         """Display the best individual playing in the environment"""
-        reward = self._evaluate(self.best, None, env, True)
+        reward = self._evaluate(self.best_n(n), None, env, True)
         env.close()
         print("Finished with reward of", reward[0])
 

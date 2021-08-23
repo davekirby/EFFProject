@@ -44,8 +44,8 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
         self.execute(slices, tensorboard_writer)
         return self
 
-    def predict(self, X: pd.DataFrame):
-        individual = self.best or []
+    def predict(self, X: pd.DataFrame, n=1):
+        individual = self.best_n(n)
         rules = [self.toolbox_.compile(rule) for rule in individual]
         return _make_predictions(X, rules, self.classes_)
 

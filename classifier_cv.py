@@ -44,6 +44,7 @@ def cross_validate(
     classes,
     tensorboard_dir,
     train_test_swap=False,
+    number_of_predictors=1
 ):
     kfold = StratifiedKFold(n_splits=5, shuffle=True)
     if tensorboard_dir and tensorboard_dir[-1] == "/":
@@ -95,7 +96,7 @@ def cross_validate(
             "Final length of rules sets",
             dict(Counter(x.length for x in classifier.population_)),
         )
-        predictions = classifier.predict(train_x.iloc[test_idx])
+        predictions = classifier.predict(train_x.iloc[test_idx], n=number_of_predictors)
         actual = train_y.iloc[test_idx]
         accuracy = str(sum(actual == predictions) / len(actual))
         target_names = classes.keys()
