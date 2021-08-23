@@ -32,7 +32,7 @@ Proposed outline from the tutorial PDF:
 ## Main features/requirements 
 [[Features]]
 ## Software architecture and design
-[[architecture and design]]
+[[architecture and design notes]]
 
 ## Implementation
 [[Implementation Notes]]

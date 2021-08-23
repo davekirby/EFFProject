@@ -13,9 +13,21 @@ date:  Summer Term 2021
 \newpage
 # Introduction
 
-# Background
+There have been a large number of machine learning algorithms developed over the last few decades and combined with the increase in computing power and availability of large volumes of data they have transformed many areas of our lives.   However their use in some areas such as law, medicine or finance is held back because most of the models are unable to explain how they came to a decision and are effectively black boxes.  
 
-# Objective and Results
+One way round this is to have a machine learning algorithm defined as a set of fuzzy IF-THEN rules that can then be represented in a form understandable to non-specialists.  Fuzzy rules were originally hand written for expert systems but writing and debugging rules by hand is time consuming and error prone.  An alternative it to learn the fuzzy rules from data.  Several ways of doing this have been developed, one of the most successful being through the application of genetic programming (GP).
+
+
+## Background
+### Fuzzy Sets and Fuzzy Inference Systems
+In 1965 Lofti Zadeh [@Zadeh-Fuzzy-1965] introduced fuzzy logic and fuzzy set theory, which allowed for representing and reasoning about the sets using the kind of imprecise terms used in human language.  For example "the class of tall men" does not have a precise definition, but people have no problem reasoning about it.  Zadeh showed that you could represent these kinds of fuzzy sets by a membership function that maps how strongly an item belongs to the set into a real value between 0 and 1.  
+
+### Genetic Programming
+
+
+## Project Objective and Overview of Results
+
+
 
 # Architecture and Design
 

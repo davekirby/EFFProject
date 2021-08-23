@@ -15,10 +15,11 @@
 # [[Outline of the report]]
 
 # Writing report
-- [ ] #task create folder, initial .md file and build script for report
+- [x] #task create folder, initial .md file and build script for report ✅ 2021-08-22
     - [ ] find out how to customise title page/declaration/abstract using latex templates
     - [ ] add title page, declaration, abstract
-- [ ] #task fill in report headings and sub-heading
-- [ ]
+- [x] #task fill in report headings and sub-heading ✅ 2021-08-22
+- [ ] #task add gymrunner notebook to appendix - convert to markdown first using nbconvert?
+- [ ] 
 
 
