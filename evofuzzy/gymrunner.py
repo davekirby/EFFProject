@@ -1,27 +1,72 @@
+from itertools import count
+from typing import Optional
+
+import gym
 import numpy as np
 from skfuzzy import control as ctrl
 
-from .fuzzybase import FuzzyBase, make_consequents
+from .fuzzybase import FuzzyBase, make_antecedent, make_binary_consequents
+
+
+def make_box_consequent(name, low, high):
+    cons = ctrl.Consequent(np.linspace(low, high, 11), name, "som")
+    cons.automf(5, "quant")
+    return cons
+
+
+def antecedents_from_env(env: gym.Env, inf_limit: Optional[float] = None):
+    observations = env.observation_space
+    assert isinstance(
+        observations, gym.spaces.Box
+    ), "Only Box observation spaces supported"
+    assert (
+        len(observations.shape) == 1
+    ), "Only one dimensional observation spaces supported"
+    return [
+        make_antecedent(f"obs_{i}", low, high, inf_limit=inf_limit)
+        for (i, low, high) in zip(count(), observations.low, observations.high)
+    ]
+
+
+def consequents_from_env(env: gym.Env):
+    actions = env.action_space
+    if isinstance(actions, gym.spaces.Box):
+        assert len(actions.shape) == 1, "Only one dimensional action spaces supported"
+        return (
+            [
+                make_box_consequent(f"action_{i}", low, high)
+                for (i, low, high) in zip(count(), actions.low, actions.high)
+            ],
+            True,
+        )
+    assert isinstance(
+        actions, gym.spaces.Discrete
+    ), "Only Box and Discrete actions supported"
+    return make_binary_consequents(f"action_{i}" for i in range(actions.n)), False
 
 
 class GymRunner(FuzzyBase):
     always_evaluate_ = True
 
-    def train(self, env, antecendents, actions, tensorboard_writer):
-        self.antecedents_ = antecendents
-        self.consequents_ = make_consequents(actions)
-        self.actions_ = actions
+    def train(self, env, tensorboard_writer, antecedents=None, inf_limit=None):
+        if antecedents:
+            self.antecedents_ = antecedents
+        else:
+            self.antecedents_ = antecedents_from_env(env, inf_limit)
+
+        self.consequents_, self.box_actions_ = consequents_from_env(env)
 
         self.initialise(tensorboard_writer)
 
         if hasattr(self.toolbox_, "evaluate"):
             del self.toolbox_.evaluate
         self.toolbox_.register("evaluate", self._evaluate, env=env)
-        return self.execute(None, tensorboard_writer)
+        self.execute(None, tensorboard_writer)
 
-    def play(self, env):
-        """Display the best individual playing in the evironment"""
-        reward = self._evaluate(self.best, None, env, True)
+    def play(self, env, n=1):
+        """Display the best individual playing in the environment"""
+        reward = self._evaluate(self.best_n(n), None, env, True)
+        env.close()
         print("Finished with reward of", reward[0])
 
     def _evaluate(self, individual, batch, env, render=False):
@@ -37,7 +82,7 @@ class GymRunner(FuzzyBase):
         simulator = ctrl.ControlSystemSimulation(controller)
 
         observation = env.reset()
-        for _ in range(1000):
+        while True:
             if render:
                 env.render()
             action = self._evaluate_action(observation, simulator, antecedents)
@@ -48,8 +93,6 @@ class GymRunner(FuzzyBase):
         return (total_reward,)
 
     def _evaluate_action(self, observation, simulator, antecedents):
-        action_names = list(self.actions_.keys())
-        action_vals = list(self.actions_.values())
         obs_vals = {
             ant.label: ob
             for (ant, ob) in zip(self.antecedents_, observation)
@@ -57,6 +100,17 @@ class GymRunner(FuzzyBase):
         }
         simulator.inputs(obs_vals)
         simulator.compute()
-        action_idx = np.argmax([simulator.output.get(name, 0) for name in action_names])
-        action_val = action_vals[action_idx]
-        return action_val
+        if self.box_actions_:
+            return self._evaluate_continuous_actions(simulator)
+        else:
+            return self._evaluate_discrete_actions(simulator)
+
+    def _evaluate_discrete_actions(self, simulator):
+        action_names = [cons.label for cons in self.consequents_]
+        return np.argmax([simulator.output.get(name, 0) for name in action_names])
+
+    def _evaluate_continuous_actions(self, simulator):
+        return [
+            simulator.output.get(f"action_{i}", 0)
+            for i in range(len(self.consequents_))
+        ]

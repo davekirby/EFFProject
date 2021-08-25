@@ -33,16 +33,26 @@ class HyperParams(NamedTuple):
     tournament_size: int = 5
     parsimony_size: float = 1.9
     batch_size: Optional[int] = None
+    forgetting: float = 1
 
 
 def cross_validate(
-    train_x, train_y, hyperparams, antecendent_terms, classes, tensorboard_dir
+    train_x,
+    train_y,
+    hyperparams,
+    antecendent_terms,
+    classes,
+    tensorboard_dir,
+    train_test_swap=False,
+    number_of_predictors=1
 ):
     kfold = StratifiedKFold(n_splits=5, shuffle=True)
     if tensorboard_dir and tensorboard_dir[-1] == "/":
         tensorboard_dir = tensorboard_dir[:-1]
 
     for (i, (train_idx, test_idx)) in enumerate(kfold.split(train_x, train_y)):
+        if train_test_swap:
+            train_idx, test_idx = test_idx, train_idx
         if tensorboard_dir:
             logdir = Path(
                 f"{tensorboard_dir}/{i}-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -70,6 +80,7 @@ def cross_validate(
             tournament_size=hyperparams.tournament_size,
             parsimony_size=hyperparams.parsimony_size,
             batch_size=hyperparams.batch_size,
+            forgetting=hyperparams.forgetting,
         )
         classifier.fit(
             train_x.iloc[train_idx],
@@ -85,7 +96,7 @@ def cross_validate(
             "Final length of rules sets",
             dict(Counter(x.length for x in classifier.population_)),
         )
-        predictions = classifier.predict(train_x.iloc[test_idx])
+        predictions = classifier.predict(train_x.iloc[test_idx], n=number_of_predictors)
         actual = train_y.iloc[test_idx]
         accuracy = str(sum(actual == predictions) / len(actual))
         target_names = classes.keys()

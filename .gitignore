@@ -2,3 +2,6 @@
 .obsidian/
 *_backup
 .ipynb_checkpoints/
+tb_logs/
+papers/
+

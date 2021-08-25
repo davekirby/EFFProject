@@ -6,8 +6,8 @@ from classifier_cv import cross_validate, HyperParams
 """Script for testing the classifier by running it on the iris dataset.
 """
 
-tensorboard_dir = "tb_logs/iris_cv/"
-# tensorboard_dir = None
+# tensorboard_dir = "tb_logs/iris_cv/"
+tensorboard_dir = None
 
 hyperparams = HyperParams(
     population_size=50,
@@ -36,4 +36,5 @@ antecendent_terms = {
     for col in cols
 }
 
-cross_validate(iris, y, hyperparams, antecendent_terms, classes, tensorboard_dir)
+cross_validate(iris, y, hyperparams, antecendent_terms, classes, tensorboard_dir,
+    number_of_predictors=3)

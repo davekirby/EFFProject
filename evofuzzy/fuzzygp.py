@@ -1,4 +1,3 @@
-import heapq
 import random
 from itertools import repeat
 from typing import Any, List, NamedTuple
@@ -96,7 +95,7 @@ def genRuleSet(pset, min_, max_, type_=None, config=None):
 
 
 class RuleSet(list):
-    """Subclass of list that contains lists, used to hold a sets of fuzzy rules.
+    """Subclass of list that contains lists, used to hold a set of fuzzy rules.
     len(ruleset) will return the total length of all the contained lists.
     The ruleset.length property will return the length of the top level list.
     """
@@ -129,9 +128,13 @@ def registerCreators(
     """
 
     pset = _makePrimitiveSet(antecendents, consequents)
+    if not hasattr(creator, "RuleSetFitness"):
+        creator.create("RuleSetFitness", base.Fitness, weights=(1.0,))
+
     if hasattr(creator, "Individual"):
         del creator.Individual
     creator.create("Individual", RuleSet, fitness=creator.RuleSetFitness, pset=pset)
+
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
         "expr",
@@ -164,30 +167,33 @@ def ea_with_elitism_and_replacement(
     cxpb,
     mutpb,
     ngen,
-    replacements,
+    replacement_size=0,
     stats=None,
     tensorboard_writer=None,
-    halloffame=None,
+    hof_size=1,
     verbose=True,
     slices=None,
     always_evalute=False,
+    forgetting=1,
 ):
     """Modified version of the DEAP eaSimple function to run the evolution process
     while keeping the top performing members in the HallOfFame from one generation to the next.
-
-    Adapted from the book "Hands-On Genetic Algorithms with Python" by Eyal Wirsansky
 
     :param population: The initial population
     :param toolbox: the deap toolbox with functions registered on it
     :param cxpb: crossover probability 0 <= cxpb <= 1
     :param mutpb: mutation probability 0 <= mupb <= 1
     :param ngen: number of generations to run the evolution for
+    :param replacement_size: number of poor performers to replace with new individuals
     :param stats: DEAP Stats instance for recording statistics
     :param tensorboard_writer: Optional tensorboard SummaryWriter instance to log
             results to tensorboard.
-    :param halloffame: DEAP HallOfFame instance for recording the top performing individuals
+    :param hof_size: the number of top performers to carry over to the next generation
     :param verbose: boolean flag - if True then print stats while running
     :param slices: optional list of slice objects to run EA on small batches
+    :param always_evalute: flag to force evalutation of fitness
+    :param forgetting: value between 0 and 1 to control how much weight to put on previous fitness
+            values
     :return: final population and logbook
 
     """
@@ -210,7 +216,12 @@ def ea_with_elitism_and_replacement(
             )
 
         for ind, fit in zip(population, fitnesses):
-            ind.fitness.values = fit
+            if ind.fitness.valid:
+                old_fitness = ind.fitness.values
+                new_fit = fit[0] * forgetting + (old_fitness[0] * (1 - forgetting))
+                ind.fitness.values = (new_fit,)
+            else:
+                ind.fitness.values = fit
 
     logbook = tools.Logbook()
     logbook.header = "gen", "fitness", "size"
@@ -218,38 +229,34 @@ def ea_with_elitism_and_replacement(
     logbook.chapters["size"].header = "min", "avg", "best"
 
     evaluate_population(population, slices[0])
-
-    if halloffame is not None:
-        halloffame.update(population)
-        hof_size = len(halloffame.items) if halloffame.items else 0
-    else:
-        hof_size = 0
+    population.sort(key=lambda ind: ind.fitness.values)
 
     write_stats(population, 0, verbose, logbook, stats, tensorboard_writer)
 
     for gen in range(1, ngen):
-        if batched:
+        if batched and verbose:
             print("Batch: ", end="")
         for idx, slice_ in enumerate(slices):
-            if batched:
+            if batched and verbose:
                 print(idx, end=", ")
-            offspring = toolbox.select(population, len(population) - hof_size)
+
+            replacements = toolbox.populationCreator(replacement_size)
+
+            offspring = toolbox.select(
+                population[replacement_size:],
+                len(population) - (hof_size + replacement_size),
+            )
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-            evaluate_population(offspring, slice_)
 
-            # replace the worst performing individuals with newly generated ones
-            _replace_worst(toolbox, offspring, replacements)
-            evaluate_population(offspring, slice_)
-
-            if halloffame:
-                offspring.extend(halloffame.items)
-                halloffame.items[:] = []
-                halloffame.keys[:] = []
-                halloffame.update(offspring)
+            if hof_size:
+                offspring.extend(population[-hof_size:])
+            if replacement_size:
+                offspring.extend(replacements)
 
             population[:] = offspring
+            evaluate_population(population, slice_)
+            population.sort(key=lambda ind: ind.fitness.values)
 
-        print()
         write_stats(population, gen, verbose, logbook, stats, tensorboard_writer)
 
     return population, logbook
@@ -259,6 +266,7 @@ def write_stats(population, generation, verbose, logbook, stats, tensorboard_wri
     record = stats.compile(population) if stats else {}
     logbook.record(gen=generation, **record)
     if verbose:
+        print()
         print(logbook.stream)
     if tensorboard_writer:
         for (name, val) in record.items():
@@ -278,23 +286,6 @@ def write_stats(population, generation, verbose, logbook, stats, tensorboard_wri
         tensorboard_writer.add_histogram(
             "rule_count", np.array([i.length for i in population]), generation
         )
-
-
-def _replace_worst(toolbox, population, replacements):
-    """Find the worst performers and replace them with new random individuals.
-    N.B. the population is updated in-place.
-
-    :param toolbox:
-    :param population: list of individuals
-    :param replacements: number of individuals to replace
-    :return:
-    """
-    replacement_idx = heapq.nsmallest(
-        replacements,
-        ((ind.fitness.values, idx) for (idx, ind) in enumerate(population)),
-    )
-    for (_, idx) in replacement_idx:
-        population[idx] = toolbox.individualCreator()
 
 
 def prune_rule(rule):
