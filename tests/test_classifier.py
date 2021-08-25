@@ -1,3 +1,4 @@
+from importlib import reload
 import skfuzzy as fuzz
 import skfuzzy.control as ctrl
 from deap import creator, base
@@ -78,7 +79,6 @@ def test_instance_creator():
         max_rules=rules_size,
     )
     toolbox = base.Toolbox()
-    creator.create("RuleSetFitness", base.Fitness, weights=(-1.0,))
     registerCreators(toolbox, config, [size], [elephant, mouse])
     individual = toolbox.individualCreator()
     assert individual.length == rules_size

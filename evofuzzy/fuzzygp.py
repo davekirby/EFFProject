@@ -12,6 +12,23 @@ from skfuzzy.control.term import Term
 
 BIG_INT = 1 << 64
 
+class RuleSet(list):
+    """Subclass of list that contains lists, used to hold a set of fuzzy rules.
+    len(ruleset) will return the total length of all the contained lists.
+    The ruleset.length property will return the length of the top level list.
+    """
+
+    def __len__(self):
+        return sum(len(item) for item in self)
+
+    @property
+    def length(self):
+        return super().__len__()
+
+
+creator.create("RuleSetFitness", base.Fitness, weights=(1.0,))
+creator.create("Individual", RuleSet, fitness=creator.RuleSetFitness)
+
 
 def identity(x: Any) -> Any:
     """Identity function - returns the parameter unchanged.
@@ -94,20 +111,6 @@ def genRuleSet(pset, min_, max_, type_=None, config=None):
     return [genRule(pset, min_, max_, type_) for _ in range(rules_len)]
 
 
-class RuleSet(list):
-    """Subclass of list that contains lists, used to hold a set of fuzzy rules.
-    len(ruleset) will return the total length of all the contained lists.
-    The ruleset.length property will return the length of the top level list.
-    """
-
-    def __len__(self):
-        return sum(len(item) for item in self)
-
-    @property
-    def length(self):
-        return super().__len__()
-
-
 def registerCreators(
     toolbox: base.Toolbox,
     config: CreatorConfig,
@@ -128,12 +131,6 @@ def registerCreators(
     """
 
     pset = _makePrimitiveSet(antecendents, consequents)
-    if not hasattr(creator, "RuleSetFitness"):
-        creator.create("RuleSetFitness", base.Fitness, weights=(1.0,))
-
-    if hasattr(creator, "Individual"):
-        del creator.Individual
-    creator.create("Individual", RuleSet, fitness=creator.RuleSetFitness, pset=pset)
 
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
@@ -177,7 +174,8 @@ def ea_with_elitism_and_replacement(
     forgetting=1,
 ):
     """Modified version of the DEAP eaSimple function to run the evolution process
-    while keeping the top performing members in the HallOfFame from one generation to the next.
+    while keeping the top performing members from one generation to the next and replacing
+    poor performers with new individuals.
 
     :param population: The initial population
     :param toolbox: the deap toolbox with functions registered on it
@@ -186,7 +184,7 @@ def ea_with_elitism_and_replacement(
     :param ngen: number of generations to run the evolution for
     :param replacement_size: number of poor performers to replace with new individuals
     :param stats: DEAP Stats instance for recording statistics
-    :param tensorboard_writer: Optional tensorboard SummaryWriter instance to log
+    :param tensorboard_writer: Optional tensorboardX SummaryWriter instance to log
             results to tensorboard.
     :param hof_size: the number of top performers to carry over to the next generation
     :param verbose: boolean flag - if True then print stats while running

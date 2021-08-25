@@ -5,7 +5,7 @@ from typing import Optional, Dict, List, Any, Iterable
 import numpy as np
 import pandas as pd
 import skfuzzy as fuzz
-from deap import base, creator, tools, gp
+from deap import base, tools, gp
 from skfuzzy import control as ctrl
 
 from evofuzzy.fuzzygp import (
@@ -67,6 +67,11 @@ class FuzzyBase:
                 f"* {k}: {v}" for (k, v) in self.__dict__.items() if not k.endswith("_")
             )
             tensorboard_writer.add_text("hparams", hparams)
+
+        if hasattr(self, "toolbox_"):
+            # already initialised
+            return
+
         self.toolbox_ = base.Toolbox()
         self.config_ = CreatorConfig(
             self.min_tree_height, self.max_tree_height, self.min_rules, self.max_rules
@@ -160,11 +165,12 @@ class FuzzyBase:
 
     def save(self, filename):
         with open(filename, "wb") as f:
-            pickle.dump(self.population_, f, -1)
+
+            pickle.dump(self.__class__, f, -1)
 
     def load(self, filename):
         with open(filename, "rb") as f:
-            self.population_ = pickle.load(f)
+            self.__class__ = pickle.load(f)
 
     def best_n(self, n=1):
         """Create a new rule set that combines the top n individuals"""
