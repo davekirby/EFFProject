@@ -3,7 +3,7 @@
 - [x] review notes and videos from the tutorial
 - [x] review [[feedback on the proposal]]
 - [x] Draw up [[Outline of the report]]
-- [ ] email Felix for advice on content & structure
+- [x] email Felix for advice on content & structure
 - [ ] 
 
 

@@ -5,3 +5,4 @@ The student has written a few pages reporting on the background research. Howeve
 
 Second marker's comments:  
 The student shows a good understanding of the aims and objectives of this project and conducted a good literature review.
+

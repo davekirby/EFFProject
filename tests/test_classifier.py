@@ -101,14 +101,12 @@ def test_save_and_load():
     y = pd.Series([1, 0])
     classes = {"mouse": 0, "elephant": 1}
     classifier.fit(X, y, classes)
+    result = classifier.predict(X)
     classifier.save(filename)
     del classifier
-    classifier = FuzzyClassifier(
-        population_size=3,
-        max_generation=2,
-    )
+    classifier = FuzzyClassifier()
     classifier.load(filename)
-    classifier.fit(X, y, classes)
+    assert classifier.predict(X) == result
 
 
 

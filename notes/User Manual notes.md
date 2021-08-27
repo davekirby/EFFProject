@@ -11,4 +11,17 @@ Write user guide on how to use the library.
 - fit method
 - predict method
 - methods to get best rule
+- saving and loading
+- can use alternative mate and mutate methods by subclassing
+- can also override the execute method
+
+# Classifier
+
+
+# Gymrunner
+
+# General advice
+- refer to GP handbook.
+- start small and increase size (rules, pop etc) as needed
 - 
+

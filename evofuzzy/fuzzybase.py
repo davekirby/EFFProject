@@ -165,12 +165,13 @@ class FuzzyBase:
 
     def save(self, filename):
         with open(filename, "wb") as f:
-
-            pickle.dump(self.__class__, f, -1)
+            pickle.dump(self.__dict__, f, -1)
+        return self
 
     def load(self, filename):
         with open(filename, "rb") as f:
-            self.__class__ = pickle.load(f)
+            self.__dict__ = pickle.load(f)
+        return self
 
     def best_n(self, n=1):
         """Create a new rule set that combines the top n individuals"""
