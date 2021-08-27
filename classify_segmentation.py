@@ -12,17 +12,17 @@ tensorboard_dir = "tb_logs/segment_cv/"
 hyperparams = HyperParams(
     population_size=100,
     hall_of_fame_size=5,
-    max_generation=5,
-    mutation_prob=0.8,
-    crossover_prob=0.3,
+    max_generation=2,
+    mutation_prob=0.9,
+    crossover_prob=0.2,
     min_tree_height=1,
     max_tree_height=3,
-    min_rules=12,
-    max_rules=15,
-    whole_rule_prob=0.1,
-    tree_height_limit=5,
+    min_rules=10,
+    max_rules=20,
+   whole_rule_prob=0,
+    tree_height_limit=6,
     batch_size=10,
-    forgetting=0.6
+    forgetting=0.4
 )
 
 data, y = fetch_openml(data_id=40984, as_frame=True, return_X_y=True)
@@ -40,6 +40,5 @@ cross_validate(
     antecendent_terms,
     classes,
     tensorboard_dir,
-    train_test_swap=False,
-    number_of_predictors=5
+    train_test_swap=True,
 )

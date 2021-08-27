@@ -36,3 +36,8 @@
 # Results
 - show typical results for different environments and classification datasets.
 
+## Classifier
+- iris
+- segmentation
+- other?
+
