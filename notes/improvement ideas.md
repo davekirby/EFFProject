@@ -14,6 +14,9 @@ or batch and RL, have a weighted exponential average of the previous scores, so 
 
 Add a pre-processing function to gymrunner that can transform the observations to make them more usable.
 
+for classifier, make the metric to use configurable, e.g. F1, AUC etc.  
+Also Return predict_proba.  - normalize the strengths of the consequents.
+
 
 
 ## Tasks

@@ -44,6 +44,35 @@ Fuzzy inference systems are commonly used for feedback control systems but can a
 
 ### Genetic Programming
 
+Genetic programming (GP) is part of a family of algorithms inspired by the process of natural evolution,  known collectively as Evolutionary Computing (EC).   These algorithms include genetic algorithms,  evolutionary strategies,  particle swarm optimisation,  differential evolution and many others.   they generally hold the following features in common and differ in implementation and emphasis:
+
+-  codification of a potential solution to a problem into some data structure.  This  is generally referred to as their chromosome or genotype
+-  a population of individuals whose chromosomes are  initially randomly generated
+ - a fitness function that evaluates an individual's chromosome To see how well it fits as a solution to the problem
+- a method of selecting individuals from the population according to their fitness
+- mutation -  the chromosome of a selected individual may be randomly modified
+- crossover  or mating -  parts of the chromosomes of two selected individuals are swapped over to make new individuals
+
+The evolutionary computing algorithms generally work as follows:
+```
+an initial population is randomly generated
+for N generations:
+    evaluate each individual's fitness
+
+    randomly select individuals with a bias towards fitter individuals
+
+    randomly leave them unchanged, mutated or mated with another selected individual 
+        selected individuals are replaced by the offspring
+```
+
+
+Evolutionary computing algorithms have been applied to many problem domains, and are particularly useful for solving problems that are mathematically intractable, for example because the derivative cannot be calculated for back propagation or the problem is NP-complete.  They are also useful for multi-objective problems where they can find a set of solutions that are Pareto optimal.  
+
+Most EC algorithms represent the chromosome as a fixed-length list of values.  For example Genetic Algorithms (GA) [@Holland:1975] represents the chromosome as a bit string, with mutation done by flipping a randomly selected bit and crossover done by swapping the bits of two individuals that are between random start and end points.   Evolutionary Strategy uses a list of floating point values for the chromosome and mutates by adding a value from a gaussian distribution, with crossover not being used at all.   Using a fixed length linear representation works for some problems, but there are limitations on what it can encode.
+
+Genetic Programming [@Koza92geneticprogramming] avoids this limitation by encoding the chromosome as a tree that can vary in size as it evolves.  The tree is usually used to represent a computer program or mathematical expression, but it can also be used to represent other complex structures such as circuit diagrams [@DesignAnalogCircuits].  
+To mutate a tree a random node is selected and the subtree from that node is replaced by a new randomly generated tree.  Crossover is done by selecting a random node in each parent and swapping them over to create two new individuals.  
+
 
 
 

@@ -5,6 +5,7 @@ Cross-validation function for the FuzzyClassifier class.
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
+from statistics import fmean, stdev
 from typing import NamedTuple, Optional
 
 import pandas as pd
@@ -50,6 +51,7 @@ def cross_validate(
     if tensorboard_dir and tensorboard_dir[-1] == "/":
         tensorboard_dir = tensorboard_dir[:-1]
 
+    results = []
     for (i, (train_idx, test_idx)) in enumerate(kfold.split(train_x, train_y)):
         if train_test_swap:
             train_idx, test_idx = test_idx, train_idx
@@ -99,6 +101,7 @@ def cross_validate(
         predictions = classifier.predict(train_x.iloc[test_idx], n=number_of_predictors)
         actual = train_y.iloc[test_idx]
         accuracy = str(sum(actual == predictions) / len(actual))
+        results.append(accuracy)
         target_names = classes.keys()
         confusion = pd.DataFrame(
             data=confusion_matrix(actual, predictions),
@@ -111,3 +114,5 @@ def cross_validate(
             tensorboard_writer.add_text("cv_accuracy", accuracy)
             tensorboard_writer.add_text("confusion", confusion.to_markdown())
             tensorboard_writer.close()
+
+    print(f"Accuracy average {fmean(results)}, std {stdev(results)}")

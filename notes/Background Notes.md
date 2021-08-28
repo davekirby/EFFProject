@@ -31,12 +31,27 @@ Expand on the details of how it works - all a bit vague at the moment.
 
  genetic programming differs from standard  genetic algorithms by representing a computer program by a tree of primitives that's can be then executed to generate the result.
 
-  
-
 Genetic  programs evolve through a mixture of  mutation and crossover.  Mutations are done by selecting a random subtree and replacing it with a new randomly generated subtree.
 
  crossover is done by selecting the two potential parents and picking a random subtree on each and swapping them over. The newly created individuals are evaluated  and a fitness value generated for each one.
  
+---
+**Braindump**
+what do I want to say about GP?  
+Go into details about how it works and the options available.   
+Intro to Evolutionary algorithms in general.   Difference between GA and GP.   Other models - PSO, differential, evolution strategy etc.  Also more esoteric such as wolf pack & golden beetle.  
+Commonalities:
+- codification of an individual (genotype)
+- population of individuals
+- fitness function
+- selection
+- mutation - randomly change part of an individual's chromosome
+-  crossover - mate two individuals to produce a hybrid
+
+variations in above produce different members of the EC family.  
+
+GP uses trees for the genotype.
+Bloat control - 
 
 
 # Overview of RL
