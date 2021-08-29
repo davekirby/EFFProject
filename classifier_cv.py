@@ -100,7 +100,7 @@ def cross_validate(
         )
         predictions = classifier.predict(train_x.iloc[test_idx], n=number_of_predictors)
         actual = train_y.iloc[test_idx]
-        accuracy = str(sum(actual == predictions) / len(actual))
+        accuracy = sum(actual == predictions) / len(actual)
         results.append(accuracy)
         target_names = classes.keys()
         confusion = pd.DataFrame(
@@ -111,7 +111,7 @@ def cross_validate(
         print("Test accuracy:", accuracy)
         print(confusion)
         if tensorboard_writer:
-            tensorboard_writer.add_text("cv_accuracy", accuracy)
+            tensorboard_writer.add_text("cv_accuracy", str(accuracy))
             tensorboard_writer.add_text("confusion", confusion.to_markdown())
             tensorboard_writer.close()
 
