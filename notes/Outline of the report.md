@@ -27,7 +27,7 @@ Proposed outline from the tutorial PDF:
 - don't repeat too much from the proposal - rewrite if I do take stuff.
 
 ## Overall results and "Project Trailer"
-[[Project Results]]
+[[Project Objectives and Results]]
 
 ## Main features/requirements 
 [[Features]]

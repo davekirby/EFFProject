@@ -1,0 +1,70 @@
+digraph G {
+label="Example of crossover in GP"
+labelloc="t"
+
+subgraph cluster0  {
+  label="Parent 1";
+  node [style=filled];
+  sin1 -> plus_1;
+  plus_1 -> x_1;
+  plus_1 -> v3_1;
+}
+
+subgraph cluster1 {
+  label="Parent 2";
+  node [style=filled];
+  sqrt1 -> log1;
+  log1 -> times_1;
+  times_1 -> y_1;
+  times_1 -> v10_1;
+ }
+
+start [style=invis]
+start -> sin1 [style=invis];
+start -> sqrt1 [style=invis];
+start -> sin_2 [style=invis];
+start -> sqrt_2 [style=invis];
+
+sqrt1 [label="sqrt"]
+sin1 [label="sin"]
+log1 [color=green label="log"]
+v3_1  [color=green label="3"]
+plus_1 [label="+"]
+times_1 [label="*"]
+x_1 [label="x"]
+y_1 [label="y"]
+v10_1 [label="10"]
+
+v3_1 -> log1 [color=green];
+log1 -> v3_1 [color=green];
+
+
+
+subgraph cluster2  {
+  label="Offspring 1";
+  node [style=filled];
+  sin_2 -> plus_2;
+  plus_2 -> x_2;
+  plus_2 -> log_2;
+  log_2 -> times_2;
+  times_2 -> y_2;
+  times_2 -> v10_2;
+}
+
+subgraph cluster3 {
+  label="Offspring 2";
+  node [style=filled];
+  sqrt_2 -> v3_2;
+ }
+
+sqrt_2 [label="sqrt"]
+sin_2 [label="sin"]
+log_2 [color=green label="log"]
+v3_2  [color=green label="3"]
+plus_2 [label="+"]
+times_2 [label="*"]
+x_2 [label="x"]
+y_2 [label="y"]
+v10_2 [label="10"]
+
+}

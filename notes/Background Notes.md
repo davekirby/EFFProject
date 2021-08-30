@@ -51,7 +51,9 @@ Commonalities:
 variations in above produce different members of the EC family.  
 
 GP uses trees for the genotype.
-Bloat control - 
+problems:
+    Bloat control
+    slow convergence
 
 
 # Overview of RL

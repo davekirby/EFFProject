@@ -6,21 +6,22 @@ from classifier_cv import cross_validate, HyperParams
 """Script for testing the classifier by running it on the iris dataset.
 """
 
-# tensorboard_dir = "tb_logs/iris_cv/"
-tensorboard_dir = None
+tensorboard_dir = "tb_logs/iris_cv/"
+# tensorboard_dir = None
 
 hyperparams = HyperParams(
-    population_size=50,
-    hall_of_fame_size=10,
+    population_size=100,
+    hall_of_fame_size=3,
     max_generation=5,
     mutation_prob=0.9,
     crossover_prob=0.2,
     min_tree_height=1,
     max_tree_height=3,
-    max_rules=4,
+    min_rules=3,
+    max_rules=5,
     whole_rule_prob=0.2,
     tree_height_limit=5,
-    batch_size=30,
+    batch_size=10,
 )
 
 data = load_iris()

@@ -115,4 +115,5 @@ def cross_validate(
             tensorboard_writer.add_text("confusion", confusion.to_markdown())
             tensorboard_writer.close()
 
-    print(f"Accuracy average {fmean(results)}, std {stdev(results)}")
+    print("Accuracy: ", results)
+    print(f" -  average {fmean(results)}, std {stdev(results)}")

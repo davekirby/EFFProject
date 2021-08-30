@@ -24,8 +24,8 @@ People have no problem dealing on a daily basis with fuzzy and imprecise terms a
 
 Figure 1 shows how a person's height could map onto linguistic variables using triangular mapping functions.  Other shapes than triangles can also be used, such as gaussian or trapezoid.
 
-1[Triangle fuzzy membership](images/fuzzy_height.png)
-*Figure 1: fuzzy membership functions for height*
+![Triangle fuzzy membership](images/fuzzy_height.png)
+*Figure 1: fuzzy membership functions for adult human height*
 
 A fuzzy inference system (FIS) uses a set of rules composed of fuzzy sets to map one or more inputs into output values.  For example, a potential set of fuzzy rules for the classification of irises could be:
 
@@ -44,9 +44,9 @@ Fuzzy inference systems are commonly used for feedback control systems but can a
 
 ### Genetic Programming
 
-Genetic programming (GP) is part of a family of algorithms inspired by the process of natural evolution,  known collectively as Evolutionary Computing (EC).   These algorithms include genetic algorithms,  evolutionary strategies,  particle swarm optimisation,  differential evolution and many others.   they generally hold the following features in common and differ in implementation and emphasis:
+Genetic programming (GP) is part of a family of algorithms inspired by the process of natural evolution,  known collectively as Evolutionary Computing (EC).   These algorithms include genetic algorithms,  evolutionary strategies,  particle swarm optimisation,  differential evolution and many others.  All EC algorithms work by creating a population that randomly samples possible solutions in the problem space, then combines attributes of the best individuals to create a new population. They generally hold the following features in common and differ in implementation and emphasis:
 
--  codification of a potential solution to a problem into some data structure.  This  is generally referred to as their chromosome or genotype
+-  codification of a potential solution to a problem into some data structure.  This  is often referred to as their chromosome or genotype
 -  a population of individuals whose chromosomes are  initially randomly generated
  - a fitness function that evaluates an individual's chromosome To see how well it fits as a solution to the problem
 - a method of selecting individuals from the population according to their fitness
@@ -71,13 +71,46 @@ Evolutionary computing algorithms have been applied to many problem domains, and
 Most EC algorithms represent the chromosome as a fixed-length list of values.  For example Genetic Algorithms (GA) [@Holland:1975] represents the chromosome as a bit string, with mutation done by flipping a randomly selected bit and crossover done by swapping the bits of two individuals that are between random start and end points.   Evolutionary Strategy uses a list of floating point values for the chromosome and mutates by adding a value from a gaussian distribution, with crossover not being used at all.   Using a fixed length linear representation works for some problems, but there are limitations on what it can encode.
 
 Genetic Programming [@Koza92geneticprogramming] avoids this limitation by encoding the chromosome as a tree that can vary in size as it evolves.  The tree is usually used to represent a computer program or mathematical expression, but it can also be used to represent other complex structures such as circuit diagrams [@DesignAnalogCircuits].  
-To mutate a tree a random node is selected and the subtree from that node is replaced by a new randomly generated tree.  Crossover is done by selecting a random node in each parent and swapping them over to create two new individuals.  
+
+To mutate a tree a random node is selected and the subtree from that node is replaced by a new randomly generated tree.  Crossover is done by selecting a random node in each parent and swapping them over to create two new individuals.   Figure 2 shows an example of two trees representing the expressions $sin(x+3)$ and $sqrt(log(y * 10))$.  After crossover the two offsprings represent the expressions $sin(x + log(y*10))$ and $sqrt(3)$.  
 
 
+![Crossover in GP](images/crossover.png)
+*Figure 2: Example of crossover in Genetic Programming*
 
 
-## Project Objective and Overview of Results
+# Project Objectives and Results Summary
 
+## Objectives
+
+The objective of the project was to implement a library for evolving fuzzy logic rules through Genetic Programming with application in two domains:
+
+1. Classification of data sets
+
+2. Reinforcement Learning with the OpenAI Gym RL platform.
+
+A second objective was to explore how well the generated fuzzy Logic system performed for different tasks and investigate ways of improving its performance.
+
+## Results Summary
+
+All the objectives of the project were achieved.
+
+### Fuzzy Classifier
+
+A FuzzyClassifier class was created that could learn a set of fuzzy rules from a dataset that could then be used to predict the classification of unseen data.  It was implemented in the style of scikit-learn classifiers, with hyperparameters specified in the  `__init__` method, the  `fit` method trains the classifier and the `predict` method makes predictions.   
+
+It was found that the classifier worked well on small data sets with two or three classes, but for large datasets the training time could be prohibitive and the accuracy was found to be poor when tried on a data set with seven classes.  However this could be an artifact of the particular dataset used since the No Free Lunch theorem [@wolpertNoFreeLunch1997] says that no algorithm is suitable for all data sets, so the poor performance could be an artifact of that particular dataset rather than the number of classes.  Further work would be needed to determine if it performs as badly on other mult-class problems.
+
+A unique feature of the classifier is the ability to show the top performing rule set as human readable text.  For example on the Wisconsin breast cancer dataset, the following set of rules generated during 5-fold cross validation scored 94.8% accuracy in predicting benign and malignant outcomes on the test data:
+
+```
+IF NOT-Single_Epi_Cell_Size[low] THEN [malignant[likely], benign[unlikely]] 
+IF Cell_Shape_Uniformity[low] THEN [malignant[likely], benign[likely]] 
+IF Cell_Shape_Uniformity[very_low] THEN [benign[likely], malignant[unlikely]] 
+IF Mitoses[high] THEN benign[unlikely] 
+IF Bare_Nuclei[very_high] THEN benign[unlikely] 
+IF Cell_Size_Uniformity[high] AND Single_Epi_Cell_Size[high] THEN malignant[unlikely]
+```
 
 
 # Architecture and Design
