@@ -21,6 +21,10 @@
 - reasons for the choices
 ## DEAP overview
 ## skfuzzy overview
+## Gym overview
+## TensorboardX overview
+
+
 
 ## Architecture overview / diagram
 - evofuzzy - top level package
@@ -73,5 +77,20 @@ Test scripts
 Architecture diagrams?
 - package/class
 - update activity diagram from proposal
+
+---
+
+braindump:  What needs to go in this section?   
+- Architectural decisions
+    - choice of libraries
+    - choice of python?
+- overview of how it all holds together
+    - system diagram?
+    - how to diagram the functions and their interaction with classes?
+        - experiment with plantuml
+- overview of their key attributes?
+    - maybe in the design section?
+    - do I need separate sections for architecture and design?
+
 
 

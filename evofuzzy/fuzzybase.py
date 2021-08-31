@@ -100,8 +100,8 @@ class FuzzyBase:
             fitness=self.fitness_stats_, size=self.size_stats_
         )
 
-    def execute(self, slices, tensorboard_writer, warm_start=False):
-        if not warm_start or self.population_ is None:
+    def execute(self, slices, tensorboard_writer):
+        if self.population_ is None:
             self.population_ = self.toolbox_.populationCreator(n=self.population_size)
 
         self.population_, self.logbook_ = ea_with_elitism_and_replacement(

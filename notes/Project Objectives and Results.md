@@ -8,5 +8,7 @@
 
 Show results + tensorboard plots for typical run on iris dataset.  
 Also show results for cartpole and mountain car.
+- or save for the full results section.  
 
+**13:27** I have added a write up for Classifier and gymrunner.    What else?  Maybe a short bit saying the evaluation is in the later section and leave it at that.
 

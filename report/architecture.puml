@@ -1,0 +1,29 @@
+@startuml
+skinparam groupInheritance 2
+
+class FuzzyBase {
+    __init__()
+    initialise()
+    execute()
+    save()
+    load()
+    best
+    best_n()
+    best_size
+    best_str
+} 
+
+class FuzzyClassifier {
+    fit()
+    predict()
+}
+
+class GymRunner{
+    train()
+    play()
+}
+
+FuzzyBase <|-- FuzzyClassifier
+FuzzyBase <|-- GymRunner
+
+@enduml
