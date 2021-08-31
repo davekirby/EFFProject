@@ -20,6 +20,8 @@
 # Choice of libraries
 - reasons for the choices
 ## DEAP overview
+
+
 ## skfuzzy overview
 ## Gym overview
 ## TensorboardX overview

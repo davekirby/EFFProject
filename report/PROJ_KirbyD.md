@@ -125,8 +125,52 @@ More information about the exploration of the FuzzyClassifier and GymRunner perf
 
 The following third party libraries were chosen for use in the project:
 
-### Scikit-fuzzy
+## DEAP for genetic programming
+
+DEAP [@DEAP_JMLR2012] is the defacto standard library for evolutionary computation in Python, supporting a wide range of algorithms such as Genetic Algorithms, Genetic Programming, Particle Swarm Optimisation, and Evolution Strategy.  Other evolutionary libraries that were investigated were found to be toy projects not intended for production use, did not support Genetic Programming, or were tailored to a specific application of GP such as symbolic regression.
+
+DEAP is a toolbox of components for implementing evolutionary systems, rather than out-of-the-box ready made algorithms such as those provided by frameworks such as scikit-learn.  This makes the learning curve steeper, but gives great flexibility in the problems it can be applied to.  
+
+The main components of DEAP are:
+
+1. `deap.creator.create` function for creating new types.  This is used to define the custom classes used by the application, for example the type of an individual.
+
+2. `deap.base.Toolbox` is used to register parameterised functions.  For example
+   ```python
+   toolbox = deap.base.Toolbox()
+   toolbox.register("select", deap.tools.selTournament, tournsize=3)
+   ```
+   creates the attribute "select" on the Toolbox instance that is the `deap.tools.selTounament` function with its `tournsize` parameter bound to the value 3.  When the Toolbox instance is passed to the main evolution algorithm it will expect certain functions to be defined on the toolbox for it to call.  Other functions that need to be registered typically include "mate", "mutate" and "evaluate" as well as "select" but it depends on the algorithm being used.
+
+3. A library of functions for different ways of mating, mutating and selecting individuals in the population and for running different kinds of evolution algorithms. Using the toolbox these can be combined like lego bricks to produce a huge variety of evolutionary computing solutions.
+   
+4. The Genetic Programming module.  This is the most complex part of DEAP and is explained in more detail in the next section.
+
+#### The deap.gp module
+The `deap.gp` module contains classes and functions for supporting Genetic Programming.  The core components are:
+
+1. The `PrimitiveSet` and `TypedPrimitiveSet` classes are used to register the operations that a go into a tree structure.  There are three types:
+   - `Primitive`s are functions that take a fixed non-zero number of arguments and return a single result.  These form the non-leaf nodes of the tree.
+   - `Terminal`s are either constants or functions with no arguments that form the leaves of the tree.  Terminals that are functions are executed every time the compiled tree is run.
+   - `EphemeralConstant`s are Terminal functions that are executed once when they are first created and after that always return the same value.  These are used for example to generate a random value that is then used as a constant.
+  
+   A `PrimitiveSet` assumes that the parameter and return types of the primitives and terminals are compatible.   A `TypedPrimitiveSet` requires all the types to be defined when they are registered, and will only build trees where the parameter and return types match.
+
+2. The `compile` function takes an individual tree of primitives and compiles it to a python function.   It does this by first converting it to a string containing a lambda function and then calling `eval` on the string.  
+
+3. support functions for creating, mutating and mating trees of primitives.
+
+Because the trees are compiled from string using `eval` it is necessary that all the primitives and terminals have `__repr__` methods that will result in that object being created when executed.
+
+Internally the tree of primitives is stored in a python list in depth-first order.  Because the the arity of every primitive is known, the tree can be reconstructed from the list.
+
+
+Full documentation for DEAP can be found at https://deap.readthedocs.io/en/master/index.html.
+
+
+### Scikit-fuzzy for the fuzzy inference system
 Several python fuzzy logic libraries were evaluated for the low-level fuzzy inference engine implementation, including:
+
 * fuzzylite python version - https://fuzzylite.com/; https://github.com/fuzzylite/pyfuzzylite
 * fuzzylogic - https://github.com/amogorkon/fuzzylogic
 * FuzzyLogicToolbox - https://github.com/Luferov/FuzzyLogicToolBox
@@ -135,7 +179,7 @@ Several python fuzzy logic libraries were evaluated for the low-level fuzzy infe
 * fuzzylab - https://github.com/ITTcs/fuzzylab
 * scikit-fuzzy - https://scikit-fuzzy.github.io/scikit-fuzzy/
 
-Several of these were rejected because they were lacking in documentation or unit tests.  Others were rejected because they appeared to be abandoned with no commits for at least two years and in some cases requiring python 2.X.
+Several of these were rejected because they were lacking in documentation or unit tests.  Others were rejected because they appeared to be abandoned with no commits for at least two years and in some cases requiring python 2.7 or earlier.
 
 The library chosen was scikit-fuzzy, for the following reasons:
 
@@ -156,8 +200,7 @@ The library chosen was scikit-fuzzy, for the following reasons:
   )
   ```
 
-  Although this may be a drawback if creating rules by hand, it fits in well with the way that the DEAP gp module defines chromosomes as a tree of functions and objects for the terminal nodes.  
-
+  Although this may be a drawback when creating rules by hand, it fits in well with the way that the DEAP gp module defines chromosomes as a tree with python functions and objects for the nodes.  
 
 
 # Implementation
