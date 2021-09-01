@@ -3,7 +3,8 @@ from pathlib import Path
 import tensorboardX
 import gym
 from evofuzzy.gymrunner import GymRunner
-from evofuzzy.fuzzybase import FuzzyBase, make_antecedent
+from evofuzzy.fuzzybase import FuzzyBase
+from evofuzzy.fuzzygp import make_antecedent
 
 tensorboard_dir = "tb_logs/cartpole-v0"
 if tensorboard_dir:

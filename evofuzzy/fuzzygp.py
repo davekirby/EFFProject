@@ -1,12 +1,15 @@
 import random
 from itertools import repeat
-from typing import Any, List, NamedTuple, Dict
+from typing import Any, List, NamedTuple, Dict, Iterable, Tuple, Optional
 import operator
 from multiprocessing import Pool
 from functools import partial
 
 import numpy as np
+import pandas as pd
+import skfuzzy as fuzz
 from deap import creator, base, algorithms, gp, tools
+from skfuzzy import control as ctrl
 from skfuzzy.control import Rule, Antecedent, Consequent
 from skfuzzy.control.term import Term
 
@@ -139,7 +142,7 @@ def register_primitiveset_and_creators(
     - RuleSetFitness class registered in creator module
     - antecedents and consequents have had their terms defined
 
-    :param toolbox: deap toolbox
+    :param toolbox: deap.base.Toolbox instance
     :param config:  Config instance holding hyperparameters
     :param antecendents: list of fuzzy antecendents used by the rules
     :param consequents: list of fuzzy consequents used by the rules
@@ -334,3 +337,122 @@ def prune_population(population: List[RuleSet]):
     for ind in population:
         for rule in ind:
             prune_rule(rule)
+
+
+def mate_rulesets(
+    individual_1: RuleSet, individual_2: RuleSet, whole_rule_prob: float
+) -> Tuple[RuleSet, RuleSet]:
+    """Mate two individuals by randomly selecting two rules, one from each individual then either
+      - swapping the rules over completely
+      or
+      - swapping randomly selected subtrees of the two rules
+    N.B. The individuals are modified in-place as well as returned from the function.
+
+    :param individual_1:  First individual
+    :param individual_2:  Second individual
+    :param whole_rule_prob: probability of swapping entire rules instead of sub-trees
+    :return: the modified individuals
+    """
+    rule1_idx = random.randint(0, individual_1.length - 1)
+    rule2_idx = random.randint(0, individual_2.length - 1)
+    if random.random() < whole_rule_prob:
+        # swap entire rules over
+        rule2 = individual_1[rule1_idx]
+        rule1 = individual_2[rule2_idx]
+    else:
+        rule1, rule2 = gp.cxOnePoint(individual_1[rule1_idx], individual_2[rule2_idx])
+    individual_1[rule1_idx] = rule1
+    individual_2[rule2_idx] = rule2
+    return individual_1, individual_2
+
+
+def mutate_ruleset(
+    toolbox: base.Toolbox, individual: RuleSet, whole_rule_prob: float
+) -> Tuple[RuleSet]:
+    """Mutate an individual by selecting a rule then either:
+    - replacing the entire rule with a newly generated one
+    or
+    - selecting a subtree of the rule and replacing it with a newly generated subtree
+    N.B. The individual is modified in-place as well as returned from the function
+
+    :param toolbox: deap.base.Toolbox instance that has been initialised with the
+    register_primitiveset_and_creators function.
+    :param individual:  the individual to mutate
+    :param whole_rule_prob: probability of replacing an entire rule instead of a sub-tree
+    :return: the modified individual in a 1-tuple
+    """
+    rule_idx = random.randint(0, individual.length - 1)
+    if random.random() < whole_rule_prob:
+        rule = toolbox.expr()
+    else:
+        (rule,) = gp.mutUniform(
+            individual[rule_idx], expr=toolbox.expr, pset=toolbox.get_pset()
+        )
+    individual[rule_idx] = rule
+    return (individual,)
+
+
+def get_fitness_values(individual: RuleSet) -> Tuple[float]:
+    """Return the fitness of an individual.  N.B. in DEAP the fitness is always a tuple
+
+    :param individual:
+    :return: Tuple with the fitness value(s) as floats
+    """
+    return individual.fitness.values
+
+
+def make_antecedent(
+    name: str,
+    min: float,
+    max: float,
+    terms: Optional[List[str]] = None,
+    inf_limit: Optional[float] = None,
+) -> ctrl.Antecedent:
+    """Create a skfuzzy Antecedent object and initialise the terms on it.
+
+    :param name: The name of the antecedent
+    :param min: minimum value that the antecedent can take
+    :param max:  minimum value that the antecedent can take
+    :param terms: optional names of the terms that are defined on the antecedent.
+                  If omitted then the default names are used:
+                    "
+    :param inf_limit: if the min and/or max are +/-inf then replace them with +/- this value.
+                      This can happen when taking the min and max from a Gym environment observation
+
+    :return: the created Antecedent instance
+    """
+    if inf_limit is not None and min == -np.inf:
+        min = -inf_limit
+    if inf_limit is not None and max == np.inf:
+        max = inf_limit
+    antecedent = ctrl.Antecedent(np.linspace(min, max, 11), name)
+    if terms:
+        antecedent.automf(names=terms)
+    else:
+        antecedent.automf(variable_type="quant")
+    return antecedent
+
+
+def make_antecedents(
+    X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
+) -> List[ctrl.Antecedent]:
+    if antecedent_terms is None:
+        antecedent_terms = {}
+    mins = X.min()
+    maxes = X.max()
+    antecedents = []
+    for column in X.columns:
+        terms = antecedent_terms.get(column, None)
+        antecedent = make_antecedent(column, mins[column], maxes[column], terms)
+        antecedents.append(antecedent)
+    return antecedents
+
+
+def make_binary_consequents(classes: Iterable[str]) -> List[ctrl.Consequent]:
+    consequents = []
+    for cls in classes:
+        cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
+        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
+        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
+        consequents.append(cons)
+    return consequents

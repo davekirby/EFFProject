@@ -6,7 +6,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.utils import shuffle
 from skfuzzy import control as ctrl
 
-from .fuzzybase import FuzzyBase, make_antecedents, make_binary_consequents
+from .fuzzybase import FuzzyBase
+from .fuzzygp import make_antecedents, make_binary_consequents
 
 
 class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):

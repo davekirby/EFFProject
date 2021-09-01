@@ -5,7 +5,8 @@ import gym
 import numpy as np
 from skfuzzy import control as ctrl
 
-from .fuzzybase import FuzzyBase, make_antecedent, make_binary_consequents
+from .fuzzybase import FuzzyBase
+from .fuzzygp import make_antecedent, make_binary_consequents
 
 
 def make_box_consequent(name, low, high):

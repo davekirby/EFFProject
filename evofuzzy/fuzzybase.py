@@ -1,18 +1,17 @@
 import pickle
-import random
-from typing import Optional, Dict, List, Any, Iterable
+from typing import Optional
 
 import numpy as np
-import pandas as pd
-import skfuzzy as fuzz
-from deap import base, tools, gp
-from skfuzzy import control as ctrl
+from deap import base, tools
 
 from evofuzzy.fuzzygp import (
     ea_with_elitism_and_replacement,
     CreatorConfig,
     register_primitiveset_and_creators,
     RuleSet,
+    mate_rulesets,
+    mutate_ruleset,
+    get_fitness_values,
 )
 
 
@@ -125,28 +124,10 @@ class FuzzyBase:
             tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
 
     def _mate(self, ind1, ind2):
-        rule1_idx = random.randint(0, ind1.length - 1)
-        rule2_idx = random.randint(0, ind2.length - 1)
-        if random.random() < self.whole_rule_prob:
-            # swap entire rules over
-            rule2 = ind1[rule1_idx]
-            rule1 = ind2[rule2_idx]
-        else:
-            rule1, rule2 = gp.cxOnePoint(ind1[rule1_idx], ind2[rule2_idx])
-        ind1[rule1_idx] = rule1
-        ind2[rule2_idx] = rule2
-        return ind1, ind2
+        return mate_rulesets(ind1, ind2, self.whole_rule_prob)
 
     def _mutate(self, individual):
-        rule_idx = random.randint(0, individual.length - 1)
-        if random.random() < self.whole_rule_prob:
-            rule = self.toolbox_.expr()
-        else:
-            (rule,) = gp.mutUniform(
-                individual[rule_idx], expr=self.toolbox_.expr, pset=self.pset_
-            )
-        individual[rule_idx] = rule
-        return (individual,)
+        return mutate_ruleset(self.toolbox_, individual, self.whole_rule_prob)
 
     @property
     def best(self):
@@ -182,45 +163,3 @@ class FuzzyBase:
         for individual in self.population_[-n:]:
             rules.extend(individual)
         return rules
-
-
-def get_fitness_values(ind):
-    return ind.fitness.values
-
-
-def make_antecedent(name, min, max, terms=None, inf_limit=None):
-    if inf_limit is not None and min == -np.inf:
-        min = -inf_limit
-    if inf_limit is not None and max == np.inf:
-        max = inf_limit
-    antecedent = ctrl.Antecedent(np.linspace(min, max, 11), name)
-    if terms:
-        antecedent.automf(names=terms)
-    else:
-        antecedent.automf(variable_type="quant")
-    return antecedent
-
-
-def make_antecedents(
-    X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
-) -> List[ctrl.Antecedent]:
-    if antecedent_terms is None:
-        antecedent_terms = {}
-    mins = X.min()
-    maxes = X.max()
-    antecedents = []
-    for column in X.columns:
-        terms = antecedent_terms.get(column, None)
-        antecedent = make_antecedent(column, mins[column], maxes[column], terms)
-        antecedents.append(antecedent)
-    return antecedents
-
-
-def make_binary_consequents(classes: Iterable[str]) -> List[ctrl.Consequent]:
-    consequents = []
-    for cls in classes:
-        cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")
-        cons["likely"] = fuzz.trimf(cons.universe, (0.0, 1.0, 1.0))
-        cons["unlikely"] = fuzz.trimf(cons.universe, (0.0, 0.0, 1.0))
-        consequents.append(cons)
-    return consequents
