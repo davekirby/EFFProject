@@ -10,11 +10,11 @@ tensorboard_dir = "tb_logs/iris_cv/"
 # tensorboard_dir = None
 
 hyperparams = HyperParams(
-    population_size=100,
+    population_size=20,
     hall_of_fame_size=3,
     max_generation=5,
-    mutation_prob=0.9,
-    crossover_prob=0.2,
+    mutation_prob=0.5,
+    crossover_prob=0.5,
     min_tree_height=1,
     max_tree_height=3,
     min_rules=3,

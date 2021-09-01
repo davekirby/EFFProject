@@ -1,6 +1,6 @@
 import random
 from itertools import repeat
-from typing import Any, List, NamedTuple
+from typing import Any, List, NamedTuple, Dict
 import operator
 from multiprocessing import Pool
 from functools import partial
@@ -41,10 +41,12 @@ def identity(x: Any) -> Any:
 class MakeConsequents:
     """Ephemeral constant that randomly generates consequents for the rules.
     This needs to be a class so that the repr can be defined to return something
-    that can be used by toolbox.compile
+    that can be used by toolbox.compile.
+    :param cons_terms: dict mapping a skfuzzy Consequent name to a list of "name['term']"
+                       strings.
     """
 
-    def __init__(self, cons_terms):
+    def __init__(self, cons_terms: Dict[str, str]):
         max_consequents = len(cons_terms) // 2 + 1
         sample_size = random.randint(1, max_consequents)
         candidates = random.sample(list(cons_terms.values()), sample_size)
@@ -54,7 +56,7 @@ class MakeConsequents:
         return f"[{', '.join(value for value in self.values)}]"
 
 
-def _makePrimitiveSet(
+def _make_primitive_set(
     antecendents: List[Antecedent], consequents: List[Consequent]
 ) -> gp.PrimitiveSetTyped:
     """Create a typed primitive set that can be used to generate fuzzy rules.
@@ -68,7 +70,7 @@ def _makePrimitiveSet(
         cons.label: [f"{cons.label}['{name}']" for name in cons.terms.keys()]
         for cons in consequents
     }
-    makeConsequents = partial(MakeConsequents, cons_terms)
+    make_consequents = partial(MakeConsequents, cons_terms)
 
     pset = gp.PrimitiveSetTyped("Rule", [], Rule)
 
@@ -84,7 +86,7 @@ def _makePrimitiveSet(
     # and fails if it already exists
     if hasattr(gp, "consequents"):
         del gp.consequents
-    pset.addEphemeralConstant("consequents", makeConsequents, list)
+    pset.addEphemeralConstant("consequents", make_consequents, list)
     pset.addPrimitive(Rule, [Term, list], Rule)
     pset.addPrimitive(operator.and_, [Term, Term], Term)
     pset.addPrimitive(operator.or_, [Term, Term], Term)
@@ -103,16 +105,29 @@ class CreatorConfig(NamedTuple):
     max_rules: int = 5  # maximum number of rules to have in a chromosome
 
 
-def genRule(pset, min_, max_, type_=None):
+def _generate_rule(pset: gp.PrimitiveSetTyped, min_: int, max_: int, type_=None):
+    """
+    Return a randomly generated PrimitiveTree encoding a fuzzy rule.
+    :param pset: The PrimitiveSetTyped to draw the node types from
+    :param min_: minimum tree height
+    :param max_: maximum tree height
+    :param type_:
+    :return: the generated primitiveTree
+    """
     return gp.PrimitiveTree(gp.genGrow(pset, min_, max_, type_))
 
 
-def genRuleSet(pset, min_, max_, type_=None, config=None):
+def _generate_rule_set(
+    pset: gp.PrimitiveSetTyped, type_=None, config: CreatorConfig = None
+):
     rules_len = random.randint(config.min_rules, config.max_rules)
-    return [genRule(pset, min_, max_, type_) for _ in range(rules_len)]
+    return [
+        _generate_rule(pset, config.min_tree_height, config.max_tree_height, type_)
+        for _ in range(rules_len)
+    ]
 
 
-def registerPrimitiveSetAndCreators(
+def register_primitiveset_and_creators(
     toolbox: base.Toolbox,
     config: CreatorConfig,
     antecendents: List[Antecedent],
@@ -131,22 +146,20 @@ def registerPrimitiveSetAndCreators(
     :return: The PrimitiveSet that has been created
     """
 
-    pset = _makePrimitiveSet(antecendents, consequents)
+    pset = _make_primitive_set(antecendents, consequents)
 
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
         "expr",
-        genRule,
+        _generate_rule,
         pset=pset,
         min_=config.min_tree_height,
         max_=config.max_tree_height,
     )
     toolbox.register(
         "rules_expr",
-        genRuleSet,
+        _generate_rule_set,
         pset=pset,
-        min_=config.min_tree_height,
-        max_=config.max_tree_height,
         config=config,
     )
     toolbox.register(
@@ -171,8 +184,8 @@ def ea_with_elitism_and_replacement(
     hof_size=1,
     verbose=True,
     slices=None,
-    always_evalute=False,
-    forgetting=1,
+    always_evaluate=False,
+    memory_decay=1,
 ):
     """Modified version of the DEAP eaSimple function to run the evolution process
     while keeping the top performing members from one generation to the next and replacing
@@ -190,8 +203,8 @@ def ea_with_elitism_and_replacement(
     :param hof_size: the number of top performers to carry over to the next generation
     :param verbose: boolean flag - if True then print stats while running
     :param slices: optional list of slice objects to run EA on small batches
-    :param always_evalute: flag to force evalutation of fitness
-    :param forgetting: value between 0 and 1 to control how much weight to put on previous fitness
+    :param always_evaluate: flag to force evaluation of fitness
+    :param memory_decay: value between 0 and 1 to control how much weight to put on previous fitness
             values
     :return: final population and logbook
 
@@ -203,8 +216,8 @@ def ea_with_elitism_and_replacement(
     else:
         batched = True
 
-    def evaluate_population(population, batch_slice):
-        if not always_evalute and not batched:
+    def evaluate_population(population: List[RuleSet], batch_slice: slice):
+        if not always_evaluate and not batched:
             # Only evaluate the individuals in the population that have not been evaluated already
             population = [ind for ind in population if not ind.fitness.valid]
         # prune the rules that are going to be evaluated
@@ -217,7 +230,7 @@ def ea_with_elitism_and_replacement(
         for ind, fit in zip(population, fitnesses):
             if ind.fitness.valid:
                 old_fitness = ind.fitness.values
-                new_fit = fit[0] * forgetting + (old_fitness[0] * (1 - forgetting))
+                new_fit = fit[0] * memory_decay + (old_fitness[0] * (1 - memory_decay))
                 ind.fitness.values = (new_fit,)
             else:
                 ind.fitness.values = fit
@@ -287,7 +300,15 @@ def write_stats(population, generation, verbose, logbook, stats, tensorboard_wri
         )
 
 
-def prune_rule(rule):
+def prune_rule(rule: list):
+    """
+    Remove redundancy in a fuzzy rule.  ie:
+    - `NOT NOT X` is converted to X
+    - `X AND X` is converted to X
+    - `X OR X` is converted to X
+    rules are modified in-place
+    :param rule: the rule to prune
+    """
     pos = 0
     while pos < len(rule):
         name = rule[pos].name
@@ -303,10 +324,13 @@ def prune_rule(rule):
                 rule[pos : rhs.stop] = rule[lhs]
                 continue
         pos += 1
-    return rule
 
 
-def prune_population(population):
+def prune_population(population: List[RuleSet]):
+    """
+    Prune all the rules in a population
+    :param population: list of RuleSets to prune
+    """
     for ind in population:
         for rule in ind:
             prune_rule(rule)

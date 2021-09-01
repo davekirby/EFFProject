@@ -10,8 +10,8 @@ import pytest
 from evofuzzy.fuzzyclassifier import FuzzyClassifier, _make_predictions
 from evofuzzy.fuzzygp import (
     CreatorConfig,
-    registerPrimitiveSetAndCreators,
-    _makePrimitiveSet,
+    register_primitiveset_and_creators,
+    _make_primitive_set,
 )
 from evofuzzy.fuzzygp import prune_rule
 
@@ -83,7 +83,7 @@ def test_instance_creator():
         max_rules=rules_size,
     )
     toolbox = base.Toolbox()
-    registerPrimitiveSetAndCreators(toolbox, config, [size], [elephant, mouse])
+    register_primitiveset_and_creators(toolbox, config, [size], [elephant, mouse])
     individual = toolbox.individualCreator()
     assert individual.length == rules_size
     for i in individual:
@@ -152,8 +152,8 @@ def test_rule_pruner(input, output):
         # create the test pset if it does not exist - this is never
         # modified so can be shared between tests
         size, elephant, mouse = _create_antecedents_and_consequents()
-        pset = _makePrimitiveSet([size], [mouse, elephant])
+        pset = _make_primitive_set([size], [mouse, elephant])
 
     rule = PrimitiveTree.from_string(input, pset)
-    pruned_rule = prune_rule(rule)
-    assert str(pruned_rule) == output
+    prune_rule(rule)
+    assert str(rule) == output

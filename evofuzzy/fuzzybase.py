@@ -11,7 +11,7 @@ from skfuzzy import control as ctrl
 from evofuzzy.fuzzygp import (
     ea_with_elitism_and_replacement,
     CreatorConfig,
-    registerPrimitiveSetAndCreators,
+    register_primitiveset_and_creators,
     RuleSet,
 )
 
@@ -77,7 +77,7 @@ class FuzzyBase:
         self.config_ = CreatorConfig(
             self.min_tree_height, self.max_tree_height, self.min_rules, self.max_rules
         )
-        self.pset_ = registerPrimitiveSetAndCreators(
+        self.pset_ = register_primitiveset_and_creators(
             self.toolbox_, self.config_, self.antecedents_, self.consequents_
         )
         self.toolbox_.register(
@@ -117,8 +117,8 @@ class FuzzyBase:
             hof_size=self.hall_of_fame_size,
             verbose=True,
             slices=slices,
-            always_evalute=self.always_evaluate_,
-            forgetting=self.forgetting,
+            always_evaluate=self.always_evaluate_,
+            memory_decay=self.forgetting,
         )
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", self.best_str)
