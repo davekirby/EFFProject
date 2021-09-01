@@ -12,6 +12,7 @@ from skfuzzy.control.term import Term
 
 BIG_INT = 1 << 64
 
+
 class RuleSet(list):
     """Subclass of list that contains lists, used to hold a set of fuzzy rules.
     len(ruleset) will return the total length of all the contained lists.
@@ -111,7 +112,7 @@ def genRuleSet(pset, min_, max_, type_=None, config=None):
     return [genRule(pset, min_, max_, type_) for _ in range(rules_len)]
 
 
-def registerCreators(
+def registerPrimitiveSetAndCreators(
     toolbox: base.Toolbox,
     config: CreatorConfig,
     antecendents: List[Antecedent],
@@ -127,7 +128,7 @@ def registerCreators(
     :param config:  Config instance holding hyperparameters
     :param antecendents: list of fuzzy antecendents used by the rules
     :param consequents: list of fuzzy consequents used by the rules
-    :return: None
+    :return: The PrimitiveSet that has been created
     """
 
     pset = _makePrimitiveSet(antecendents, consequents)

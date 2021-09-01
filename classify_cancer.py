@@ -19,23 +19,24 @@ hyperparams = HyperParams(
     max_tree_height=3,
     min_rules=4,
     max_rules=10,
-   whole_rule_prob=0.1,
+    whole_rule_prob=0.1,
     tree_height_limit=5,
     batch_size=50,
-    forgetting=0.6
+    forgetting=0.6,
 )
 
 data, y = fetch_openml(data_id=15, as_frame=True, return_X_y=True)
 
 # the Bare_Nuclei column has some null values, so drop them
-na_mask = data['Bare_Nuclei'].notna()
+na_mask = data["Bare_Nuclei"].notna()
 data = data[na_mask]
 y = y[na_mask]
 
 classes = {name: name for name in y.dtype.categories}
 
-antecendent_terms = {col: ["very_low", "low", "medium", "high", "very_high"] for col in
-                     data.columns}
+antecendent_terms = {
+    col: ["very_low", "low", "medium", "high", "very_high"] for col in data.columns
+}
 
 cross_validate(
     data,

@@ -8,7 +8,11 @@ import pandas as pd
 import pytest
 
 from evofuzzy.fuzzyclassifier import FuzzyClassifier, _make_predictions
-from evofuzzy.fuzzygp import CreatorConfig, registerCreators, _makePrimitiveSet
+from evofuzzy.fuzzygp import (
+    CreatorConfig,
+    registerPrimitiveSetAndCreators,
+    _makePrimitiveSet,
+)
 from evofuzzy.fuzzygp import prune_rule
 
 
@@ -79,7 +83,7 @@ def test_instance_creator():
         max_rules=rules_size,
     )
     toolbox = base.Toolbox()
-    registerCreators(toolbox, config, [size], [elephant, mouse])
+    registerPrimitiveSetAndCreators(toolbox, config, [size], [elephant, mouse])
     individual = toolbox.individualCreator()
     assert individual.length == rules_size
     for i in individual:
@@ -109,7 +113,6 @@ def test_save_and_load():
     assert classifier.predict(X) == result
 
 
-
 @pytest.mark.parametrize(
     "input, output",
     [
@@ -125,8 +128,14 @@ def test_save_and_load():
             "Rule(invert(invert(invert(invert(or_(size['medium'], size['large']))))), [])",
             "Rule(or_(size['medium'], size['large']), [])",
         ),
-        ("Rule(or_(size['medium'], size['medium']), [])", "Rule(size['medium'], [])",),
-        ("Rule(and_(size['medium'], size['medium']), [])", "Rule(size['medium'], [])",),
+        (
+            "Rule(or_(size['medium'], size['medium']), [])",
+            "Rule(size['medium'], [])",
+        ),
+        (
+            "Rule(and_(size['medium'], size['medium']), [])",
+            "Rule(size['medium'], [])",
+        ),
         (
             "Rule(and_(size['medium'], size['large']), [])",
             "Rule(and_(size['medium'], size['large']), [])",

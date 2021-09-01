@@ -37,5 +37,12 @@ antecendent_terms = {
     for col in cols
 }
 
-cross_validate(iris, y, hyperparams, antecendent_terms, classes, tensorboard_dir,
-    number_of_predictors=3)
+cross_validate(
+    iris,
+    y,
+    hyperparams,
+    antecendent_terms,
+    classes,
+    tensorboard_dir,
+    number_of_predictors=3,
+)

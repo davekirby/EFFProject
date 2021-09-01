@@ -11,7 +11,8 @@ from skfuzzy import control as ctrl
 from evofuzzy.fuzzygp import (
     ea_with_elitism_and_replacement,
     CreatorConfig,
-    registerCreators, RuleSet,
+    registerPrimitiveSetAndCreators,
+    RuleSet,
 )
 
 
@@ -76,7 +77,7 @@ class FuzzyBase:
         self.config_ = CreatorConfig(
             self.min_tree_height, self.max_tree_height, self.min_rules, self.max_rules
         )
-        self.pset_ = registerCreators(
+        self.pset_ = registerPrimitiveSetAndCreators(
             self.toolbox_, self.config_, self.antecedents_, self.consequents_
         )
         self.toolbox_.register(
@@ -181,6 +182,7 @@ class FuzzyBase:
         for individual in self.population_[-n:]:
             rules.extend(individual)
         return rules
+
 
 def get_fitness_values(ind):
     return ind.fitness.values

@@ -20,13 +20,25 @@
 # Choice of libraries
 - reasons for the choices
 ## DEAP overview
-
-
 ## skfuzzy overview
 ## Gym overview
+- large collection of environments
+- standard interface
+    - action_space
+    - observation_space
+    - methods:
+        - reset()
+        - step(action)
+        - render()
+    - Spaces
+        - Discrete
+        - Box
+        - others - not used
+            - dict, tuple, multi_binary, multi-discrete
+    - third-party environments
+
 ## TensorboardX overview
-
-
+## Others - numpy, pandas, sklearn
 
 ## Architecture overview / diagram
 - evofuzzy - top level package

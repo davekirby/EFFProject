@@ -45,7 +45,7 @@ def cross_validate(
     classes,
     tensorboard_dir,
     train_test_swap=False,
-    number_of_predictors=1
+    number_of_predictors=1,
 ):
     kfold = StratifiedKFold(n_splits=5, shuffle=True)
     if tensorboard_dir and tensorboard_dir[-1] == "/":

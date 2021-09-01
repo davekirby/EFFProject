@@ -22,7 +22,7 @@ hyperparams = HyperParams(
     whole_rule_prob=0.1,
     tree_height_limit=5,
     batch_size=10,
-    forgetting=0.4
+    forgetting=0.4,
 )
 
 data, y = fetch_openml(data_id=40984, as_frame=True, return_X_y=True)
@@ -31,8 +31,9 @@ data.columns = [c.replace(".", "_") for c in data.columns]
 
 classes = {name: name for name in y.dtype.categories}
 
-antecendent_terms = {col: ["very_low", "low", "medium", "high", "very_high"] for col in
-                     data.columns}
+antecendent_terms = {
+    col: ["very_low", "low", "medium", "high", "very_high"] for col in data.columns
+}
 
 cross_validate(
     data,

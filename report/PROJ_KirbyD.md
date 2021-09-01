@@ -125,7 +125,7 @@ More information about the exploration of the FuzzyClassifier and GymRunner perf
 
 The following third party libraries were chosen for use in the project:
 
-## DEAP for genetic programming
+### DEAP for genetic programming
 
 DEAP [@DEAP_JMLR2012] is the defacto standard library for evolutionary computation in Python, supporting a wide range of algorithms such as Genetic Algorithms, Genetic Programming, Particle Swarm Optimisation, and Evolution Strategy.  Other evolutionary libraries that were investigated were found to be toy projects not intended for production use, did not support Genetic Programming, or were tailored to a specific application of GP such as symbolic regression.
 
@@ -200,7 +200,42 @@ The library chosen was scikit-fuzzy, for the following reasons:
   )
   ```
 
-  Although this may be a drawback when creating rules by hand, it fits in well with the way that the DEAP gp module defines chromosomes as a tree with python functions and objects for the nodes.  
+  Although this may be a drawback when creating rules by hand, it fits in well with the way that the DEAP gp module defines chromosomes as a tree of python functions and objects.  
+
+### OpenAI Gym Reinforcement Learning Platform
+Gym [@brockman2016openai] is a framework for reinforcement learning and a collection of environments for training RL agents.  It provides a simple and flexible API that agents can use to explore and interact with an environment.  The environments supported include classical control problems, 2D and 3D physics engines and classic Atari console video games.  It has become a standard platform for doing RL in python and a range of compatible third party environments are also available.  
+
+The core parts of the API are:
+
+1. The environments are registered with the gym and can be created by passing the environment name to the `gym.make` method, e.g. 
+`env = gym.make("CartPole-v1")`
+2. the `env.observation_space` defines what an agent can "see" at each step and the `env.action_space` defines what an agent can do at each step.  An agent can interrogate these spaces to determine the range of possible inputs and outputs.
+3. The `env.reset()` method set the environment to its initial state and returns an observation of that state. 
+4. The `env.step(action)` takes an action provided by the agent and returns a tuple of `(observation, reward, done, info)`.  Where
+  - `observation` is information about the updated state of the environment
+  - `reward` is the reward (positive or negative) for taking that step
+  - `done` is a boolean flag indicating if the run is completed
+  - `info` may contain diagnostic information specific to an environment, and should not be used by the agent for learning
+5. `env.render()` will display the current environment (e.g. one frame of an atari game) and can be used to create a video display of the agent in action.  This is usually omitted during training to speed up the process.
+
+The observation_space and action_space are subclasses of `gym.spaces.Space` and will be one of several types.  The most common are:
+1. `Discrete(n)` - the observation or action is a single integer in a range 0-n.
+2. `Box(low, high, shape, dtype)` a numpy array of the given shape and dtype where the values are bounded by the high and low values.  This may be a simple linear array or multidimensional.  For example the atari games often have an observation space of `Box(low=0, high=255, shape=(210, 160, 3), dtype=np.uint8)`, where the Box is a 3-dimensional representation of the screen pixels.
+
+Other types of observational space exist, such as dicts or tuples of spaces, but they are rarely used in practice.
+
+### Other third party libraries
+Other third-party libraries used are:
+
+1. tensorboardX (https://tensorboardx.readthedocs.io/en/latest/tensorboard.html) is used to optionally write performance data in a format that can be displayed by TensorBoard (https://www.tensorflow.org/tensorboard/)
+
+2. Numpy for general numerical and array manipulation
+
+3. Pandas for handing classification on pandas dataframes.
+
+3. scikit-learn in order to make the FuzzyClassifier class a compatible scikit-learn classifier.
+
+
 
 
 # Implementation
