@@ -224,7 +224,7 @@ def ea_with_elitism_and_replacement(
             # Only evaluate the individuals in the population that have not been evaluated already
             population = [ind for ind in population if not ind.fitness.valid]
         # prune the rules that are going to be evaluated
-        prune_population(population)
+        _prune_population(population)
         with Pool() as pool:
             fitnesses = pool.starmap(
                 toolbox.evaluate, zip(population, repeat(batch_slice))
@@ -303,7 +303,7 @@ def write_stats(population, generation, verbose, logbook, stats, tensorboard_wri
         )
 
 
-def prune_rule(rule: list):
+def _prune_rule(rule: list):
     """
     Remove redundancy in a fuzzy rule.  ie:
     - `NOT NOT X` is converted to X
@@ -329,14 +329,14 @@ def prune_rule(rule: list):
         pos += 1
 
 
-def prune_population(population: List[RuleSet]):
+def _prune_population(population: List[RuleSet]):
     """
     Prune all the rules in a population
     :param population: list of RuleSets to prune
     """
     for ind in population:
         for rule in ind:
-            prune_rule(rule)
+            _prune_rule(rule)
 
 
 def mate_rulesets(

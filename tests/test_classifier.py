@@ -13,7 +13,7 @@ from evofuzzy.fuzzygp import (
     register_primitiveset_and_creators,
     _make_primitive_set,
 )
-from evofuzzy.fuzzygp import prune_rule
+from evofuzzy.fuzzygp import _prune_rule
 
 
 def test_pandas_classifier():
@@ -155,5 +155,5 @@ def test_rule_pruner(input, output):
         pset = _make_primitive_set([size], [mouse, elephant])
 
     rule = PrimitiveTree.from_string(input, pset)
-    prune_rule(rule)
+    _prune_rule(rule)
     assert str(rule) == output

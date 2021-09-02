@@ -235,7 +235,14 @@ Other third-party libraries used are:
 
 3. scikit-learn in order to make the FuzzyClassifier class a compatible scikit-learn classifier.
 
+## Design Overview
 
+The code for the project is in a python package `evofuzzy` which contains four modules.
+
+* fuzzygp.py has the low level functions for handling the fuzzy sets and genetic programming 
+
+![Design Overview class diagram](images/architecture.png)
+*Figure 3: Public API of the evofuzzy package*
 
 
 # Implementation

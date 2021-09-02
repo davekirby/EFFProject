@@ -1,37 +1,49 @@
 @startuml
 
+!theme cerulean-outline 
+
 skinparam groupInheritance 2
 
-class FuzzyBase {
-    __init__()
-    initialise()
-    execute()
-    save()
-    load()
-    best
-    best_n()
-    best_size
-    best_str
-} 
+title Design Overview
 
-class fuzzygp << (M, lightblue) module >> {
-    
+package evofuzzy {
+
+
+    class FuzzyBase {
+        __init__()
+        initialise()
+        execute()
+        save()
+        load()
+        best
+        best_n()
+        best_size
+        best_str
+    } 
+
+    class fuzzygp << (M, lightblue) module >> {
+        ea_with_elitism_and_replacement()
+        register_primitiveset_and_creators()
+        mate_rulesets()
+        mutate_ruleset()
+        get_fitness_values()
+    }
+
+    class FuzzyClassifier {
+        fit()
+        predict()
+    }
+
+    class GymRunner{
+        train()
+        play()
+    }
+
+    FuzzyBase .right.> fuzzygp : uses
+
+    FuzzyBase <|-- FuzzyClassifier
+    FuzzyBase <|-- GymRunner
+
 }
-
-class FuzzyClassifier {
-    fit()
-    predict()
-}
-
-class GymRunner{
-    train()
-    play()
-}
-
-FuzzyBase .right.> fuzzygp : uses
-
-
-FuzzyBase <|-- FuzzyClassifier
-FuzzyBase <|-- GymRunner
 
 @enduml

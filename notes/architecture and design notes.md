@@ -107,4 +107,10 @@ braindump:  What needs to go in this section?
     - do I need separate sections for architecture and design?
 
 
+Design overview section - list the public files, classes, functions. 
+Expand on tensorboard?
+
+
+More Architecture braindump...
+
 
