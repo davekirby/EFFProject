@@ -161,3 +161,20 @@ Document design decisions and why they were made, and perhaps give alternative o
 - prune columns not covered by any rule to stop skfuzzy barfing
 - saving population not working due to classes being created on the fly
 - 
+
+----
+
+Coding process:
+- experimenting in jupyter notebooks
+- test & code fuzzy classifier with hand-coded rules
+- add GP evolution of rules
+- expand on classifer class
+- refining the code
+    - multiprocessing
+    - batching
+    - pruning rules
+    - replacements
+    - use top-n predictors
+- make gymrunner sister class
+
+

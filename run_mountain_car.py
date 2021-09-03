@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 import tensorboardX
 import gym
-from evofuzzy.gymrunner import GymRunner
+from evofuzzy import GymRunner
 
 tensorboard_dir = "tb_logs/mountaincar-v0"
 if tensorboard_dir:

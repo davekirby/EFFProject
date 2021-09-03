@@ -9,13 +9,13 @@ from .fuzzybase import FuzzyBase
 from .fuzzygp import make_antecedent, make_binary_consequents
 
 
-def make_box_consequent(name, low, high):
+def _make_box_consequent(name, low, high):
     cons = ctrl.Consequent(np.linspace(low, high, 11), name, "som")
     cons.automf(5, "quant")
     return cons
 
 
-def antecedents_from_env(env: gym.Env, inf_limit: Optional[float] = None):
+def _antecedents_from_env(env: gym.Env, inf_limit: Optional[float] = None):
     observations = env.observation_space
     assert isinstance(
         observations, gym.spaces.Box
@@ -35,7 +35,7 @@ def consequents_from_env(env: gym.Env):
         assert len(actions.shape) == 1, "Only one dimensional action spaces supported"
         return (
             [
-                make_box_consequent(f"action_{i}", low, high)
+                _make_box_consequent(f"action_{i}", low, high)
                 for (i, low, high) in zip(count(), actions.low, actions.high)
             ],
             True,
@@ -53,7 +53,7 @@ class GymRunner(FuzzyBase):
         if antecedents:
             self.antecedents_ = antecedents
         else:
-            self.antecedents_ = antecedents_from_env(env, inf_limit)
+            self.antecedents_ = _antecedents_from_env(env, inf_limit)
 
         self.consequents_, self.box_actions_ = consequents_from_env(env)
 

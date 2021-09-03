@@ -13,7 +13,7 @@ import tensorboardX
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold
 
-from evofuzzy import fuzzyclassifier
+from evofuzzy import FuzzyClassifier
 
 
 class HyperParams(NamedTuple):
@@ -64,7 +64,7 @@ def cross_validate(
         else:
             tensorboard_writer = None
 
-        classifier = fuzzyclassifier.FuzzyClassifier(
+        classifier = FuzzyClassifier(
             min_tree_height=hyperparams.min_tree_height,
             max_tree_height=hyperparams.max_tree_height,
             min_rules=hyperparams.min_rules,

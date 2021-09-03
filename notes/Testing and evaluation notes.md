@@ -8,6 +8,13 @@
     - run classifier on iris dataset
     - run gymrunner against pendulum environment
 
+## Additional tests?
+Unit tests are pretty sparse
+- rename the file to make it more generic
+- add tests for the GP side of things
+- add tests for the gymrunner??
+- mock out lower level functionality?
+- 
 
 # Evaluation
 - 5-fold cross validation for classifier 
