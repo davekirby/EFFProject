@@ -15,7 +15,7 @@ else:
 env = gym.make("MountainCarContinuous-v0")
 runner = GymRunner(
     population_size=50,
-    hall_of_fame_size=1,
+    elite_size=1,
     max_generation=10,
     mutation_prob=0.9,
     crossover_prob=0.2,

@@ -33,7 +33,7 @@ class FuzzyBase:
         crossover_prob: float = 0.9,
         whole_rule_prob: float = 0.1,
         tree_height_limit: int = 10,
-        hall_of_fame_size: int = 5,
+        elite_size: int = 5,
         mutation_min_height: int = 0,
         mutation_max_height: int = 2,
         replacements: int = 5,
@@ -52,7 +52,7 @@ class FuzzyBase:
         self.crossover_prob = crossover_prob
         self.whole_rule_prob = whole_rule_prob
         self.tree_height_limit = tree_height_limit
-        self.hall_of_fame_size = hall_of_fame_size
+        self.elite_size = elite_size
         self.mutation_min_height = mutation_min_height
         self.mutation_max_height = mutation_max_height
         self.replacements = replacements
@@ -113,7 +113,7 @@ class FuzzyBase:
             replacement_size=self.replacements,
             stats=self.stats_,
             tensorboard_writer=tensorboard_writer,
-            hof_size=self.hall_of_fame_size,
+            elite_size=self.elite_size,
             verbose=True,
             slices=slices,
             always_evaluate=self.always_evaluate_,

@@ -32,7 +32,7 @@ A fuzzy inference system (FIS) uses a set of rules composed of fuzzy sets to map
     IF petal-length IS long AND  petal-width IS wide
         THEN virginica is likely
     IF NOT petal-width IS wide 
-      AND (sepal-width is narrow OR petal-length IS fairly long) 
+      AND (sepal-width is narrow OR petal-length IS long) 
       THEN versicolor is likely
     IF petal-width IS narrow AND petal-length IS short 
         THEN setosa is likely
@@ -149,21 +149,18 @@ The main components of DEAP are:
 #### The deap.gp module
 The `deap.gp` module contains classes and functions for supporting Genetic Programming.  The core components are:
 
-1. The `PrimitiveSet` and `TypedPrimitiveSet` classes are used to register the operations that a go into a tree structure.  There are three types:
+1. The `PrimitiveTree` class encapsulates the tree structure that the genetic programming operations act on.   The tree of primitives is stored in a python list in depth-first order.  Because the the arity of every primitive is known, the tree can be reconstructed from the list when it is compiled.  The `PrimitiveTree` class has methods for manipulating the tree and a `__str__` method converts the tree into the equivalent python code, to be used by the `compile` function. 
+
+2. The `PrimitiveSet` and `TypedPrimitiveSet` classes are used to register the type of nodes that a go into a tree structure.  There are three types:
    - `Primitive`s are functions that take a fixed non-zero number of arguments and return a single result.  These form the non-leaf nodes of the tree.
    - `Terminal`s are either constants or functions with no arguments that form the leaves of the tree.  Terminals that are functions are executed every time the compiled tree is run.
    - `EphemeralConstant`s are Terminal functions that are executed once when they are first created and after that always return the same value.  These are used for example to generate a random value that is then used as a constant.
   
    A `PrimitiveSet` assumes that the parameter and return types of the primitives and terminals are compatible.   A `TypedPrimitiveSet` requires all the types to be defined when they are registered, and will only build trees where the parameter and return types match.
 
-2. The `compile` function takes an individual tree of primitives and compiles it to a python function.   It does this by first converting it to a string containing a lambda function and then calling `eval` on the string.  
+3. The `compile` function takes an individual tree of primitives and compiles it to a python function.   It does this by first converting it to a string containing a lambda function and then calling `eval` on the string.  Because the function is compiled from a string using `eval` it is necessary that all the primitives and terminals have `__repr__` methods that will result in that object being created when executed.
 
-3. support functions for creating, mutating and mating trees of primitives.
-
-Because the trees are compiled from string using `eval` it is necessary that all the primitives and terminals have `__repr__` methods that will result in that object being created when executed.
-
-Internally the tree of primitives is stored in a python list in depth-first order.  Because the the arity of every primitive is known, the tree can be reconstructed from the list.
-
+4. support functions for creating, mutating and mating trees of primitives.
 
 Full documentation for DEAP can be found at https://deap.readthedocs.io/en/master/index.html.
 
@@ -239,7 +236,25 @@ Other third-party libraries used are:
 
 The code for the project is in a python package `evofuzzy` which contains four modules.
 
-* fuzzygp.py has the low level functions for handling the fuzzy sets and genetic programming 
+* fuzzygp.py has the low level functions for handling the genetic programming operations and the conversion between DEAP PrimitiveTree instances and scikit-fuzzy rules. The two main entry points are:
+  * `register_primitiveset_and_creators` function creates a `TypedPrimitiveSet` initialised with all the primitives and registers it with a deap toolbox, along with functions for creating individuals and complete populations.
+  * `ea_with_elitism_and_replacement` is the main evolve / evaluate loop, loosely based on the `eaSimple` function provided by DEAP.   It takes a population and a toolbox instance and will iterate for a fixed number of generations, evaluating each individual with the `toolbox.evaluate` function then mutating and mating them according to their fitness.  It also performs several other services including:
+    * handling small batches of data for the classifier
+    * parallelising the evaluation of the population members over multiple cores
+    * recording statistics about the population, such as mean and best fitness using the DEAP Statistics class.
+    * optionally saving the statistics and other information in a format that can be read by TensorBoard.
+    * elitism - preserving the best individuals from one generation to the next
+    * replacing the worst performing individuals with newly generated ones, to prevent loss of diversity
+
+* fuzzybase.py contains one class, `FuzzyBase`.  This is the base class for the classifier and reinforcement learning implementations and has methods for initialisation of the hyperparameters and logging of statistics, and for executing the `fuzzygp.ea_with_elitism_and_replacement` function to run the evolve/evaluate loop.  It also has methods for saving and loading the state of the class and properties for returning the best performer from the current population, both as a PrimitiveTree and as a human-readable string.  
+
+* fuzzyclassifier.py has a `FuzzyClassifier` class that inherits from `FuzzyBase` does classification in a manner consistent with scikit-learn classifiers.  it has two public methods in addition to those in the base class:
+  * `fit` takes X and y parameters for the training data and ground truth classes and trains the classifier.
+  * `predict` takes a X in the same format as it was trained on and predicts the classes.
+
+* gymrunner.py has a `GymRunner` class that inherits from `FuzzyBase` and has two public methods in addition to those in the base class:
+  * `train` takes an openAI Gym environment and trains a population of fuzzy rules to play it
+  * `play` takes an openAI Gym environment and plays it with the current top performer, rendering a video of it in action. 
 
 ![Design Overview class diagram](images/architecture.png)
 *Figure 3: Public API of the evofuzzy package*
@@ -261,6 +276,8 @@ The code for the project is in a python package `evofuzzy` which contains four m
 # Appendices
 
 ## Appendix I: User Manual
+
+!include ../user_manual.md
 
 ## Appendix II: Source Code
 

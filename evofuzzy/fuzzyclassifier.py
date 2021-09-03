@@ -40,7 +40,7 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
             del self.toolbox_.evaluate
         self.toolbox_.register("evaluate", self._evaluate, X=X, y=y)
 
-        slices = list(batch_slices(len(X), self.batch_size))
+        slices = list(_batch_slices(len(X), self.batch_size))
 
         self.execute(slices, tensorboard_writer)
         return self
@@ -89,7 +89,7 @@ def _make_predictions(
     return prediction
 
 
-def batch_slices(max_size, batch_size=None):
+def _batch_slices(max_size, batch_size=None):
     """generate slices to split an array-like object into smaller batches.
     If batch size is not given then yield a slice that covers the whole thing.
     """

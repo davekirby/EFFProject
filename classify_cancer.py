@@ -11,7 +11,7 @@ tensorboard_dir = "tb_logs/cancer_cv/"
 
 hyperparams = HyperParams(
     population_size=100,
-    hall_of_fame_size=3,
+    elite_size=3,
     max_generation=3,
     mutation_prob=0.9,
     crossover_prob=0.2,

@@ -27,7 +27,7 @@ class HyperParams(NamedTuple):
     crossover_prob: float = 0.9
     whole_rule_prob: float = 0.1
     tree_height_limit: int = 10
-    hall_of_fame_size: int = 5
+    elite_size: int = 5
     mutation_min_height: int = 0
     mutation_max_height: int = 2
     replacements: int = 5
@@ -75,7 +75,7 @@ def cross_validate(
             crossover_prob=hyperparams.crossover_prob,
             whole_rule_prob=hyperparams.whole_rule_prob,
             tree_height_limit=hyperparams.tree_height_limit,
-            hall_of_fame_size=hyperparams.hall_of_fame_size,
+            elite_size=hyperparams.elite_size,
             mutation_min_height=hyperparams.mutation_min_height,
             mutation_max_height=hyperparams.mutation_max_height,
             replacements=hyperparams.replacements,

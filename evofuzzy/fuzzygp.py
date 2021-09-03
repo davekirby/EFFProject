@@ -17,8 +17,8 @@ BIG_INT = 1 << 64
 
 
 class RuleSet(list):
-    """Subclass of list that contains lists, used to hold a set of fuzzy rules.
-    len(ruleset) will return the total length of all the contained lists.
+    """Subclass of list that contains gp.PrimitiveTree instances, used to hold a set of fuzzy rules.
+    len(ruleset) will return the total length of all the contained primitive trees.
     The ruleset.length property will return the length of the top level list.
     """
 
@@ -184,7 +184,7 @@ def ea_with_elitism_and_replacement(
     replacement_size=0,
     stats=None,
     tensorboard_writer=None,
-    hof_size=1,
+    elite_size=1,
     verbose=True,
     slices=None,
     always_evaluate=False,
@@ -203,7 +203,7 @@ def ea_with_elitism_and_replacement(
     :param stats: DEAP Stats instance for recording statistics
     :param tensorboard_writer: Optional tensorboardX SummaryWriter instance to log
             results to tensorboard.
-    :param hof_size: the number of top performers to carry over to the next generation
+    :param elite_size: the number of top performers to carry over to the next generation
     :param verbose: boolean flag - if True then print stats while running
     :param slices: optional list of slice objects to run EA on small batches
     :param always_evaluate: flag to force evaluation of fitness
@@ -259,12 +259,12 @@ def ea_with_elitism_and_replacement(
 
             offspring = toolbox.select(
                 population[replacement_size:],
-                len(population) - (hof_size + replacement_size),
+                len(population) - (elite_size + replacement_size),
             )
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
 
-            if hof_size:
-                offspring.extend(population[-hof_size:])
+            if elite_size:
+                offspring.extend(population[-elite_size:])
             if replacement_size:
                 offspring.extend(replacements)
 
@@ -303,7 +303,7 @@ def write_stats(population, generation, verbose, logbook, stats, tensorboard_wri
         )
 
 
-def _prune_rule(rule: list):
+def _prune_rule(rule: gp.PrimitiveTree):
     """
     Remove redundancy in a fuzzy rule.  ie:
     - `NOT NOT X` is converted to X
@@ -317,14 +317,14 @@ def _prune_rule(rule: list):
         name = rule[pos].name
         # if there are two consecutive inverts then delete them both
         if name == "invert" and rule[pos + 1].name == "invert":
-            del rule[pos : pos + 2]
+            del rule[pos: pos + 2]
             continue
         if name in ("and_", "or_"):
             # merge duplicate branches
             lhs = rule.searchSubtree(pos + 1)
             rhs = rule.searchSubtree(lhs.stop)
             if rule[lhs] == rule[rhs]:
-                rule[pos : rhs.stop] = rule[lhs]
+                rule[pos: rhs.stop] = rule[lhs]
                 continue
         pos += 1
 

@@ -21,6 +21,9 @@
 - reasons for the choices
 ## DEAP overview
 ## skfuzzy overview
+
+
+
 ## Gym overview
 - large collection of environments
 - standard interface
@@ -112,5 +115,13 @@ Expand on tensorboard?
 
 
 More Architecture braindump...
+Overview of how the rules and rulesets are organised.
+- ruleset is a list of rules
+- conversion between GP rules and fuzzy rules
+    - refactor creation and running ControlSystemSimulator into the fuzzybase / fuzzygp modules?
+- Go into detail on `_make_primitive_set` and interaction between Antecedents and Consequents.  And how the skfuzzy Rules are created.
+    - need more detail on how skfuzzy operates?
+
+
 
 

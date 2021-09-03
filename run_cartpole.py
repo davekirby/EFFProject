@@ -17,7 +17,7 @@ else:
 env = gym.make("CartPole-v1")
 runner = GymRunner(
     population_size=50,
-    hall_of_fame_size=1,
+    elite_size=1,
     max_generation=10,
     mutation_prob=0.9,
     crossover_prob=0.2,

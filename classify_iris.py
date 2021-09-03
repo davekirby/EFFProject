@@ -11,7 +11,7 @@ tensorboard_dir = "tb_logs/iris_cv/"
 
 hyperparams = HyperParams(
     population_size=20,
-    hall_of_fame_size=3,
+    elite_size=3,
     max_generation=5,
     mutation_prob=0.5,
     crossover_prob=0.5,
