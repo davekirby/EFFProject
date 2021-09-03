@@ -34,7 +34,7 @@ class HyperParams(NamedTuple):
     tournament_size: int = 5
     parsimony_size: float = 1.9
     batch_size: Optional[int] = None
-    forgetting: float = 1
+    memory_decay: float = 1
 
 
 def cross_validate(
@@ -82,7 +82,7 @@ def cross_validate(
             tournament_size=hyperparams.tournament_size,
             parsimony_size=hyperparams.parsimony_size,
             batch_size=hyperparams.batch_size,
-            forgetting=hyperparams.forgetting,
+            memory_decay=hyperparams.memory_decay,
         )
         classifier.fit(
             train_x.iloc[train_idx],

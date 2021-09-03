@@ -40,7 +40,7 @@ class FuzzyBase:
         tournament_size: int = 5,
         parsimony_size: float = 1.7,
         batch_size: Optional[int] = None,
-        forgetting: float = 1,
+        memory_decay: float = 1,
     ):
         self.min_tree_height = min_tree_height
         self.max_tree_height = max_tree_height
@@ -59,7 +59,7 @@ class FuzzyBase:
         self.tournament_size = tournament_size
         self.parsimony_size = parsimony_size
         self.batch_size = batch_size
-        self.forgetting = forgetting
+        self.memory_decay = memory_decay
 
     def initialise(self, tensorboard_writer):
         if tensorboard_writer:
@@ -117,7 +117,7 @@ class FuzzyBase:
             verbose=True,
             slices=slices,
             always_evaluate=self.always_evaluate_,
-            memory_decay=self.forgetting,
+            memory_decay=self.memory_decay,
         )
         if tensorboard_writer:
             tensorboard_writer.add_text("best_ruleset", self.best_str)

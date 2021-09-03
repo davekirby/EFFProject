@@ -22,7 +22,7 @@ hyperparams = HyperParams(
     whole_rule_prob=0.1,
     tree_height_limit=5,
     batch_size=10,
-    forgetting=0.4,
+    memory_decay=0.4,
 )
 
 data, y = fetch_openml(data_id=40984, as_frame=True, return_X_y=True)

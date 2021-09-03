@@ -2,6 +2,8 @@
 
 Write user guide on how to use the library.
 
+# Context
+intro to GP and FIS?  Maybe copy from the body of the report and cut down.  
 
 # General (both classifier and RL)
 
