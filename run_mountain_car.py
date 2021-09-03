@@ -28,4 +28,5 @@ runner = GymRunner(
 
 runner.train(env, tensorboard_writer)
 print(runner.best_str)
-runner.play(env)
+reward = runner.play(env)
+print("Reward:", reward)

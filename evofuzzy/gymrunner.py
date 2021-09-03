@@ -65,10 +65,15 @@ class GymRunner(FuzzyBase):
         self.execute(None, tensorboard_writer)
 
     def play(self, env, n=1):
-        """Display the best individual playing in the environment"""
+        """Display the best individual playing in the environment
+
+        :param env: the Gym environment to play
+        :param n: the number of top performing individuals to use - defaults to 1
+        :return: the total reward
+        """
         reward = self._evaluate(self.best_n(n), None, env, True)
         env.close()
-        print("Finished with reward of", reward[0])
+        return reward[0]
 
     def _evaluate(self, individual, batch, env, render=False):
         """Evaluate one individual by running the gym environment with the

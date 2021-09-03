@@ -36,4 +36,5 @@ antecedents = [
 
 runner.train(env, tensorboard_writer, antecedents)
 print(runner.best_str)
-runner.play(env)
+reward = runner.play(env)
+print("Reward:", reward)
