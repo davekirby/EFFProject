@@ -178,7 +178,7 @@ Several python fuzzy logic libraries were evaluated for the low-level fuzzy infe
 
 Several of these were rejected because they were lacking in documentation or unit tests.  Others were rejected because they appeared to be abandoned with no commits for at least two years and in some cases requiring python 2.7 or earlier.
 
-The library chosen was scikit-fuzzy, for the following reasons:
+The library chosen was scikit-fuzzy [@warnerJDWarnerScikitfuzzyScikitFuzzy2019], for the following reasons:
 
 * it has reasonable documentation (including docstrings) and unit tests
 * it has been updated in the last six months, so is still in active development
@@ -186,18 +186,26 @@ The library chosen was scikit-fuzzy, for the following reasons:
 
   `IF NOT-petal_width[average] AND petal_length[long] THEN [setosa[unlikely], versicolor[unlikely]]`
 
-  can set a fuzzy value for both setosa and versicolor.  Most of the libraries would require this to be written as two rules.
-* a rule in scikit-fuzzy is created using python operators "&", "|" and "~" on objects, for the AND, OR and NOT fuzzy operators.  
-  For example the above rule would be created in code by instantiating FuzzyVariable objects for petal_width, petal_length, setosa and versicolor and defining the fuzzy terms on them ('long', 'unlikely' etc), then the rule can be defined as 
+  can set a fuzzy output value for both setosa and versicolor.  Most of the libraries would require this to be written as two rules.
+* a rule in scikit-fuzzy is created using python operators "&", "|" and "~" on objects. Although this may be a drawback when creating rules by hand since it is less readable than the text-based approach used by many other libraries, it fits in well with the way that the DEAP gp module defines chromosomes as a tree of python functions and objects.  
 
+
+Scikit-fuzzy has a low level API that provides functions for creating and manipulating fuzzy variables, and a high-level API that provides fuzzy rules and an inference engine that evaluate the rules against the user's data.   The high-level components of scikit-fuzzy are:
+
+1. The `Antecedent` class represents an input fuzzy variable.  It is created with a name string and a "universe of discourse" - a numpy linspace array that defines the range of values it can take.
+2. The  `Consequent` class represents an output fuzzy variable and is defined in the same way as an `Antecedent` with the addition of a defuzzification method.   Several defuzzification methods are available such as centroid, bisector and mean of maximum.
+3. Once a fuzzy variable has been created it needs to have terms defined on it.  A term is a membership function over part of the universe of discourse.  The `Antecedent` and `Consequent` classes have an `automf` function that will automatically create overlapping triangular membership functions over the universe of discourse.  The user may provide a list of names for the terms, or default names may be used.  In the above example "petal_width" would be an `Antecedent` and the terms could be "very_narrow",  "narrow" "average", "wide", "very_wide".  Similarly "setosa" would be a `Consequent` with terms "likely" and "unlikely".
+4. `Antecedent` terms can combined to create a new compound term using python operators "&", "|" and "~" on objects, for the AND, OR and NOT fuzzy operators.  
+5. A `Rule` class is created with an `Antecedent` term expression and a list of `Consequent` instances.
+  For example the above rule would be created with:
   ```python
   Rule(
       ~petal_width['average'] & petal_length['long'], 
-      [setosa['unlikely'], versicolor['unlikely']
+      [setosa['unlikely'], versicolor['unlikely']]
   )
   ```
+6. To run the Fuzzy Inference System a `ControlSystem` instance is created a with a list of rules, and a `ControlSystemSimulator` is created with the control system as a parameter.  The input data is passed into the `ControlSystemSimulator.input` method and `ControlSystemSimulator.calculate` is called.  The result for each consequent is then available in `ControlSystemSimulator.output["consequent-name"]`.  
 
-  Although this may be a drawback when creating rules by hand, it fits in well with the way that the DEAP gp module defines chromosomes as a tree of python functions and objects.  
 
 ### OpenAI Gym Reinforcement Learning Platform
 Gym [@brockman2016openai] is a framework for reinforcement learning and a collection of environments for training RL agents.  It provides a simple and flexible API that agents can use to explore and interact with an environment.  The environments supported include classical control problems, 2D and 3D physics engines and classic Atari console video games.  It has become a standard platform for doing RL in python and a range of compatible third party environments are also available.  
@@ -248,7 +256,7 @@ The code for the project is in a python package `evofuzzy` which contains four m
 
 * fuzzybase.py contains one class, `FuzzyBase`.  This is the base class for the classifier and reinforcement learning implementations and has methods for initialisation of the hyperparameters and logging of statistics, and for executing the `fuzzygp.ea_with_elitism_and_replacement` function to run the evolve/evaluate loop.  It also has methods for saving and loading the state of the class and properties for returning the best performer from the current population, both as a PrimitiveTree and as a human-readable string.  
 
-* fuzzyclassifier.py has a `FuzzyClassifier` class that inherits from `FuzzyBase` does classification in a manner consistent with scikit-learn classifiers.  it has two public methods in addition to those in the base class:
+* fuzzyclassifier.py has a `FuzzyClassifier` class that inherits from `FuzzyBase` and does classification in a manner consistent with scikit-learn classifiers.  it has two public methods in addition to those in the base class:
   * `fit` takes X and y parameters for the training data and ground truth classes and trains the classifier.
   * `predict` takes a X in the same format as it was trained on and predicts the classes.
 

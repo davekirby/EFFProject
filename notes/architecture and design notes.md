@@ -21,9 +21,6 @@
 - reasons for the choices
 ## DEAP overview
 ## skfuzzy overview
-
-
-
 ## Gym overview
 - large collection of environments
 - standard interface
