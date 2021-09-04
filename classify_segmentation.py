@@ -20,7 +20,6 @@ hyperparams = HyperParams(
     min_rules=8,
     max_rules=12,
     whole_rule_prob=0.1,
-    tree_height_limit=5,
     batch_size=10,
     memory_decay=0.4,
 )

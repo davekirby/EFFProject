@@ -23,7 +23,6 @@ runner = GymRunner(
     max_tree_height=3,
     max_rules=4,
     whole_rule_prob=0.2,
-    tree_height_limit=5,
 )
 
 runner.train(env, tensorboard_writer)

@@ -32,10 +32,7 @@ class FuzzyBase:
         mutation_prob: float = 0.1,
         crossover_prob: float = 0.9,
         whole_rule_prob: float = 0.1,
-        tree_height_limit: int = 10,
         elite_size: int = 5,
-        mutation_min_height: int = 0,
-        mutation_max_height: int = 2,
         replacements: int = 5,
         tournament_size: int = 5,
         parsimony_size: float = 1.7,
@@ -51,10 +48,7 @@ class FuzzyBase:
         self.mutation_prob = mutation_prob
         self.crossover_prob = crossover_prob
         self.whole_rule_prob = whole_rule_prob
-        self.tree_height_limit = tree_height_limit
         self.elite_size = elite_size
-        self.mutation_min_height = mutation_min_height
-        self.mutation_max_height = mutation_max_height
         self.replacements = replacements
         self.tournament_size = tournament_size
         self.parsimony_size = parsimony_size

@@ -24,7 +24,7 @@ Need to give enough information to make the hyperparams and other params underst
 # Classifier
 
 
-# Gymrunner
+# GymRunner
 
 # General advice
 - refer to GP handbook.
