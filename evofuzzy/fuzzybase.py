@@ -28,7 +28,7 @@ class FuzzyBase:
         min_rules: int = 2,
         max_rules: int = 5,
         population_size: int = 100,
-        max_generation: int = 20,
+        n_iter: int = 20,
         mutation_prob: float = 0.1,
         crossover_prob: float = 0.9,
         whole_rule_prob: float = 0.1,
@@ -47,7 +47,7 @@ class FuzzyBase:
         self.min_rules = min_rules
         self.max_rules = max_rules
         self.population_size = population_size
-        self.max_generation = max_generation
+        self.n_iter = n_iter
         self.mutation_prob = mutation_prob
         self.crossover_prob = crossover_prob
         self.whole_rule_prob = whole_rule_prob
@@ -109,7 +109,7 @@ class FuzzyBase:
             self.toolbox_,
             cxpb=self.crossover_prob,
             mutpb=self.mutation_prob,
-            ngen=self.max_generation,
+            ngen=self.n_iter,
             replacement_size=self.replacements,
             stats=self.stats_,
             tensorboard_writer=tensorboard_writer,

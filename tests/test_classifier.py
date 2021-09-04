@@ -98,7 +98,7 @@ pset = None
 def test_save_and_load():
     classifier = FuzzyClassifier(
         population_size=3,
-        max_generation=2,
+        n_iter=2,
     )
     filename = "test.pkl"
     X = pd.DataFrame({"size": [10, 1]})

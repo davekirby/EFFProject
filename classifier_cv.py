@@ -22,7 +22,7 @@ class HyperParams(NamedTuple):
     min_rules: int = 2
     max_rules: int = 5
     population_size: int = 100
-    max_generation: int = 50
+    n_iter: int = 50
     mutation_prob: float = 0.1
     crossover_prob: float = 0.9
     whole_rule_prob: float = 0.1
@@ -70,7 +70,7 @@ def cross_validate(
             min_rules=hyperparams.min_rules,
             max_rules=hyperparams.max_rules,
             population_size=hyperparams.population_size,
-            max_generation=hyperparams.max_generation,
+            n_iter=hyperparams.n_iter,
             mutation_prob=hyperparams.mutation_prob,
             crossover_prob=hyperparams.crossover_prob,
             whole_rule_prob=hyperparams.whole_rule_prob,

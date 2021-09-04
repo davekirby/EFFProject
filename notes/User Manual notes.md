@@ -3,7 +3,11 @@
 Write user guide on how to use the library.
 
 # Context
-intro to GP and FIS?  Maybe copy from the body of the report and cut down.  
+intro to GP and FIS?  Maybe copy from the body of the report and cut down.  Or copy back into the report.
+
+Need to give enough information to make the hyperparams and other params understandable. 
+
+
 
 # General (both classifier and RL)
 
@@ -25,5 +29,5 @@ intro to GP and FIS?  Maybe copy from the body of the report and cut down.
 # General advice
 - refer to GP handbook.
 - start small and increase size (rules, pop etc) as needed
-- 
+ 
 
