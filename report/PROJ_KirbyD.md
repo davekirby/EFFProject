@@ -287,6 +287,7 @@ The code for the project is in a python package `evofuzzy` which contains four m
 
 !include ../user_manual.md
 
+\newpage
 ## Appendix II: Source Code
 
 ### requirements.txt
@@ -297,18 +298,22 @@ The code for the project is in a python package `evofuzzy` which contains four m
 ```text
 !include ../requirements-dev.txt
 ```
+\newpage
 ### fuzzygp.py
 ```python
 !include ../evofuzzy/fuzzygp.py
 ```
+\newpage
 ### fuzzybase.py
 ```python
 !include ../evofuzzy/fuzzybase.py
 ```
+\newpage
 ### fuzzyclassifier.py
 ```python
 !include ../evofuzzy/fuzzyclassifier.py
 ```
+\newpage
 ### gymrunner.py
 ```python
 !include ../evofuzzy/gymrunner.py
@@ -316,16 +321,25 @@ The code for the project is in a python package `evofuzzy` which contains four m
 ### gymrunner_testbed.ipynb (move and rename?)
 ????  how to show ipython file?  convert to markdown first with nbconvert.
 
+\newpage
 ### classifier_cv.py
 ```python
 !include ../classifier_cv.py
 ```
 
+\newpage
 ### classify_iris.py
 ```python
 !include ../classify_iris.py
 ```
+\newpage
 ### classify_segmentation.py
 ```python
 !include ../classify_segmentation.py
+```
+
+\newpage
+### classify_cancer.py
+```python
+!include ../classify_cancer.py
 ```

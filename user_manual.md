@@ -40,15 +40,20 @@ The latter four hyperparameters control the size and complexity of the individua
 ### The evolution cycle {- .unlisted}
 Once the population hs been created, the rule set of each individual is evaluated against the data or RL environment and a fitness score calculated.  A new population is then created by selecting individuals according to their fitness and randomly mutating or mating them.  These are then evaluated again and the process repeated for a number of generations controlled by the `n_iter` hyperparameter.  
 
+Also each cycle the best performing individuals are carried over unmodified to ensure that they are not selected out.  The number to carry over is controlled by the `elite_size` parameter.  Also a number of new individuals given by the `replacements` hyperparameter are created to prevent too much loss of diversity.
 
 ### Selection algorithm {- .unlisted}
-evofuzzy uses a double tournament algorithm [@lukeFightingBloatNonparametric2002] to help prevent trees from growing too large (bloat).  The selection is done in two steps:
+evofuzzy uses a double tournament algorithm [@lukeFightingBloatNonparametric2002] when selecting the next generation, to help prevent trees from growing too large (bloat).  The selection is done in two steps:
 
-1. A series of fitness tournaments are held where each round `tournament_size` individuals are selected at random from the population and the fittest is chosen as the winner to go into the next round.
+1. A series of fitness tournaments are held where in each round `tournament_size` individuals are selected at random from the population and the fittest is chosen as the winner to go into the next round.
 2. a second series of tournaments is held where pairs of candidates from the previous round are selected and the smallest is selected with a probability controlled by the `parsimony_size` hyperparameter.  This is a value between 1 and 2, where 1 means no size selection is done and 2 means the smallest candidate is always selected.  In the paper cited above, values in the range 1.2 to 1.6 were found to work well for their experiments. 
 
 ### Mutating algorithm {- .unlisted}
 Individuals in the population are selected for mutation with a probability given by the `mutation_prob` hyperparameter.  An individual that is mutated has a single rule from its set of rules selected and either the entire rule is replaced with a newly generated one, or a sub-tree is selected and replaced with a new subtree.  The probability of the entire rule being replaced is controlled by the `whole_rule_prob` hyperparameter.  
 
 ### Mating algorithm {- .unlisted}
+
+Pairs of individuals in the population may also be selected for mating with a probability given by the `crossover_prob` hyperparameter.  A random rule is selected from each parent and either the entire rules are swapped over with a probability of `whole_rule_prob` or a subtree of each rule is selected and swapped over.
+
+# Using evofuzzy
 

@@ -12,6 +12,23 @@ Need to give enough information to make the hyperparams and other params underst
 # General (both classifier and RL)
 
 - explain all the hyperparameters
+    -   min_tree_height
+    -   max_tree_height
+    -   min_rules
+    -   max_rules
+    -   population_size
+    -   n_iter
+    -   mutation_prob
+    -   crossover_prob
+    -   whole_rule_prob
+    -   tournament_size
+    -   parsimony_size
+    -   elite_size
+    -   replacements
+ToDo:    
+    -   batch_size
+    -   memory_decay
+
 - tensorboard support
     - TensorboardX writer
 - fit method
