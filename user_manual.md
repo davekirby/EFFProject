@@ -42,6 +42,10 @@ Once the population hs been created, the rule set of each individual is evaluate
 
 Also each cycle the best performing individuals are carried over unmodified to ensure that they are not selected out.  The number to carry over is controlled by the `elite_size` parameter.  Also a number of new individuals given by the `replacements` hyperparameter are created to prevent too much loss of diversity.
 
+By default the FuzzyClassifier will run each individual against the entire training data before creating the next generation.  For a large dataset this will be very slow and wasteful, so there is a hyperparameter `batch_size` that will split the input data into small batches and train/evolve the population against each batch in turn.  This can lead to much faster convergence.  However there is a possibility that an individual may do well against one batch and poorly against another so a good performing individual overall may be weeded out by one poor batch.  To counter this there is a `memory_decay` hyperparameter that controls an exponential weighted moving average of the fitness values over successive evaluations.  This is a value between 0 and 1, where 1 (the default) only remembers the most recent fitness value, and 0 only remembers the first fitness value.
+
+The `batch_size` hyperparameter is ignored by the GymRunner class, but the `memory_decay` hyperparameter is used because the individuals may be evaluated against successive randomly initialised environments so may perform well one time and badly another.  
+
 ### Selection algorithm {- .unlisted}
 evofuzzy uses a double tournament algorithm [@lukeFightingBloatNonparametric2002] when selecting the next generation, to help prevent trees from growing too large (bloat).  The selection is done in two steps:
 
@@ -55,5 +59,117 @@ Individuals in the population are selected for mutation with a probability given
 
 Pairs of individuals in the population may also be selected for mating with a probability given by the `crossover_prob` hyperparameter.  A random rule is selected from each parent and either the entire rules are swapped over with a probability of `whole_rule_prob` or a subtree of each rule is selected and swapped over.
 
-# Using evofuzzy
+# Using evofuzzy {- .unlisted}
+
+evofuzzy provided two classes - `FuzzyClassifier` for classification and `GymRunner` for reinforcement learning on openAI Gym.  They are both subclasses of `FuzzyBase` so have the following in common.
+
+## Common interface {- .unlisted}
+
+### Hyperparameters {- .unlisted}
+
+Both classes are instantiated with the hyperparameters to use during training.  All the hyperparamers are explained in the previous section, but here is a summary:
+
+**min_tree_height** int
+
+minimum height of tree at creation
+
+**max_tree_height** int
+
+maximum height of a tree at creation
+
+**min_rules** int
+
+minimum number of rules of an individual
+
+**max_rules** int
+
+maximum number of rules of an individual
+
+**population_size** int
+
+the size of the population
+
+**n_iter** int
+
+number of times to iterate over the dataset/environment
+
+**mutation_prob** float 0.0 - 1.0
+
+probability of an individual being mutated
+
+**crossover_prob** float 0.0 - 1.0
+
+probability of a pair of individuals being mated
+
+**whole_rule_prob** float 0.0 - 1.0
+
+probability of entire rules being mutated / mated
+
+**elite_size** int
+
+number of top performers to preserve across generations
+
+**replacements** int
+
+number of new individuals to inject each generation
+
+**tournament_size** int
+
+number of individuals to include in a tournament
+
+**parsimony_size** float 1.0 - 2.0
+
+selection pressure for small size
+
+**batch_size** int or None
+
+number of data points to include each generation (FuzzyClassifier only)
+
+**memory_decay** float 0.0 - 1.0
+
+EWMA weighting for new fitness over previous fitness
+
+**verbose** bool
+
+if True print summary stats while running
+
+
+### Common methods and properties {- .unlisted}
+
+Both classes have these methods and properties in common:
+
+**save(path_to_file)** 
+
+Save the state of the FuzzyClassifier or GymRunner instance to a file.
+
+**load(path_to_file)**
+
+Restore the state of a FuzzyClassifer or GymRunner from a file previously created with the `save` method.
+
+**best** (property)
+
+Get the current best performing individual.  This is a list of list of DEAP GP primitives.  
+
+**best_str** (property)
+
+Return the fuzzy rules of the best performing individual as a human readable string.
+
+**individual_to_str(individual)**
+
+Convert any individual to a human readable string.
+
+**best_n(n)**
+Merge the rules of the top `n` individuals into a single rule set.  This is an experimental feature to combine the predictive power of several top performers into a single entity. 
+
+
+### Other common features {- .unlisted}
+
+Both classes support writing information while training into a format that can be viewed in TensorBoard, by using the TensorBoardX library (https://tensorboardx.readthedocs.io/en/latest/index.html).  If an instance of the `tensorboardX.SummaryWriter` is passed to the training method (`fit` or `train`) then at the end of each epoch statistics about the current best/average fitness and size is saved, plus a histogram of the fitness and size of the entire population.  The hyperparameters for the run are also saved as a text object.  The user may also use the SummaryWriter to save additional information before or after a run if they wish. 
+
+## The FuzzyClassifer class for classification
+
+The FuzzyClassifier class tries to follow the scikit-learn API as far as possible.  The class has the following methods in addition to those in the previous section:
+
+**fit(X, y, classes, antecedent_terms=None, columns=None, tensorboard_writer=None)**
+
 

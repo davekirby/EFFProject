@@ -57,7 +57,7 @@ class GymRunner(FuzzyBase):
 
         self.consequents_, self.box_actions_ = consequents_from_env(env)
 
-        self.initialise(tensorboard_writer)
+        self._initialise(tensorboard_writer)
 
         if hasattr(self.toolbox_, "evaluate"):
             del self.toolbox_.evaluate

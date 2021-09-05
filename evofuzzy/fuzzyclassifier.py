@@ -26,15 +26,18 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
         X, y = shuffle(X, y)
         self.classes_ = classes
 
-        if columns:
-            # if columns is provided then assume either X is a numpy array or the user
-            # want to rename the dataframe columns
-            X = pd.DataFrame(data=X, columns=columns)
+        if not columns and not isinstance(X, pd.DataFrame):
+            columns = [f"column_{i}" for i in range(X.shape[1])]
+
+        self.columns_ = columns
+
+        if self.columns_:
+            X = self.convert_dataframe(X)
 
         self.antecedents_ = make_antecedents(X, antecedent_terms)
         self.consequents_ = make_binary_consequents(classes.keys())
 
-        self.initialise(tensorboard_writer)
+        self._initialise(tensorboard_writer)
 
         if hasattr(self.toolbox_, "evaluate"):
             del self.toolbox_.evaluate
@@ -45,8 +48,20 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
         self.execute(slices, tensorboard_writer)
         return self
 
+    def convert_dataframe(self, X):
+        # if columns is provided then assume either X is a numpy array or the user
+        # want to rename the dataframe columns
+        if isinstance(X, pd.DataFrame):
+            X.columns = self.columns_
+        else:
+            X = pd.DataFrame(data=X, columns=self.columns_)
+        return X
+
     def predict(self, X: pd.DataFrame, n=1):
         individual = self.best_n(n)
+        if self.columns_:
+            X = self.convert_dataframe(X)
+
         rules = [self.toolbox_.compile(rule) for rule in individual]
         return _make_predictions(X, rules, self.classes_)
 

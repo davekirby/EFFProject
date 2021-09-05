@@ -38,6 +38,7 @@ class FuzzyBase:
         parsimony_size: float = 1.7,
         batch_size: Optional[int] = None,
         memory_decay: float = 1,
+        verbose: bool = True
     ):
         self.min_tree_height = min_tree_height
         self.max_tree_height = max_tree_height
@@ -54,8 +55,9 @@ class FuzzyBase:
         self.parsimony_size = parsimony_size
         self.batch_size = batch_size
         self.memory_decay = memory_decay
+        self.verbose = verbose
 
-    def initialise(self, tensorboard_writer):
+    def _initialise(self, tensorboard_writer):
         if tensorboard_writer:
             hparams = "\n".join(
                 f"* {k}: {v}" for (k, v) in self.__dict__.items() if not k.endswith("_")
@@ -108,7 +110,7 @@ class FuzzyBase:
             stats=self.stats_,
             tensorboard_writer=tensorboard_writer,
             elite_size=self.elite_size,
-            verbose=True,
+            verbose=self.verbose,
             slices=slices,
             always_evaluate=self.always_evaluate_,
             memory_decay=self.memory_decay,
