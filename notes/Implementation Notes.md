@@ -167,7 +167,16 @@ Document design decisions and why they were made, and perhaps give alternative o
 Coding process:
 - experimenting in jupyter notebooks
 - test & code fuzzy classifier with hand-coded rules
+```python 
+rule1 = ctrl.Rule(petal_width['narrow'] & petal_length['short'], setosa['likely'])
+rule2 = ctrl.Rule(petal_width['medium'] & petal_length['medium'], versicolor['likely'])
+rule3 = ctrl.Rule(petal_width['wide'] & petal_length['long'], verginica['likely'])
+```
+Got 130/150 right, or accuracy of 86.66%
+(2021-06-06)
+
 - add GP evolution of rules
+    - 
 - expand on classifer class
 - refining the code
     - multiprocessing

@@ -16,7 +16,7 @@ from evofuzzy.fuzzygp import (
 from evofuzzy.fuzzygp import _prune_rule
 
 
-def test_pandas_classifier():
+def test_pandas_predictor():
     # build a simple dataframe and set of rules
     size, elephant, mouse = _create_antecedents_and_consequents()
     rules = [
@@ -28,7 +28,7 @@ def test_pandas_classifier():
     assert prediction == [0, 1]
 
 
-def test_classifier_unknown_feature():
+def test_predictor_unknown_feature():
     """Test that the classifer can handle a feature that is not covered in the
     rule set.
     """

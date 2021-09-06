@@ -270,6 +270,27 @@ The code for the project is in a python package `evofuzzy` which contains four m
 
 # Implementation
 
+The implementation was done iteratively over several stages.  The classifier code was developed first then support for reinforcement learning was added.  The development process alternated between exploratory programming in jupyter notebooks and test driven development using a combination of unit tests written with pytest and test scripts running against small data sets such as Fisher's iris dataset.
+
+## Stage 1:  Classification with hand-coded fuzzy rules
+
+The first stage focused purely on using fuzzy rules for classification.   Rules for classifying the iris dataset were written by hand after inspecting the distribution of the data.  Only two of the features were used, "petal_width" and "petal_length", each with three terms.  The rules that were written were
+
+```python 
+rule1 = ctrl.Rule(petal_width['narrow'] & petal_length['short'], setosa['likely'])
+rule2 = ctrl.Rule(petal_width['medium'] & petal_length['medium'], versicolor['likely'])
+rule3 = ctrl.Rule(petal_width['wide'] & petal_length['long'], virginica['likely'])
+```
+
+A function was written that read each row of a pandas DataFrame containing the iris data and passed it to the fuzzy controller.  The rules were applied to the features and calculated the activation strength of each of the consequents.  The argmax of the activation strengths were used to pick the predicted class.  
+
+This method achieved an accuracy of 86.66%, showing that classification with simple fuzzy rules was viable.  
+
+## Stage 2: Encoding fuzzy rules in DEAP GP trees
+
+
+
+
 # Testing and Evaluation
 
 ## Results
