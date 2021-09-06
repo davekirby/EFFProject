@@ -15,7 +15,7 @@ def _make_box_consequent(name, low, high):
     return cons
 
 
-def _antecedents_from_env(env: gym.Env, inf_limit: Optional[float] = None):
+def _antecedents_from_env(env: gym.Env, inf_limit: float):
     observations = env.observation_space
     assert isinstance(
         observations, gym.spaces.Box
@@ -49,7 +49,7 @@ def consequents_from_env(env: gym.Env):
 class GymRunner(FuzzyBase):
     always_evaluate_ = True
 
-    def train(self, env, tensorboard_writer, antecedents=None, inf_limit=None):
+    def train(self, env, tensorboard_writer=None, antecedents=None, inf_limit=100.0):
         if antecedents:
             self.antecedents_ = antecedents
         else:

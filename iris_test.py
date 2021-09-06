@@ -1,4 +1,3 @@
-from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from sklearn.datasets import load_iris
@@ -6,7 +5,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
 import pandas as pd
-from evofuzzy import fuzzyclassifier
+from evofuzzy import FuzzyClassifier
 import tensorboardX
 
 """Script for testing the classifier by running it on the iris dataset.
@@ -37,9 +36,7 @@ if TO_TENSORBOARD:
 else:
     tensorboard_writer = None
 
-
-
-classifier = fuzzyclassifier.FuzzyClassifier(
+classifier = FuzzyClassifier(
     population_size=20,
     elite_size=5,
     n_iter=5,
@@ -53,17 +50,17 @@ classifier = fuzzyclassifier.FuzzyClassifier(
     batch_size=20,
 )
 classifier.fit(
-    train_X.values,
+    train_X,
     train_y,
     classes,
-    # antecedent_terms=antecendent_terms,
+    antecedent_terms=antecendent_terms,
     tensorboard_writer=tensorboard_writer,
 )
 
 print(f"Best Rule:  size = {len(classifier.best)}")
 print(classifier.best_str)
 
-predictions = classifier.predict(test_X.values)
+predictions = classifier.predict(test_X)
 confusion = pd.DataFrame(
     data=confusion_matrix(test_y, predictions),
     columns=data.target_names,

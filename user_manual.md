@@ -63,6 +63,7 @@ Pairs of individuals in the population may also be selected for mating with a pr
 
 evofuzzy provided two classes - `FuzzyClassifier` for classification and `GymRunner` for reinforcement learning on openAI Gym.  They are both subclasses of `FuzzyBase` so have the following in common.
 
+
 ## Common interface {- .unlisted}
 
 ### Hyperparameters {- .unlisted}
@@ -123,7 +124,7 @@ selection pressure for small size
 
 **batch_size** int or None
 
-number of data points to include each generation (FuzzyClassifier only)
+number of data points to include each generation. FuzzyClassifier only, this is ignored by the GymRunner class.
 
 **memory_decay** float 0.0 - 1.0
 
@@ -166,10 +167,202 @@ Merge the rules of the top `n` individuals into a single rule set.  This is an e
 
 Both classes support writing information while training into a format that can be viewed in TensorBoard, by using the TensorBoardX library (https://tensorboardx.readthedocs.io/en/latest/index.html).  If an instance of the `tensorboardX.SummaryWriter` is passed to the training method (`fit` or `train`) then at the end of each epoch statistics about the current best/average fitness and size is saved, plus a histogram of the fitness and size of the entire population.  The hyperparameters for the run are also saved as a text object.  The user may also use the SummaryWriter to save additional information before or after a run if they wish. 
 
-## The FuzzyClassifer class for classification
+
+## The FuzzyClassifer class for classification {- .unlisted}
 
 The FuzzyClassifier class tries to follow the scikit-learn API as far as possible.  The class has the following methods in addition to those in the previous section:
 
 **fit(X, y, classes, antecedent_terms=None, columns=None, tensorboard_writer=None)**
 
+Train the classifier on the training data X and y.  The parameters are:
+
+- `X` a pandas DataFrame or numpy-like array of features
+
+- `y` the target data for the classifier
+
+- `classes`:  a dictionary mapping the names of the target class to their values in `y`.  For example, if `y` contains 0, 1, 2 for "setosa, versicolor and virginica respectively then the `classes` parameter should contain `{"setosa": 0, "versicolor": 1, "virginica": 2}`
+  **NOTE:** the class names must be valid python identifiers and not python keywords.
+
+- `antecedent_terms`:  an optional dictionary converting feature names to the list of fuzzy terms that will be used for that feature.  For example:
+  ```
+  {
+      'sepal_length': ['short', 'medium', 'long'],
+      'sepal_width': ['narrow', 'medium', 'wide'],
+      'petal_length': ['short', 'medium', 'long'],
+      'petal_width': ['narrow', 'medium', 'wide']
+  }
+  ```
+  This can be used to control the number of terms used for each feature.
+  if provided then the keys must match the column names.
+  If not provided then the terms will default to "lower", "low", "average", "high", "higher".
+
+- `columns`:  optional feature names to apply to the columns of X.  These must match the keys given in the `antecedent_terms` if provided.
+  
+  if not provided and X is a pandas DataFrame then the pandas column names will be used.  If not provided and X is a numpy array or similar structure then the column names will default to "column_0", "column_1" etc.
+
+  **NOTE:** the feature names, whether they come from the pandas dataframe or from this parameter, must be valid python identifiers and not python keywords.
+
+- `tensorboard_writer`: an optional `tensorboardX.SummaryWriter` instance to log information for display in TensorBoard.
+
+
+**predict(X, n=1)**
+Predict the target class for the data in X.  
+
+- `X` a DataFrame or numpy array in the same format that the classifier was trained on.
+- `n` optional experimental parameter to use the combined top `n` individuals in the population to make the prediction.  By default only the best performer is used.
+
+### Example FuzzyClassifier code: {- .unlisted}
+```python
+from datetime import datetime
+from pathlib import Path
+from sklearn.datasets import load_iris
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
+
+import pandas as pd
+from evofuzzy import FuzzyClassifier
+import tensorboardX
+
+"""Script for testing the classifier by running it on the iris dataset.
+"""
+
+TO_TENSORBOARD = True  # write results and stats to tensorboard?
+
+data = load_iris()
+cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]
+iris = pd.DataFrame(data.data, columns=cols)
+y = pd.Series(data.target)
+
+train_X, test_X, train_y, test_y = train_test_split(iris, y, test_size=50)
+
+
+classes = {name: val for (name, val) in zip(data.target_names, range(3))}
+antecendent_terms = {
+    col: ["very_narrow", "narrow", "medium", "wide", "very_wide"]
+    if "width" in col
+    else ["very_short", "short", "medium", "long", "very_long"]
+    for col in cols
+}
+
+if TO_TENSORBOARD:
+    logdir = Path(f"tb_logs/iris/{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+    logdir.mkdir(parents=True, exist_ok=True)
+    tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
+else:
+    tensorboard_writer = None
+
+classifier = FuzzyClassifier(
+    population_size=20,
+    elite_size=5,
+    n_iter=5,
+    mutation_prob=0.5,
+    crossover_prob=0.5,
+    min_tree_height=1,
+    max_tree_height=3,
+    min_rules=2,
+    max_rules=4,
+    whole_rule_prob=0.2,
+    batch_size=20,
+)
+classifier.fit(
+    train_X,
+    train_y,
+    classes,
+    antecedent_terms=antecendent_terms,
+    tensorboard_writer=tensorboard_writer,
+)
+
+print(f"Best Rule:  size = {len(classifier.best)}")
+print(classifier.best_str)
+
+predictions = classifier.predict(test_X)
+confusion = pd.DataFrame(
+    data=confusion_matrix(test_y, predictions),
+    columns=data.target_names,
+    index=data.target_names,
+)
+print(confusion)
+if tensorboard_writer:
+    tensorboard_writer.add_text("confusion", confusion.to_markdown())
+    tensorboard_writer.close()
+
+```
+
+
+## The GymRunner class for reinforcement learning {- .unlisted}
+
+The GymRunner class has two methods in addition to the common ones give above.  
+
+**train(env, tensorboard_writer=None, antecedents=None, inf_limit=100.0)**
+Train the GymRunner instance to play the openAI Gym environment.  The parameters are:
+
+- `env`: the Gym environment created with `gym.make(env_name)`
+- `tensorboard_writer`: an optional `tensorboardX.SummaryWriter` instance to log progress to TensorBoard.  
+- `antecedents`: an optional list of scikit-fuzzy `Antecedent`s, one for each input variable.  If this is not provided then the antecedents are created automatically from the environment's `observation_space`.  This can be used to give finer control over how the inputs are converted to fuzzy variables, and to give the fuzzy variables meaningful names instead of "obs_0", "obs_1" etc that will be created by default.  See below for the `make_antecendent` helper function.
+- `inf_limit`:  Some Gym environments have observation_spaces with lower and upper limits of (-inf, inf) which would cause problems for the fuzzy inference system when the antecedents are created automatically from the observation_space.  This parameter replace +/-inf with +/-`inf_limit`.  It defaults to 100 but that is a quite arbitrary choice so should be set to something appropriate for the environment.  If the `antecedents` parameter is given or the observation space limits are not +/-inf then this parameter has no effect.
+
+**play(env, n=1)**
+Show the GymRunner playing the environment.  
+
+- `env`: the Gym environment created with `gym.make(env_name)`
+- `n`: experimental parameter to combine the top `n` individuals into a single agent.  By default only the top scoring individual in the population is used.  
+
+This method returns the total reward the agent accrued from playing the environment.
+
+
+### Helper function {- .unlisted}
+
+**make_antecedent( name, min, max, terms=None)**
+This function can be used to create the values for the `antecedents` parameter to the `train` method. 
+The parameters are:
+
+- `name`: str the name to give the antecedent.  This must be a usable as a valid python identifier.
+- `min`: the minimum value for the antecedent.
+- `max`: the maximum value for the antecedent.
+- `terms`: an optional list of names for the fuzzy terms. If not provided then they will default to "lower", "low", "average", "high", "higher".
+
+
+### Example GymRunner code: {- .unlisted}
+
+```python
+from datetime import datetime
+from pathlib import Path
+import tensorboardX
+import gym
+from evofuzzy import GymRunner
+from evofuzzy.fuzzygp import make_antecedent
+
+tensorboard_dir = "tb_logs/cartpole-v0"
+if tensorboard_dir:
+    logdir = Path(f"{tensorboard_dir}/{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+    logdir.mkdir(parents=True, exist_ok=True)
+    tensorboard_writer = tensorboardX.SummaryWriter(str(logdir))
+else:
+    tensorboard_writer = None
+
+env = gym.make("CartPole-v1")
+runner = GymRunner(
+    population_size=50,
+    elite_size=1,
+    n_iter=10,
+    mutation_prob=0.9,
+    crossover_prob=0.2,
+    min_tree_height=1,
+    max_tree_height=3,
+    max_rules=4,
+    whole_rule_prob=0.2,
+)
+
+antecedents = [
+    make_antecedent("position", -2.4, 2.4),
+    make_antecedent("velocity", -1, 1),
+    make_antecedent("angle", -0.25, 0.25),
+    make_antecedent("angular_velocity", -2, 2),
+]
+
+runner.train(env, tensorboard_writer, antecedents)
+print(runner.best_str)
+reward = runner.play(env)
+print("Reward:", reward)
+```
 
