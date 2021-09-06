@@ -175,6 +175,9 @@ rule3 = ctrl.Rule(petal_width['wide'] & petal_length['long'], verginica['likely'
 Got 130/150 right, or accuracy of 86.66%
 (2021-06-06)
 
+- encode fuzzy rules in GP trees
+    - 
+
 - add GP evolution of rules
     - 
 - expand on classifer class

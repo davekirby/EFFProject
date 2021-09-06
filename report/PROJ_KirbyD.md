@@ -288,10 +288,30 @@ This method achieved an accuracy of 86.66%, showing that classification with sim
 
 ## Stage 2: Encoding fuzzy rules in DEAP GP trees
 
+The second stage was to create a DEAP primitive set that could be used to generate and manipulate fuzzy rules.  Normally when using the `deap.gp` module, calling `compile` on an expression tree would either produce a function that would then be called with the user data as parameters, or if the expression tree was defined without parameters then to call it directly.  For this project what was needed was for the `deap.gp.compile` function to return a scikit-fuzzy `Rule` instance.   Fortunately in python functions and classes are somewhat interchangeable in that both are callable objects, and calling a class object creates an instance of that object.   
+
+The `evofuzzy.fuzzygp._make_primitive_set` function does the work of defining the primitive set that is at the heart of the evofuzzy code.  This takes a list of scikit-fuzzy `Antecedent` instances and a list of `Consequent` instances and returns a primitive set with the types and functions registered on it for creating fuzzy rules.
+
+A `PrimitiveSetTyped` instance is created that takes no parameters and has the type of the return value set to the `skfuzzy.control.Rule` class and the following primitives are added to it:
+
+- The terms of each of the `Antecedent` instances are added as terminal nodes of type `Term`.  
+- 
+- the `Rule` class is added as a primitive that has a `Term` and a list as parameters, and returns a `Rule`
+
+- functions for the "and" "or" and "not" operators are added, using `operator.and_`, `operator.or_` and `operator.invert` from the standard library.  Each of these are defined as taking two `Term` instances as parameters and returning a new `Term`.  
+
+- for the consequents an ephemeral constant is used that creates a list of consequent terms selected at random from those available.  Since DEAP can only handle a fixed number of parameters for each primitive this was found to be the simplest way to handle having a list as parameter.  A class is used for the ephemeral constant that has a `__str__` method to return the list as a string that can be compiled as valid python code.  
+
+- an identity function was added as a primitive that takes a list and returns the same list unchanged.  This is so that if mating or mutating tries to modify the consequents list, the only option is to pass it through the identity function, since this is the only function that takes that type.
 
 
 
-# Testing and Evaluation
+
+
+
+
+
+# Evaluation and Tuning
 
 ## Results
 
