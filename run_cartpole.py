@@ -5,7 +5,8 @@ import gym
 from evofuzzy import GymRunner
 from evofuzzy.fuzzygp import make_antecedent
 
-tensorboard_dir = "tb_logs/cartpole-v0"
+tensorboard_dir = None
+# tensorboard_dir = "tb_logs/cartpole-v0"
 if tensorboard_dir:
     logdir = Path(f"{tensorboard_dir}/{datetime.now().strftime('%Y%m%d-%H%M%S')}")
     logdir.mkdir(parents=True, exist_ok=True)

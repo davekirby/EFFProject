@@ -309,8 +309,6 @@ A `PrimitiveSetTyped` instance is created that takes no parameters and has the t
 
 
 
-
-
 # Evaluation and Tuning
 
 ## Results

@@ -1,5 +1,5 @@
 import random
-from itertools import repeat
+from itertools import repeat, count
 from typing import Any, List, NamedTuple, Dict, Iterable, Tuple, Optional
 import operator
 from multiprocessing import Pool
@@ -15,6 +15,7 @@ from skfuzzy.control.term import Term
 
 BIG_INT = 1 << 64
 
+consequents_counter = count()
 
 class RuleSet(list):
     """Subclass of list that contains gp.PrimitiveTree instances, used to hold a set of fuzzy rules.
@@ -85,11 +86,9 @@ def _make_primitive_set(
     for cons in consequents:
         pset.context[cons.label] = cons
 
-    # the DEAP gp module caches the consequents function as a module level attribute
-    # and fails if it already exists
-    if hasattr(gp, "consequents"):
-        del gp.consequents
-    pset.addEphemeralConstant("consequents", make_consequents, list)
+    # The ephemeral constants must have a globally unique name
+    consequents_name = f"consequents_{next(consequents_counter)}"
+    pset.addEphemeralConstant(consequents_name, make_consequents, list)
     pset.addPrimitive(Rule, [Term, list], Rule)
     pset.addPrimitive(operator.and_, [Term, Term], Term)
     pset.addPrimitive(operator.or_, [Term, Term], Term)
