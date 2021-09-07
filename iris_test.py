@@ -11,7 +11,7 @@ import tensorboardX
 """Script for testing the classifier by running it on the iris dataset.
 """
 
-TO_TENSORBOARD = True  # write results and stats to tensorboard?
+TO_TENSORBOARD = False  # write results and stats to tensorboard?
 
 data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]

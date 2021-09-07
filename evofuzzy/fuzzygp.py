@@ -124,10 +124,10 @@ def _generate_rule_set(
     pset: gp.PrimitiveSetTyped, type_=None, config: CreatorConfig = None
 ):
     rules_len = random.randint(config.min_rules, config.max_rules)
-    return [
+    return RuleSet(
         _generate_rule(pset, config.min_tree_height, config.max_tree_height, type_)
         for _ in range(rules_len)
-    ]
+    )
 
 
 def register_primitiveset_and_creators(

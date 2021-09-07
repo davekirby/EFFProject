@@ -324,7 +324,7 @@ A `PrimitiveSetTyped` instance is created that takes no parameters and has the t
 \newpage
 # Appendices
 
-## Appendix I: User Manual
+## Appendix I: User Guide
 
 !include ../user_manual.md
 

@@ -176,7 +176,11 @@ Got 130/150 right, or accuracy of 86.66%
 (2021-06-06)
 
 - encode fuzzy rules in GP trees
-    - 
+    - make_primitive_set
+    - generate_rule and generate_rule_set
+    - register_primitiveset_and_creators
+        - create pset with previous function
+        - 
 
 - add GP evolution of rules
     - 

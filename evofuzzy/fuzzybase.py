@@ -38,7 +38,7 @@ class FuzzyBase:
         parsimony_size: float = 1.7,
         batch_size: Optional[int] = None,
         memory_decay: float = 1,
-        verbose: bool = True
+        verbose: bool = True,
     ):
         self.min_tree_height = min_tree_height
         self.max_tree_height = max_tree_height
