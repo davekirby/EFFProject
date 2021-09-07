@@ -270,7 +270,9 @@ The code for the project is in a python package `evofuzzy` which contains four m
 
 # Implementation
 
-The implementation was done iteratively over several stages.  The classifier code was developed first then support for reinforcement learning was added.  The development process alternated between exploratory programming in jupyter notebooks and test driven development using a combination of unit tests written with pytest and test scripts running against small data sets such as Fisher's iris dataset.
+This section goes through the steps that were taken to implement the evofuzzy package and the decisions made along the way.  For instructions on how to use the final version see the User Guide in Appendix I.
+
+The implementation was done iteratively over several stages.  The classifier code was developed first then support for reinforcement learning was added.  The development process alternated between exploratory programming in jupyter notebooks and test driven development using a combination of unit tests written with pytest and test scripts running against small data sets such as Fisher's iris dataset or simple gym environments such as cartpole. 
 
 ## Stage 1:  Classification with hand-coded fuzzy rules
 
@@ -284,7 +286,7 @@ rule3 = ctrl.Rule(petal_width['wide'] & petal_length['long'], virginica['likely'
 
 A function was written that read each row of a pandas DataFrame containing the iris data and passed it to the fuzzy controller.  The rules were applied to the features and calculated the activation strength of each of the consequents.  The argmax of the activation strengths were used to pick the predicted class.  
 
-This method achieved an accuracy of 86.66%, showing that classification with simple fuzzy rules was viable.  
+This method achieved an accuracy of 86.66%, showing that classification with simple fuzzy rules was viable.  A `FuzzyClassifier` class was created to encapsulate this functionality in a `predict` method.
 
 ## Stage 2: Encoding fuzzy rules in DEAP GP trees
 
@@ -303,6 +305,42 @@ A `PrimitiveSetTyped` instance is created that takes no parameters and has the t
 - for the consequents an ephemeral constant is used that creates a list of consequent terms selected at random from those available.  Since DEAP can only handle a fixed number of parameters for each primitive this was found to be the simplest way to handle having a list as parameter.  A class is used for the ephemeral constant that has a `__str__` method to return the list as a string that can be compiled as valid python code.  
 
 - an identity function was added as a primitive that takes a list and returns the same list unchanged.  This is so that if mating or mutating tries to modify the consequents list, the only option is to pass it through the identity function, since this is the only function that takes that type.
+
+Once the `_make_primitive_set` function was completed a function was added to create a rule from the primitive set.  The `deap.gp.genGrow` function was used, which generates a random tree from the primitives where the branches may be of different lengths.  Another function was added to create a `RuleSet` that consist of a random number of rules.  The `RuleSet` class is a subclass of `list` that has the `__len__` method overridden to return the sum of the length of all the contained rules. This is necessary because the DEAP library uses `len(individual)` when controlling bloat.  A `length` property was added to return the number of rules.  The `register_primitive_set_and_creators` function was written to create the primitive set and register it on the DEAP toolbox, along with the functions for creating individuals and populations. 
+
+
+## Stage 3: Adding rule generation to the classifier
+
+The `FuzzyClassifier` class with hand-coded rules created in stage 1 was updated to generate random rules using the functions created in stage 2.  The `__init__` method was added that took the hyperparameters for controlling the tree height and number of rules.  Since the FuzzyClassifier is intended to be compatible with scikit-learn, the `__init__` method is only used for assigning hyperparameters to local variables of the same name, as required in the scikit-learn developer's guidelines (https://scikit-learn.org/stable/developers/develop.html#instantiation).
+
+
+The `fit(X, y, ...)` method was added that created the DEAP toolbox and registered the primitive set and creation functions.  A helper function was added to generate the scikit-fuzzy `Antecedent` objects.  The upper and lower limits for the fuzzy variable are taken from the min and max values in the X data, while the variable names and terms are either taken from a dictionary passed in by the user or derived from the column names & default terms.  Another helper function was added to create the `Consequent` objects that represent the target classes.   Originally these had a single fuzzy term "likely" that ranged from 0 to 1, but later an "unlikely" term was added that was the inverse function.  This enabled more expressive rules to be created.  
+
+## Stage 4: Adding learning from data to the classifier
+
+At this point the classifier would generate a random rule set and use it to predict the classes, but this clearly performs no better than random guessing.  The next step was to add learning from the training data by creating a population of individuals and implementing the evaluate-evolve cycle.  To do this the core genetic programming operators were added as methods to the class and also registered on the toolbox:
+
+- `evaluate` evaluates an individual by compiling its primitive trees into scikit-learn fuzzy rules and executing them against each row of the input data in turn. The resulting predictions over the entire data set are compared with the actual values in `y` and the accuracy score returned as the fitness value for that individual.  
+- `mate` takes two individuals and mates them by randomly selecting a rule from each and swapping over randomly selected subtrees.
+- `mutate` takes one individual and mutates it by randomly selecting a rule from it and replacing a subtree with a newly created subtree
+
+A function was implemented in the `fuzzygp` module to run the evaluate-mutate loop - originally called `eaSimpleWithElitism` and based on the version in [@wirsanskyHandsonGeneticAlgorithms2020], it was later rewritten as features were added and renamed to `ea_with_elitism_and_replacement` to conform to the PEP8 naming convention.  The function loops round a fixed number of times given by the `n_iter` hyperparameter.  Each time round the loop it:
+
+- evaluates each member of the population against the training data to calculate their fitness
+- creates a new generation by selecting members based on their fitness then randomly mutating or mating them.
+
+The function also optionally prints statistics about the population each generation, including the best and average fitness and sizes.
+
+The original version of the function implemented elitism - preserving the best members of the population between generations - using the DEAP `HallOfFame` class.  This was later changed in favour of sorting the population by fitness each iteration and working with slices of the list, which significantly simplified the code.
+
+
+## Stage 5: Improving the classifier
+
+At this point I had a successful working classifier - the first attempt at classifying the iris dataset got an accuracy of 88% with a population of 20 over 20 generations- slightly better than I got with my hand-written rules.  However there was plenty of room for improvement - the classifier was very slow, taking almost a minute to train on the 150 iris data points, and was slow to converge.
+
+
+
+
 
 
 
