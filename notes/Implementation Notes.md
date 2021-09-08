@@ -193,4 +193,10 @@ Got 130/150 right, or accuracy of 86.66%
     - use top-n predictors
 - make gymrunner sister class
 
+-----
 
+Implementation steps for GymRunner:
+
+1. refactor all the code to make a common base class  FuzzyBase
+2. add GymRunner subclass
+3. 

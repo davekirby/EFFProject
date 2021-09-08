@@ -247,7 +247,7 @@ def ea_with_elitism_and_replacement(
 
     write_stats(population, 0, verbose, logbook, stats, tensorboard_writer)
 
-    for gen in range(1, ngen):
+    for gen in range(1, ngen+1):
         if batched and verbose:
             print("Batch: ", end="")
         for idx, slice_ in enumerate(slices):
@@ -316,7 +316,7 @@ def _prune_rule(rule: gp.PrimitiveTree):
         name = rule[pos].name
         # if there are two consecutive inverts then delete them both
         if name == "invert" and rule[pos + 1].name == "invert":
-            del rule[pos : pos + 2]
+            del rule[pos: pos + 2]
             continue
         if name in ("and_", "or_"):
             # merge duplicate branches

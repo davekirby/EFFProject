@@ -11,7 +11,7 @@ import tensorboardX
 """Script for testing the classifier by running it on the iris dataset.
 """
 
-TO_TENSORBOARD = False  # write results and stats to tensorboard?
+TO_TENSORBOARD = True  # write results and stats to tensorboard?
 
 data = load_iris()
 cols = [c.replace(" ", "_").replace("_(cm)", "") for c in data.feature_names]
@@ -38,15 +38,15 @@ else:
 
 classifier = FuzzyClassifier(
     population_size=20,
-    elite_size=5,
-    n_iter=5,
+    elite_size=3,
+    n_iter=20,
     mutation_prob=0.5,
     crossover_prob=0.5,
     min_tree_height=1,
     max_tree_height=3,
-    min_rules=2,
-    max_rules=4,
-    whole_rule_prob=0.2,
+    min_rules=4,
+    max_rules=6,
+    whole_rule_prob=0.1,
     batch_size=20,
 )
 classifier.fit(

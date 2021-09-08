@@ -140,7 +140,7 @@ The main components of DEAP are:
    toolbox = deap.base.Toolbox()
    toolbox.register("select", deap.tools.selTournament, tournsize=3)
    ```
-   creates the attribute "select" on the Toolbox instance that is the `deap.tools.selTounament` function with its `tournsize` parameter bound to the value 3.  When the Toolbox instance is passed to the main evolution algorithm it will expect certain functions to be defined on the toolbox for it to call.  Other functions that need to be registered typically include "mate", "mutate" and "evaluate" as well as "select" but it depends on the algorithm being used.
+   creates the attribute "select" on the Toolbox instance that is the `deap.tools.selTournament` function with its `tournsize` parameter bound to the value 3.  When the Toolbox instance is passed to the main evolution algorithm it will expect certain functions to be defined on the toolbox for it to call.  Other functions that need to be registered typically include "mate", "mutate" and "evaluate" as well as "select" but it depends on the algorithm being used.
 
 3. A library of functions for different ways of mating, mutating and selecting individuals in the population and for running different kinds of evolution algorithms. Using the toolbox these can be combined like lego bricks to produce a huge variety of evolutionary computing solutions.
    
@@ -294,15 +294,15 @@ The second stage was to create a DEAP primitive set that could be used to genera
 
 The `evofuzzy.fuzzygp._make_primitive_set` function does the work of defining the primitive set that is at the heart of the evofuzzy code.  This takes a list of scikit-fuzzy `Antecedent` instances and a list of `Consequent` instances and returns a primitive set with the types and functions registered on it for creating fuzzy rules.
 
-A `PrimitiveSetTyped` instance is created that takes no parameters and has the type of the return value set to the `skfuzzy.control.Rule` class and the following primitives are added to it:
+A `PrimitiveSetTyped` instance was created that takes no parameters and has the type of the return value set to the `skfuzzy.control.Rule` class and the following primitives are added to it:
 
-- The terms of each of the `Antecedent` instances are added as terminal nodes of type `Term`.  
+- The terms of each of the `Antecedent` instances were added as terminal nodes of type `Term`.  
 - 
-- the `Rule` class is added as a primitive that has a `Term` and a list as parameters, and returns a `Rule`
+- the `Rule` class is added as a primitive that has a `Term` and a `list` as parameters, and returns a `Rule` instance.
 
-- functions for the "and" "or" and "not" operators are added, using `operator.and_`, `operator.or_` and `operator.invert` from the standard library.  Each of these are defined as taking two `Term` instances as parameters and returning a new `Term`.  
+- functions for the "and" "or" and "not" operators were added, using `operator.and_`, `operator.or_` and `operator.invert` from the standard library.  Each of these are defined as taking two `Term` instances as parameters and returning a new `Term`.  
 
-- for the consequents an ephemeral constant is used that creates a list of consequent terms selected at random from those available.  Since DEAP can only handle a fixed number of parameters for each primitive this was found to be the simplest way to handle having a list as parameter.  A class is used for the ephemeral constant that has a `__str__` method to return the list as a string that can be compiled as valid python code.  
+- for the consequents an ephemeral constant was used that creates a list with a single consequent term selected at random from those available.  Since DEAP can only handle a fixed number of parameters for each primitive this was found to be the simplest way to handle having a list as parameter.  A class is used for the ephemeral constant that has a `__str__` method to return the list as a string that can be compiled as valid python code.  
 
 - an identity function was added as a primitive that takes a list and returns the same list unchanged.  This is so that if mating or mutating tries to modify the consequents list, the only option is to pass it through the identity function, since this is the only function that takes that type.
 
@@ -336,13 +336,107 @@ The original version of the function implemented elitism - preserving the best m
 
 ## Stage 5: Improving the classifier
 
-At this point I had a successful working classifier - the first attempt at classifying the iris dataset got an accuracy of 88% with a population of 20 over 20 generations- slightly better than I got with my hand-written rules.  However there was plenty of room for improvement - the classifier was very slow, taking almost a minute to train on the 150 iris data points, and was slow to converge.
+At this point I had a successful working classifier - the first attempt at classifying the iris dataset got an accuracy of 88% with a population of 20 over 20 generations- slightly better than I got with my hand-written rules.  However there was plenty of room for improvement - the classifier was very slow, taking around 50 seconds to train on the 150 iris data points, and was slow to converge.
+
+Improvements to the initial classifier were added over several iterations:
+
+### Parallelising the evaluation with multiprocessing
+
+Evolutionary algorithms are "embarrasingly parallel" so a significant speedup was obtained by using a `multiprocessing.Pool` to evaluate the population in parallel with a pool of workers.  The runtime for training on the iris dataset went from about 50 seconds down to 12 seconds on an 8-core linux desktop, for a 4-fold speedup.
+
+### Supporting rules with multiple consequents
+
+The initial implementation only allowed for a single `Consequent` term in a rule, which limited their expressiveness and meant more rules were required to cover all the possible output classes.  The code for creating an ephemeral constant was modified to create a consequent list containing a random selection of the available consequents.  The number of consequents to include was randomly selected to be from 1 to half the number of available consequents, rounded up.
+
+
+### Using Double Tournaments to reduce bloat
+
+A recurring problem in genetic programming is that the trees tend to grow over successive generations as subtrees are replaced through mutation and mating, a problem known as bloat in the GP literature.  Having lots of large trees are slower evaluate and slower to converge to good solution, since the search space is correspondingly larger.
+
+To reduce bloat the standard tournament selection was replaced with a double tournament as described in [@lukeFightingBloatNonparametric2002].  This selects individuals for the next generation through two rounds of tournaments:
+
+1. A series of fitness tournaments are held where in each round `tournament_size` individuals are selected at random from the population and the fittest is chosen as the winner to go into the next round.
+2. a second series of tournaments is held where pairs of candidates from the previous round are selected and the smallest is selected with a probability controlled by the `parsimony_size` hyperparameter.  This is a value between 1 and 2, where 1 means no size selection is done and 2 means the smallest candidate is always selected.  In the paper cited above, values in the range 1.2 to 1.6 were found to work well for their experiments. 
+
+
+### Adding whole-rule mating and mutating 
+
+At this point mating and mutating only happen on a single branch of one of the rules that make up an individual, which may potentially only make a small change to its fitness.  To enable larger changes to take place the ability to mate or mutate at the level of complete rules was added.  When an individual is selected for mutating there is a probability controlled by the `whole_rule_prob` hyperparameter that an entire rule will be replaced by a newly generated rule.  Similarly when two individuals are selected for mating there is the same probability that they will swap entire rules.  
+
+In practice this has not been found to make much difference to the performance on the data sets that have been studied.
+
+### Adding new individuals to reduce diversity loss
+
+Another problem common in evolutionary algorithms is loss of diversity, where a moderately good genotype outperforms the others and spreads through the population, resulting in convergence on a suboptimal local maxima.   To avoid this each generation a number of new individuals are created and added to the population.  The number to add is controlled by the `replacements` hyperparameter.
+
+### Adding support for TensorBoard
+
+To assist with evaluation and tuning of hyperparameters I added support for writing information to disk in a format that can be displayed by TensorBoard (https://www.tensorflow.org/tensorboard/).  I used the tensorboardX library (https://tensorboardx.readthedocs.io/) to write the data.  The `fit` function was extended to take an optional `tensorboardX.SummaryWriter` instance and this was used to save:
+- at the start of a training run:
+  - the hyperparameters used for training
+- after each epoch:
+  - the highest and average fitness of the population
+  - the smallest and average size of the individuals
+  - the fitness of the entire population as histogram data
+  - the size of the entire population as histogram data
+  - the number of rules each individual has as histogram data
+- at the end of training:
+  - the rules of the best individual as human-readable text
+  - the size of the best individual
+
+tensorboardX has no dependency on TensorBoard, so it is not necessary to install tensorboard to save the data, only to view it afterwards.
+
+Figures 4 shows an examples of TensorBoard comparing several runs of the classifier on the iris dataset.
+
+![Example TensorBoard display of scalar values](images/tensorboard_1.png)
+*Figure 4: example TensorBoard display of scalar values*
+
+Figures 5 shows an examples of TensorBoard displaying histograms of how the fitness and sizes of the entire population changes over the 20 epochs.  
+
+![Example TensorBoard display of histograms of population fitness and sizes](images/tensorboard_2.png)
+*Figure 5: example TensorBoard display of histograms of population fitness and sizes*
+
+Figure 6 shows the TensorBoard display of the rules for the best individual after a training run.
+
+![Example TensorBoard display of best individual](images/tensorboard_3.png)
+*Figure 6: example TensorBoard display of best individual*
+
+
+### Adding rule pruning
+
+It was noticed that rules were often created with redundant terms, for example (in pseudocode) "IF NOT(NOT(X)) THEN ...", "IF X AND X THEN ..." and "IF X OR X THEN..." could all be replaced with "IF X THEN ..." without changing the meaning of the expression.  This redundancy was unnecessary bloat that slowed down execution of the rules and contributed nothing to the fitness.  To aleviate this  `_prune_rule` and `_prune_population` functions were added that searched for this kind of redundancy and remove it.  The population is then pruned just before it is evaluated.
+
+### Adding "unlikely" term to consequents
+
+The rules at this stage can only assert that a target class is "likely" which hampers their expressiveness.  Adding a second "unlikely" term to the consequents that was the negation of the "likely" term enabled.  The rules could now express statements such as 
+
+`IF petal_width[wide] THEN [versicolor[likely], setosa[unlikely]]`
+
+![Setosa consequent](images/setosa_consequent.png)
+*Figure 7: Setosa consequent fuzzy mapping with "unlikely" term*
+
+
+### Adding mini-batch learning
+
+Although at this point the classifier learns from the data, it only updates the population after each complete pass through the training data.  This is means that for large datasets the convergence on a good solution is extremely slow.  To resolve this mini-batch learning was added, controlled by an optional `batch_size` hyperparameter.  The implementation was done by converting the `batch_size` into a list of python `slice` objects and passing the list to the  `ea_with_elitism_and_replacement` function.  This list is iterated over in the main loop and each individual is evaluated against the current slice of the data then the next generation is evolved.  The data and ground truth arrays are shuffled before `ea_with_elitism_and_replacement` is called in case the data is organised in order of the class values - that would have resulted the population being trained on batches where the output classes are all the same leading to poor generalisation.
+
+This code change results in much faster convergence since there are far more opportunities for learning.  Previously if the data set had 1000 data points then over 10 epochs the population would have evolved 10 times.  With the batch size set to 100 then it would have evolved 100 times.
+
+An epoch is still considered a complete pass through the data, so may now consist of many generations.  The output of the statistics, both to tensorboard and through print statements, still only happened at the end of each complete epoch to keep the output to a manageable level. 
+
+Figure 8 shows a comparison of the best and mean fitness and size when classifying the data without batching (grey line) and with a batch size of 20 (red line).  It can be seen that with batching the population has reached a better solution after five epochs than the run without batching took afer 20 epochs.  The size of the individuals is also smaller.  The run was done over 100 of the iris data points and the remaining 50 were used for measuring the performance on unseen data.  In this case the version without batching had an accuracy of 78% while the version with batching had an accuracy of 96%.
+
+![Batching comparison](images/batching_comparison.png)
+*Figure 8: iris classification with and without batching*
+
+## Stage 6 Adding the GymRunner class for reinforcement learning
 
 
 
 
 
 
+### Adding EWMA of fitness values
 
 
 
