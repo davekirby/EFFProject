@@ -19,7 +19,7 @@
     - [ ] find out how to customise title page/declaration/abstract using latex templates
     - [ ] add title page, declaration, abstract
 - [x] #task fill in report headings and sub-heading ✅ 2021-08-22
-- [ ] #task add gymrunner notebook to appendix - convert to markdown first using nbconvert?
+- [x] #task add gymrunner notebook to appendix - convert to markdown first using nbconvert? ✅ 2021-09-08
 - [ ] 
 
 

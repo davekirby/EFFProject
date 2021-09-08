@@ -18,10 +18,15 @@ for classifier, make the metric to use configurable, e.g. F1, AUC etc.
 Also Return predict_proba.  - normalize the strengths of the consequents.
 
 
+## use the batch_size to optionally control max iterations of the gym.
+
+## Allow consequents to be passed to train method?
+
+
 
 ## Tasks
 
-- [ ] #task Move all `fit` parameters to init method, except X and y
+- [x] #task Move all `fit` parameters to init method, except X and y ✅ 2021-09-08
 - [ ] #task Add more unit tests
 - [ ] #task try other classifier datasets
 - [ ] #task figure a way of weighting rules by fitness?  

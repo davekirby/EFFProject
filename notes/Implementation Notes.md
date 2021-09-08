@@ -199,4 +199,5 @@ Implementation steps for GymRunner:
 
 1. refactor all the code to make a common base class  FuzzyBase
 2. add GymRunner subclass
-3. 
+3. added 'run' method that calls `_execute` which does random actions and returns the total reward.
+4. 

@@ -152,6 +152,7 @@ The `deap.gp` module contains classes and functions for supporting Genetic Progr
 1. The `PrimitiveTree` class encapsulates the tree structure that the genetic programming operations act on.   The tree of primitives is stored in a python list in depth-first order.  Because the the arity of every primitive is known, the tree can be reconstructed from the list when it is compiled.  The `PrimitiveTree` class has methods for manipulating the tree and a `__str__` method converts the tree into the equivalent python code, to be used by the `compile` function. 
 
 2. The `PrimitiveSet` and `TypedPrimitiveSet` classes are used to register the type of nodes that a go into a tree structure.  There are three types:
+   
    - `Primitive`s are functions that take a fixed non-zero number of arguments and return a single result.  These form the non-leaf nodes of the tree.
    - `Terminal`s are either constants or functions with no arguments that form the leaves of the tree.  Terminals that are functions are executed every time the compiled tree is run.
    - `EphemeralConstant`s are Terminal functions that are executed once when they are first created and after that always return the same value.  These are used for example to generate a random value that is then used as a constant.
@@ -212,18 +213,19 @@ Gym [@brockman2016openai] is a framework for reinforcement learning and a collec
 
 The core parts of the API are:
 
-1. The environments are registered with the gym and can be created by passing the environment name to the `gym.make` method, e.g. 
-`env = gym.make("CartPole-v1")`
+1. The environments are registered with the gym and can be created by passing the environment name to the `gym.make` method, e.g.  `env = gym.make("CartPole-v1")`
 2. the `env.observation_space` defines what an agent can "see" at each step and the `env.action_space` defines what an agent can do at each step.  An agent can interrogate these spaces to determine the range of possible inputs and outputs.
 3. The `env.reset()` method set the environment to its initial state and returns an observation of that state. 
 4. The `env.step(action)` takes an action provided by the agent and returns a tuple of `(observation, reward, done, info)`.  Where
+
   - `observation` is information about the updated state of the environment
   - `reward` is the reward (positive or negative) for taking that step
   - `done` is a boolean flag indicating if the run is completed
   - `info` may contain diagnostic information specific to an environment, and should not be used by the agent for learning
 5. `env.render()` will display the current environment (e.g. one frame of an atari game) and can be used to create a video display of the agent in action.  This is usually omitted during training to speed up the process.
 
-The observation_space and action_space are subclasses of `gym.spaces.Space` and will be one of several types.  The most common are:
+The `observation_space` and `action_space` are subclasses of `gym.spaces.Space` and will be one of several types.  The most common are:
+
 1. `Discrete(n)` - the observation or action is a single integer in a range 0-n.
 2. `Box(low, high, shape, dtype)` a numpy array of the given shape and dtype where the values are bounded by the high and low values.  This may be a simple linear array or multidimensional.  For example the atari games often have an observation space of `Box(low=0, high=255, shape=(210, 160, 3), dtype=np.uint8)`, where the Box is a 3-dimensional representation of the screen pixels.
 
@@ -424,16 +426,55 @@ This code change results in much faster convergence since there are far more opp
 
 An epoch is still considered a complete pass through the data, so may now consist of many generations.  The output of the statistics, both to tensorboard and through print statements, still only happened at the end of each complete epoch to keep the output to a manageable level. 
 
-Figure 8 shows a comparison of the best and mean fitness and size when classifying the data without batching (grey line) and with a batch size of 20 (red line).  It can be seen that with batching the population has reached a better solution after five epochs than the run without batching took afer 20 epochs.  The size of the individuals is also smaller.  The run was done over 100 of the iris data points and the remaining 50 were used for measuring the performance on unseen data.  In this case the version without batching had an accuracy of 78% while the version with batching had an accuracy of 96%.
+Figure 8 shows a comparison of the best and mean fitness and sizes when classifying the iris data without batching (grey line) and with a batch size of 20 (red line).  It can be seen that with batching the population has reached a better solution after five epochs than the run without batching took afer 20 epochs.  Not only is the fitness higher but the size of the individuals is also smaller.  The run was done over 100 data points and the remaining 50 were used for measuring the performance on unseen data.  In this case the version without batching had a test accuracy of 78% while the version with batching had an accuracy of 96%.
 
 ![Batching comparison](images/batching_comparison.png)
 *Figure 8: iris classification with and without batching*
 
-## Stage 6 Adding the GymRunner class for reinforcement learning
+## Stage 6: Refactoring in preparation for adding the GymRunner class
+
+In preparation for adding support for reinforcement learning the code was extensively refactored to create a superclass of `FuzzyClassifier` called `FuzzyBase` and move common code to it.   Top level functions that would be common to both were moved into the `fuzzygp` module. 
+
+At the end of this process the `FuzzyBase` class had the following methods:
+
+- `__init__` that initialised all the hyperparameters
+- `_initialise` that set up the toolbox and registered functions on it plus other initialisation tasks
+- `execute` that handled calling the `ea_with_elitism_and_replacement` function with the appropriate parameters
+- `_mate` and `_mutate` to handle mating and mutating of rule sets.  
+- methods for getting the top performing individual either as a RuleSet or a string.
 
 
+The `FuzzyClassifier` class was left with:
+
+- `fit`  which was slimmed down since much of its contents were moved to the `_initialise` and `execute` methods.  What was left was mainly for handling creating of the `Antecedent` and `Consequent` objects and calling the methods on the base class.
+- `predict` largely unchanged
+- helper functions for creating slices of the data for mini-batch processing.  
 
 
+## Stage 7: Adding the `GymRunner` class 
+
+The `GymRunner` class was added as a subclass of `FuzzyBase`, initially with these methods:
+
+- `train` for training the population on a Gym environment.
+- `play` for displaying a video sequence of the best individual interacting with the environment.
+- `_evaluate` runs a single individual in the environment and returns the total reward it has achieved.
+- `_evaluate_action` runs a single timestep of an individual in the environment.  This maps the current observations from the environment into the antecedent terms, runs the FIS for the individual and converts the consequent into the environments action space and returns the action to perform.  
+
+At this stage the antecendents and consequents had to be created by the user and passed into the `train` method.  The `antecedents` parameter took a list of `Antecedent` instances that map the observation space to fuzzy variables.  A `make_antecedent` function was provided to create an `Antecedent` instance from a name and min and max range, plus an optional list of terms to use.  For the `consequents` parameter took a dictionary mapping a name to an action value.  
+
+Only environments with `Discrete` action spaces were supported at this stage (see section 4.1.3).  The discrete actions were treated the same way as for the classifier - a `Consequent` was created with "likely" and "unlikely" terms and the action with the highest score was chosen as the return value.
+
+## Stage 8: Handle Box actions and auto-generate Antecedents and Consequents
+
+The next step was to create the antecedents and consequents automatically by inspecting the observation space and action space respectively and to handle `Box` (continous) actions.  
+
+For the antecedents, a helper function `_make_antecedents_from_env` was written that inspects the environment's `observation_space` attribute to find the shape of the space and the maximum and minimum that each value can take, then creates an `Antecedent` for each one.   The names of the antecedents are "obs_0", "obs_1" etc and the terms are the default scikit-fuzzy terms of "lower", "low", "average", "high" and "higher".    Currently only one-dimensional `Box` spaces are supported.
+
+One issue that was encountered was that many environments give the upper and lower bounds as "inf" and "-inf", which caused the antecedents to fail.  To get round this an `inf_limit` parameter was added to the `train` method that clipped any "inf" antecedents to that value.  The default was arbitrarily chosen to be 100.
+
+The user may still provide their own list of antecendents definition and these will be used instead of the auto-generated ones.  
+
+For the consequents the `action_space` was inspected to see what type it was and different kinds of consequents created depending on whether it was a `Box` or `Continuous` space.  For the `Discrete` space a binary `Consequent` was created for each possible action, as described previously.  For `Box` spaces a consequent is created for each output with the min and max values taken from the action space and the terms the same as for the antecedents.  Both box and continous consequents named "action_0", "action_1" etc.
 
 
 ### Adding EWMA of fitness values

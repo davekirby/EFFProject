@@ -29,7 +29,7 @@ def _antecedents_from_env(env: gym.Env, inf_limit: float):
     ]
 
 
-def consequents_from_env(env: gym.Env):
+def _consequents_from_env(env: gym.Env):
     actions = env.action_space
     if isinstance(actions, gym.spaces.Box):
         assert len(actions.shape) == 1, "Only one dimensional action spaces supported"
@@ -55,7 +55,7 @@ class GymRunner(FuzzyBase):
         else:
             self.antecedents_ = _antecedents_from_env(env, inf_limit)
 
-        self.consequents_, self.box_actions_ = consequents_from_env(env)
+        self.consequents_, self.box_actions_ = _consequents_from_env(env)
 
         self._initialise(tensorboard_writer)
 
