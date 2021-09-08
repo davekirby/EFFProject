@@ -457,12 +457,14 @@ The `GymRunner` class was added as a subclass of `FuzzyBase`, initially with the
 
 - `train` for training the population on a Gym environment.
 - `play` for displaying a video sequence of the best individual interacting with the environment.
-- `_evaluate` runs a single individual in the environment and returns the total reward it has achieved.
+- `_evaluate` runs a single individual in the environment and returns the total reward it has achieved. The environment is reset to a random starting state every time an individual is evaluated.
 - `_evaluate_action` runs a single timestep of an individual in the environment.  This maps the current observations from the environment into the antecedent terms, runs the FIS for the individual and converts the consequent into the environments action space and returns the action to perform.  
 
 At this stage the antecendents and consequents had to be created by the user and passed into the `train` method.  The `antecedents` parameter took a list of `Antecedent` instances that map the observation space to fuzzy variables.  A `make_antecedent` function was provided to create an `Antecedent` instance from a name and min and max range, plus an optional list of terms to use.  For the `consequents` parameter took a dictionary mapping a name to an action value.  
 
 Only environments with `Discrete` action spaces were supported at this stage (see section 4.1.3).  The discrete actions were treated the same way as for the classifier - a `Consequent` was created with "likely" and "unlikely" terms and the action with the highest score was chosen as the return value.
+
+At this point it was possible to train a GymRunner instance to play some simple environments with discrete actions such as CartPole and MountainCar.
 
 ## Stage 8: Handle Box actions and auto-generate Antecedents and Consequents
 
@@ -476,11 +478,31 @@ The user may still provide their own list of antecendents definition and these w
 
 For the consequents the `action_space` was inspected to see what type it was and different kinds of consequents created depending on whether it was a `Box` or `Continuous` space.  For the `Discrete` space a binary `Consequent` was created for each possible action, as described previously.  For `Box` spaces a consequent is created for each output with the min and max values taken from the action space and the terms the same as for the antecedents.  Both box and continous consequents named "action_0", "action_1" etc.
 
+## Stage 9:  Further improvements
 
 ### Adding EWMA of fitness values
 
+It was observed that because the gym environment is reset to a random state every time an individual is evaluated, the individual may perform well on one run of the gym environment but badly on another.  Similarly an individual in the classifier may perform well on one batch but badly on another.  This could result in an individual who is a good performer overall being removed from the population prematurely, or a bad performer spreading his genes through population.   To counter this an option exponential weighted moving average (EWMA) was included in the fitness calculation, so that some memory of the fitness from previous evaluations may be preserved.  This is controlled by the `memory_decay` hyperparameter which can take a value between 0 and 1, where 1 is no memory and only the latest fitness value is used, and 0 means only the first fitness value is used.  It is calculated as 
 
+$fit_t = \alpha \times fit_{calc} + (1-\alpha) \times fit_{t-1}$
 
+where 
+
+- $\alpha$ is the `memory_decay` hyperparameter
+- $fit_{calc}$ is the true fitness evaluating the individual against the environment or data
+- $fit_{t-1}$ the adjusted fitness from the previous evaluation
+- $fit_t$ is the adjusted fitness for the current evaluation
+
+The `memory_decay` parameter defaults to 1, so no memory of the previous evaluations is preserved.
+
+### Adding save and load methods
+
+Convenience methods to save and load the state of a `GymRunner` of `FuzzyClassifer` was added to the base class.  This pickles/unpickles the object's `__dict__` to a file.
+The code was also updated for "warm start" learning - if the `fit` or `train` methods are called on the same object multiple times it will carry on learning from where it left off, instead of starting from scratch with a new population.
+
+### Experimental feature added - `predict` or `play` with the top N performers
+
+A parameter `n` was added to the `predict` and `play` methods that take the top `n` performers and combines them into a single individual when predicting or playing.  The hypothesis is that this should act as a kind of ensemble and improve performance, but this does not appear to be the case so the feature should be considered experimental.
 
 # Evaluation and Tuning
 

@@ -201,3 +201,11 @@ Implementation steps for GymRunner:
 2. add GymRunner subclass
 3. added 'run' method that calls `_execute` which does random actions and returns the total reward.
 4. 
+
+What other improvements were there apart from EWMA?
+
+$fit_t = \alpha \times fit_{calc} + (1-\alpha) \times fit_{t-1}$
+
+
+- top `n`
+- 
