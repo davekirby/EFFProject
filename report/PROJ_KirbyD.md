@@ -376,7 +376,7 @@ Another problem common in evolutionary algorithms is loss of diversity, where a 
 To assist with evaluation and tuning of hyperparameters I added support for writing information to disk in a format that can be displayed by TensorBoard (https://www.tensorflow.org/tensorboard/).  I used the tensorboardX library (https://tensorboardx.readthedocs.io/) to write the data.  The `fit` function was extended to take an optional `tensorboardX.SummaryWriter` instance and this was used to save:
 - at the start of a training run:
   - the hyperparameters used for training
-- after each epoch:
+- after each iteration:
   - the highest and average fitness of the population
   - the smallest and average size of the individuals
   - the fitness of the entire population as histogram data
@@ -393,7 +393,7 @@ Figures 4 shows an examples of TensorBoard comparing several runs of the classif
 ![Example TensorBoard display of scalar values](images/tensorboard_1.png)
 *Figure 4: example TensorBoard display of scalar values*
 
-Figures 5 shows an examples of TensorBoard displaying histograms of how the fitness and sizes of the entire population changes over the 20 epochs.  
+Figures 5 shows an examples of TensorBoard displaying histograms of how the fitness and sizes of the entire population changes over the 20 iterations.  
 
 ![Example TensorBoard display of histograms of population fitness and sizes](images/tensorboard_2.png)
 *Figure 5: example TensorBoard display of histograms of population fitness and sizes*
@@ -422,11 +422,11 @@ The rules at this stage can only assert that a target class is "likely" which ha
 
 Although at this point the classifier learns from the data, it only updates the population after each complete pass through the training data.  This is means that for large datasets the convergence on a good solution is extremely slow.  To resolve this mini-batch learning was added, controlled by an optional `batch_size` hyperparameter.  The implementation was done by converting the `batch_size` into a list of python `slice` objects and passing the list to the  `ea_with_elitism_and_replacement` function.  This list is iterated over in the main loop and each individual is evaluated against the current slice of the data then the next generation is evolved.  The data and ground truth arrays are shuffled before `ea_with_elitism_and_replacement` is called in case the data is organised in order of the class values - that would have resulted the population being trained on batches where the output classes are all the same leading to poor generalisation.
 
-This code change results in much faster convergence since there are far more opportunities for learning.  Previously if the data set had 1000 data points then over 10 epochs the population would have evolved 10 times.  With the batch size set to 100 then it would have evolved 100 times.
+This code change results in much faster convergence since there are far more opportunities for learning.  Previously if the data set had 1000 data points then over 10 iterations the population would have evolved 10 times.  With the batch size set to 100 then it would have evolved 100 times.
 
-An epoch is still considered a complete pass through the data, so may now consist of many generations.  The output of the statistics, both to tensorboard and through print statements, still only happened at the end of each complete epoch to keep the output to a manageable level. 
+An iteration is still considered a complete pass through the data, so may now consist of many generations.  The output of the statistics, both to tensorboard and through print statements, still only happened at the end of each complete iteration to keep the output to a manageable level. 
 
-Figure 8 shows a comparison of the best and mean fitness and sizes when classifying the iris data without batching (grey line) and with a batch size of 20 (red line).  It can be seen that with batching the population has reached a better solution after five epochs than the run without batching took afer 20 epochs.  Not only is the fitness higher but the size of the individuals is also smaller.  The run was done over 100 data points and the remaining 50 were used for measuring the performance on unseen data.  In this case the version without batching had a test accuracy of 78% while the version with batching had an accuracy of 96%.
+Figure 8 shows a comparison of the best and mean fitness and sizes when classifying the iris data without batching (grey line) and with a batch size of 20 (red line).  It can be seen that with batching the population has reached a better solution after five iterations than the run without batching took afer 20 iterations.  Not only is the fitness higher but the size of the individuals is also smaller.  The run was done over 100 data points and the remaining 50 were used for measuring the performance on unseen data.  In this case the version without batching had a test accuracy of 78% while the version with batching had an accuracy of 96%.
 
 ![Batching comparison](images/batching_comparison.png)
 *Figure 8: iris classification with and without batching*
@@ -504,11 +504,35 @@ The code was also updated for "warm start" learning - if the `fit` or `train` me
 
 A parameter `n` was added to the `predict` and `play` methods that take the top `n` performers and combines them into a single individual when predicting or playing.  The hypothesis is that this should act as a kind of ensemble and improve performance, but this does not appear to be the case so the feature should be considered experimental.
 
+
+### Final Hyperparameters
+
+The final set of hyperparameters available are given below.  For an explanation of each see the User Guide in Appendix I.
+
+- min_tree_height
+- max_tree_height
+- min_rules
+- max_rules
+- population_size
+- n_iter
+- mutation_prob
+- crossover_prob
+- whole_rule_prob
+- elite_size
+- replacements
+- tournament_size
+- parsimony_size
+- batch_size  (ignored by GymRunner)
+- memory_decay
+- verbose
+
+
 # Evaluation and Tuning
 
 The package was evaluated against several different datasets for classification and gym environments for reinforcement learning.  The results were saved to tensorboard for analysis.
 
-##  Classifier evaluation
+##  FuzzyClassifier evaluation
+
 The initial development of the classifier was done by running the rules against the entire iris dataset with no data held out for evaluation since the purpose at that point was to test that the code worked.  For evaluating the accuracy on test data a script was written for 5-fold cross validation of the iris dataset.  The cross validation functionality was then refactored into a helper function `classifier_cv.cross_validate` that could be used with other datasets.   The standard scikit-learn `sklearn.model-selection.cross_validate` function was not used because that would not allow tensorboardX to be used for recording results or the antecedents and consequents for the classifier to be specified.
 
 The `cross_validate` function uses `sklearn.model_selection.StratifiedKFold` to create a 5-fold split of the data with the distribution of the target classes balanced between each split.  
@@ -523,19 +547,55 @@ At the end of the five folds, the average accuracy and standard deviation are pr
 Running five-fold CV on a large dataset could be very time consuming, so a flag was added to the parameters to optionally swap the train and test data, so the model was trained on one fifth of the data and evaluated on four-fifths.  This gave less accurate results but a five-fold speedup. 
 
 ### Iris dataset results
-Figure 9 shows a typical result from cross validation of the iris dataset with a batch size of 10 and a popuation of 20 trained over 10 epochs.  Most of the folds had reached 100% training accuracy by the fifth epoch.  
+Figure 9 shows a typical result from cross validation of the iris dataset with a batch size of 10 and a popuation of 20 trained over 10 iterations.  Most of the folds had reached 100% training accuracy by the fifth iteration.  
 The average accuracy on the test data was 93.33% with a standard deviation of 7.81%.  The training run time for each fold was 18-20 seconds. 
 
 ![Iris CV](images/iris_cv_1.png)
 *Figure 9 typical iris CV result*
 
 
-## Wisconsin Breast Cancer dataset results
+### Wisconsin Breast Cancer dataset results
 
-The Wisconsin Cancer dataset [@wolbergMultisurfaceMethodPattern1990] was chosen as a more challenging task.  The dataset was accessed through the OpenML catalog [@Dua_2019] via the scikit-learn `sklearn.datasets.fetch_openml` function.  There are two version of this dataset available, so the version with 10 features and 699 instances was chosen.
+The Wisconsin Cancer dataset [@wolbergMultisurfaceMethodPattern1990] was chosen as a more challenging task.  The dataset was originally from the UCI Machine learning repository [@Dua_2019] and accessed through the OpenML catalog via the scikit-learn `sklearn.datasets.fetch_openml` function.  There are two version of this dataset available, so the smaller version with 10 features and 699 instances was chosen (https://www.openml.org/d/15).
 
-Figure 10 shows a result with a batch size of 50 over 5 epochs.  
+Figure 10 shows a typical result with a population of 50, a batch size of 50 and 5 iterations.  The run time for each fold ranged from 34 to 42 seconds.   The average accuracy on the test data was 93.7% with a standard deviation of 1.9%.
 
+Here is an example of the best rule set generated by one of the runs, with an accuracy on the test set of 94.89%.  
+```
+IF Single_Epi_Cell_Size[very_low] THEN [malignant[unlikely], benign[likely]] 
+IF Bare_Nuclei[medium] THEN benign[unlikely] 
+IF Cell_Shape_Uniformity[very_low] THEN [benign[likely], malignant[unlikely]] 
+IF Bare_Nuclei[very_high] THEN malignant[likely] 
+IF NOT-Cell_Size_Uniformity[very_low] THEN [benign[unlikely], malignant[likely]] 
+IF Normal_Nucleoli[low] THEN malignant[likely]
+```
+
+This shows how easy it would be for a domain expert to interpret the reason the system gave for a prediction.
+
+The confusion matrix for this particular run is 
+
+| actual \ predicted          | benign | malignant |
+| --------- | ------ | --------- |
+| benign    | 82     | 7         |
+| malignant | 0      | 48        |
+
+
+![Cancer CV](images/cancer_cv_1.png)
+*Figure 10 typical cancer CV result*
+
+### Segmentation dataset results
+
+The segmentation dataset (https://www.openml.org/d/40984), also from the UCI ML repository via OpenML, is a much more challenging task than the previous two.   It is a dataset of information about 3x3 pixel squares taken from outdoor images, such as mean RGB values, intensity, measure of horizonal and vertical edges etc.  The task is to classify the pixels into one of seven classes - "brickface", "sky", "foliage", "cement", "window", "path" and "grass". There are 17 features in total and 2310 rows.  
+
+This dataset performed very poorly.  It was much slower than the previous datasets, partly because there were far more rows of data, but also because the larger number of feature and classes meant more rules and larger rules were used to model it.  Each fold took between 8 and 14 minutes to run.  It was also far less accurate, both on the training and test sets.  After 5 iterations with a population of 50 and a batch size of 30, it's best accuracy on the training set was 72.2% but that fold only scored 55.4% accuracy on the test set.  The mean accuracy on the test set was 54% with a standard deviation of 6.68%. For comparison, the scikit-learn RandomForestClassifer managed 5-fold CV on the dataset in under 2.5 seconds with an accuracy of 94%.
+
+![Segmentation CV](images/segmentation_cv.png)
+*Figure 11: typical segmentation CV results*
+
+Further research is needed, but my hypothesis is that the reason it performs so poorly is due to the large number of target classes, rather than the number of features.  It may also be that in this particular dataset the relationship between the features and the target class simply does not map well into how the fuzzy rules work.  
+
+
+## GymRunner evaluation
 
 # Conclusion
 

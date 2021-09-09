@@ -10,21 +10,24 @@ tensorboard_dir = "tb_logs/segment_cv/"
 # tensorboard_dir = None
 
 hyperparams = HyperParams(
-    population_size=100,
+    population_size=50,
     elite_size=3,
-    n_iter=2,
-    mutation_prob=0.9,
-    crossover_prob=0.2,
+    n_iter=5,
+    mutation_prob=0.5,
+    crossover_prob=0.5,
     min_tree_height=1,
     max_tree_height=3,
-    min_rules=8,
-    max_rules=12,
+    min_rules=3,
+    max_rules=7,
     whole_rule_prob=0.1,
     batch_size=10,
-    memory_decay=0.4,
+    memory_decay=.7
 )
 
 data, y = fetch_openml(data_id=40984, as_frame=True, return_X_y=True)
+
+# this column should not be used
+del data['region.centroid.row']
 
 data.columns = [c.replace(".", "_") for c in data.columns]
 
