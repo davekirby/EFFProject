@@ -12,7 +12,7 @@ tensorboard_dir = "tb_logs/iris_cv/"
 hyperparams = HyperParams(
     population_size=20,
     elite_size=3,
-    n_iter=5,
+    n_iter=10,
     mutation_prob=0.5,
     crossover_prob=0.5,
     min_tree_height=1,
@@ -43,5 +43,5 @@ cross_validate(
     antecendent_terms,
     classes,
     tensorboard_dir,
-    number_of_predictors=3,
+    number_of_predictors=1,
 )

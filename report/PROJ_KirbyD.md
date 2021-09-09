@@ -506,13 +506,42 @@ A parameter `n` was added to the `predict` and `play` methods that take the top 
 
 # Evaluation and Tuning
 
-## Results
+The package was evaluated against several different datasets for classification and gym environments for reinforcement learning.  The results were saved to tensorboard for analysis.
 
-# Development Methodology and Schedule
+##  Classifier evaluation
+The initial development of the classifier was done by running the rules against the entire iris dataset with no data held out for evaluation since the purpose at that point was to test that the code worked.  For evaluating the accuracy on test data a script was written for 5-fold cross validation of the iris dataset.  The cross validation functionality was then refactored into a helper function `classifier_cv.cross_validate` that could be used with other datasets.   The standard scikit-learn `sklearn.model-selection.cross_validate` function was not used because that would not allow tensorboardX to be used for recording results or the antecedents and consequents for the classifier to be specified.
+
+The `cross_validate` function uses `sklearn.model_selection.StratifiedKFold` to create a 5-fold split of the data with the distribution of the target classes balanced between each split.  
+The for each split:
+- If the tensorboard directory is specified a subdirectory is added with its name containing the split number, current date and time, then a `tensorboardX.SummaryWriter` is instantiated to log into that directory.
+- a `FuzzyClassifer` is created with any hyperparameters passed into the function
+- the classifier is trained against the training data and evaluated against the test fold
+- the accuracy and confusion matrix are printed out and also saved to tensorboard.
+
+At the end of the five folds, the average accuracy and standard deviation are printed.
+
+Running five-fold CV on a large dataset could be very time consuming, so a flag was added to the parameters to optionally swap the train and test data, so the model was trained on one fifth of the data and evaluated on four-fifths.  This gave less accurate results but a five-fold speedup. 
+
+### Iris dataset results
+Figure 9 shows a typical result from cross validation of the iris dataset with a batch size of 10 and a popuation of 20 trained over 10 epochs.  Most of the folds had reached 100% training accuracy by the fifth epoch.  
+The average accuracy on the test data was 93.33% with a standard deviation of 7.81%.  The training run time for each fold was 18-20 seconds. 
+
+![Iris CV](images/iris_cv_1.png)
+*Figure 9 typical iris CV result*
+
+
+## Wisconsin Breast Cancer dataset results
+
+The Wisconsin Cancer dataset [@wolbergMultisurfaceMethodPattern1990] was chosen as a more challenging task.  The dataset was accessed through the OpenML catalog [@Dua_2019] via the scikit-learn `sklearn.datasets.fetch_openml` function.  There are two version of this dataset available, so the version with 10 features and 699 instances was chosen.
+
+Figure 10 shows a result with a batch size of 50 over 5 epochs.  
+
 
 # Conclusion
 
 # References
+::: {#refs}
+:::
 
 \newpage
 # Appendices

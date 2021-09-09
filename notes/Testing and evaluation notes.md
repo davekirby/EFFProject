@@ -46,5 +46,7 @@ Unit tests are pretty sparse
 ## Classifier
 - iris
 - segmentation
-- other?
+- wisconsin cancer
+
+
 

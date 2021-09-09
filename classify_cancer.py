@@ -10,18 +10,17 @@ tensorboard_dir = "tb_logs/cancer_cv/"
 # tensorboard_dir = None
 
 hyperparams = HyperParams(
-    population_size=100,
+    population_size=50,
     elite_size=3,
-    n_iter=3,
-    mutation_prob=0.9,
-    crossover_prob=0.2,
+    n_iter=5,
+    mutation_prob=0.5,
+    crossover_prob=0.5,
     min_tree_height=1,
     max_tree_height=3,
     min_rules=4,
-    max_rules=10,
+    max_rules=7,
     whole_rule_prob=0.1,
     batch_size=50,
-    memory_decay=0.6,
 )
 
 data, y = fetch_openml(data_id=15, as_frame=True, return_X_y=True)
@@ -45,5 +44,5 @@ cross_validate(
     classes,
     tensorboard_dir,
     train_test_swap=False,
-    number_of_predictors=3,
+    number_of_predictors=1,
 )
