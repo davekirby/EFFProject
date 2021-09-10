@@ -48,5 +48,10 @@ Unit tests are pretty sparse
 - segmentation
 - wisconsin cancer
 
+## gym
+- cartpole
+- mountaincar
+- mountaincar continuous
+- 
 
 

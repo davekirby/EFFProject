@@ -39,7 +39,7 @@ else:
 classifier = FuzzyClassifier(
     population_size=20,
     elite_size=3,
-    n_iter=20,
+    n_iter=5,
     mutation_prob=0.5,
     crossover_prob=0.5,
     min_tree_height=1,

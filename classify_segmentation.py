@@ -16,11 +16,11 @@ hyperparams = HyperParams(
     mutation_prob=0.5,
     crossover_prob=0.5,
     min_tree_height=1,
-    max_tree_height=3,
-    min_rules=3,
-    max_rules=7,
+    max_tree_height=2,
+    min_rules=20,
+    max_rules=25,
     whole_rule_prob=0.1,
-    batch_size=10,
+    batch_size=20,
     memory_decay=.7
 )
 

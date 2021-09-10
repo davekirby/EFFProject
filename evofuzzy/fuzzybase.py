@@ -59,7 +59,7 @@ class FuzzyBase:
 
     def _initialise(self, tensorboard_writer):
         if tensorboard_writer:
-            hparams = "\n".join(
+            hparams = "\n\n".join(
                 f"* {k}: {v}" for (k, v) in self.__dict__.items() if not k.endswith("_")
             )
             tensorboard_writer.add_text("hparams", hparams)
