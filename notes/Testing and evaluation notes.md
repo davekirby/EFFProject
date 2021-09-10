@@ -52,6 +52,12 @@ Unit tests are pretty sparse
 - cartpole
 - mountaincar
 - mountaincar continuous
-- 
+- pendulum
+- acrobot?
+- lunar lander continuous
+
+
+
+
 
 

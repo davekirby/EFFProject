@@ -597,6 +597,10 @@ Further research is needed, but my hypothesis is that the reason it performs so 
 
 ## GymRunner evaluation
 
+
+
+
+
 # Conclusion
 
 # References
@@ -608,7 +612,7 @@ Further research is needed, but my hypothesis is that the reason it performs so 
 
 ## Appendix I: User Guide
 
-!include ../user_manual.md
+!include ../user_guide.md
 
 \newpage
 ## Appendix II: Source Code
