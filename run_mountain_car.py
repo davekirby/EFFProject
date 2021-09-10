@@ -4,8 +4,7 @@ import tensorboardX
 import gym
 from evofuzzy import GymRunner
 
-
-tensorboard_dir = "tb_logs/mountaincar-discrete-v0"
+tensorboard_dir = "tb_logs/mountaincar-v0"
 if tensorboard_dir:
     logdir = Path(f"{tensorboard_dir}/{datetime.now().strftime('%Y%m%d-%H%M%S')}")
     logdir.mkdir(parents=True, exist_ok=True)
@@ -13,7 +12,7 @@ if tensorboard_dir:
 else:
     tensorboard_writer = None
 
-env = gym.make("MountainCar-v0")
+env = gym.make("MountainCarContinuous-v0")
 runner = GymRunner(
     population_size=50,
     elite_size=1,

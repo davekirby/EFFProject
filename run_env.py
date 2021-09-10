@@ -3,7 +3,6 @@ from pathlib import Path
 import tensorboardX
 import gym
 from evofuzzy import GymRunner
-from evofuzzy.fuzzygp import make_antecedent
 
 """ set `env_name` in an ipython or jupyter shell then %run this file"""
 
