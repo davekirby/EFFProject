@@ -6,7 +6,7 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from statistics import fmean, stdev
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Iterable, List, Dict
 
 import pandas as pd
 import tensorboardX
@@ -17,6 +17,8 @@ from evofuzzy import FuzzyClassifier
 
 
 class HyperParams(NamedTuple):
+    """NamedTuple holding the hyperparameters for the classifier."""
+
     min_tree_height: int = 2
     max_tree_height: int = 4
     min_rules: int = 2
@@ -35,15 +37,28 @@ class HyperParams(NamedTuple):
 
 
 def cross_validate(
-    train_x,
-    train_y,
-    hyperparams,
-    antecendent_terms,
-    classes,
-    tensorboard_dir,
-    train_test_swap=False,
-    number_of_predictors=1,
+    train_x: pd.DataFrame,
+    train_y: Iterable,
+    hyperparams: HyperParams,
+    antecendent_terms: Dict[str : List[str]],
+    classes: List[str],
+    tensorboard_dir: Optional[str],
+    train_test_swap: bool = False,
+    number_of_predictors: int = 1,
 ):
+    """Do 5-fold cross validation on training data and training target classes.  Print
+    out the results and optionally write them to tensorboard directory.
+
+    :param train_x: DataFrame of training data
+    :param train_y: target classes
+    :param hyperparams: HyperParams object
+    :param antecendent_terms: mapping from antecendent names to list of terms to use
+    :param classes: list of target class names
+    :param tensorboard_dir: directory to write tensorboard info to (may be None)
+    :param train_test_swap: If True then for each fold train on 1/5 the data and test on 4/5
+    :param number_of_predictors: number of predictors to use for testing
+    :return: None
+    """
     kfold = StratifiedKFold(n_splits=5, shuffle=True)
     if tensorboard_dir and tensorboard_dir[-1] == "/":
         tensorboard_dir = tensorboard_dir[:-1]

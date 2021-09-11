@@ -4,7 +4,9 @@ import tensorboardX
 import gym
 from evofuzzy import GymRunner
 
-""" set `env_name` in an ipython or jupyter shell then %run this file"""
+""" Script to run GymRunner on an environment in an ipython or Jupyter shell. 
+To use, set `env_name` in the shell then %run this file.
+"""
 
 tensorboard_dir = f"tb_logs/{env_name}"
 if tensorboard_dir:

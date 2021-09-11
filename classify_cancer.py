@@ -3,7 +3,7 @@ from sklearn.datasets import fetch_openml
 
 from classifier_cv import cross_validate, HyperParams
 
-"""Script for cross-validating the image segmentation dataset.
+"""Script for doing 5-fold cross-validation on the Wisconsin Cancer dataset.
 """
 
 tensorboard_dir = "tb_logs/cancer_cv/"

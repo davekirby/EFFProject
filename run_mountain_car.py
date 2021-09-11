@@ -4,6 +4,8 @@ import tensorboardX
 import gym
 from evofuzzy import GymRunner
 
+"""Script for running the MountainCar-v0 environment."""
+
 tensorboard_dir = "tb_logs/mountaincar-v0"
 if tensorboard_dir:
     logdir = Path(f"{tensorboard_dir}/{datetime.now().strftime('%Y%m%d-%H%M%S')}")

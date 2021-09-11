@@ -3,7 +3,7 @@ import pandas as pd
 
 from classifier_cv import cross_validate, HyperParams
 
-"""Script for testing the classifier by running it on the iris dataset.
+"""Script for doing 5-fold cross-validation on the iris dataset.
 """
 
 tensorboard_dir = "tb_logs/iris_cv/"

@@ -5,9 +5,11 @@ import operator
 from multiprocessing import Pool
 from functools import partial
 
+import deap.tools
 import numpy as np
 import pandas as pd
 import skfuzzy as fuzz
+import tensorboardX
 from deap import creator, base, algorithms, gp, tools
 from skfuzzy import control as ctrl
 from skfuzzy.control import Rule, Antecedent, Consequent
@@ -16,6 +18,7 @@ from skfuzzy.control.term import Term
 BIG_INT = 1 << 64
 
 consequents_counter = count()
+
 
 class RuleSet(list):
     """Subclass of list that contains gp.PrimitiveTree instances, used to hold a set of fuzzy rules.
@@ -61,11 +64,11 @@ class MakeConsequents:
 
 
 def _make_primitive_set(
-    antecendents: List[Antecedent], consequents: List[Consequent]
+    antecedents: List[Antecedent], consequents: List[Consequent]
 ) -> gp.PrimitiveSetTyped:
     """Create a typed primitive set that can be used to generate fuzzy rules.
 
-    :param antecendents:  The Antecedent instances for the rules
+    :param antecedents:  The Antecedent instances for the rules
     :param consequents:  The Consequent instances for the rules.
 
     :return:  The PrimitiveSetTyped with all the rule components registered
@@ -78,7 +81,7 @@ def _make_primitive_set(
 
     pset = gp.PrimitiveSetTyped("Rule", [], Rule)
 
-    for ant in antecendents:
+    for ant in antecedents:
         pset.context[ant.label] = ant
         for name, term in ant.terms.items():
             pset.addTerminal(term, Term, f"{ant.label}['{name}']")
@@ -121,7 +124,14 @@ def _generate_rule(pset: gp.PrimitiveSetTyped, min_: int, max_: int, type_=None)
 
 def _generate_rule_set(
     pset: gp.PrimitiveSetTyped, type_=None, config: CreatorConfig = None
-):
+) -> RuleSet:
+    """Generate a RuleSet - a list of rules created by the _generate_rule function
+
+    :param pset: PrimitiveSetTyped registered with the primitives needed
+    :param type_:
+    :param config: configuration for the _generate_rule function
+    :return: RuleSet with the generated rules
+    """
     rules_len = random.randint(config.min_rules, config.max_rules)
     return RuleSet(
         _generate_rule(pset, config.min_tree_height, config.max_tree_height, type_)
@@ -132,23 +142,23 @@ def _generate_rule_set(
 def register_primitiveset_and_creators(
     toolbox: base.Toolbox,
     config: CreatorConfig,
-    antecendents: List[Antecedent],
+    antecedents: List[Antecedent],
     consequents: List[Consequent],
 ):
-    """Create a primitive set for fuzzy rules and register an individualCreator and
-    populationCreator with the toolbox.
+    """Create a primitive set for fuzzy rules and register functions for creating
+    individuals and populations with the toolbox.
     Prerequisites:
     - RuleSetFitness class registered in creator module
     - antecedents and consequents have had their terms defined
 
     :param toolbox: deap.base.Toolbox instance
     :param config:  Config instance holding hyperparameters
-    :param antecendents: list of fuzzy antecendents used by the rules
+    :param antecedents: list of fuzzy antecedents used by the rules
     :param consequents: list of fuzzy consequents used by the rules
     :return: The PrimitiveSet that has been created
     """
 
-    pset = _make_primitive_set(antecendents, consequents)
+    pset = _make_primitive_set(antecedents, consequents)
 
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register(
@@ -175,20 +185,20 @@ def register_primitiveset_and_creators(
 
 
 def ea_with_elitism_and_replacement(
-    population,
-    toolbox,
-    cxpb,
-    mutpb,
-    ngen,
-    replacement_size=0,
-    stats=None,
-    tensorboard_writer=None,
-    elite_size=1,
-    verbose=True,
-    slices=None,
-    always_evaluate=False,
-    memory_decay=1,
-):
+    population: List[RuleSet],
+    toolbox: base.Toolbox,
+    cxpb: float,
+    mutpb: float,
+    ngen: int,
+    replacement_size: int = 0,
+    stats: tools.Statistics = None,
+    tensorboard_writer: "tensorboardX.SummaryWriter" = None,
+    elite_size: int = 1,
+    verbose: bool = True,
+    slices: Optional[Iterable[slice]] = None,
+    always_evaluate: bool = False,
+    memory_decay: float = 1,
+) -> Tuple[List[RuleSet], tools.Logbook]:
     """Modified version of the DEAP eaSimple function to run the evolution process
     while keeping the top performing members from one generation to the next and replacing
     poor performers with new individuals.
@@ -218,7 +228,9 @@ def ea_with_elitism_and_replacement(
     else:
         batched = True
 
-    def evaluate_population(population: List[RuleSet], batch_slice: slice):
+    def evaluate_population(
+        population: List[RuleSet], batch_slice: slice
+    ) -> Tuple[List[RuleSet], deap.tools.Logbook]:
         if not always_evaluate and not batched:
             # Only evaluate the individuals in the population that have not been evaluated already
             population = [ind for ind in population if not ind.fitness.valid]
@@ -247,7 +259,7 @@ def ea_with_elitism_and_replacement(
 
     write_stats(population, 0, verbose, logbook, stats, tensorboard_writer)
 
-    for gen in range(1, ngen+1):
+    for gen in range(1, ngen + 1):
         if batched and verbose:
             print("Batch: ", end="")
         for idx, slice_ in enumerate(slices):
@@ -276,7 +288,26 @@ def ea_with_elitism_and_replacement(
     return population, logbook
 
 
-def write_stats(population, generation, verbose, logbook, stats, tensorboard_writer):
+def write_stats(
+    population: List[RuleSet],
+    generation: int,
+    verbose: bool,
+    logbook: deap.tools.Logbook,
+    stats: deap.tools.Statistics,
+    tensorboard_writer: "tensorboardX.SummaryWriter",
+):
+    """Gather statistics on the population and
+    1. print them to the screen if the verbose flag is set
+    2. write them to TensorBoard directory if tensorboard_writer is given
+
+    :param population:
+    :param generation:
+    :param verbose:
+    :param logbook:
+    :param stats:
+    :param tensorboard_writer:
+    :return:
+    """
     record = stats.compile(population) if stats else {}
     logbook.record(gen=generation, **record)
     if verbose:
@@ -316,7 +347,7 @@ def _prune_rule(rule: gp.PrimitiveTree):
         name = rule[pos].name
         # if there are two consecutive inverts then delete them both
         if name == "invert" and rule[pos + 1].name == "invert":
-            del rule[pos: pos + 2]
+            del rule[pos : pos + 2]
             continue
         if name in ("and_", "or_"):
             # merge duplicate branches
@@ -435,6 +466,13 @@ def make_antecedent(
 def make_antecedents(
     X: pd.DataFrame, antecedent_terms: Dict[str, List[str]]
 ) -> List[ctrl.Antecedent]:
+    """Create a list of Antecedent terms from a dict that maps names of antecendents to
+    a list of terms for them.
+
+    :param X: pandas dataframe with the training data
+    :param antecedent_terms: mapping from antecedent names to list of terms
+    :return: list of Antecendent instances
+    """
     if antecedent_terms is None:
         antecedent_terms = {}
     mins = X.min()
@@ -448,6 +486,11 @@ def make_antecedents(
 
 
 def make_binary_consequents(classes: Iterable[str]) -> List[ctrl.Consequent]:
+    """Create a list of Consequent instances with "likely" and "unlikely" terms.
+
+    :param classes: List of target class names
+    :return: list of Consequent instances
+    """
     consequents = []
     for cls in classes:
         cons = ctrl.Consequent(np.linspace(0, 1, 10), cls, "som")

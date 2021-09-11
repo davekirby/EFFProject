@@ -3,7 +3,7 @@ from sklearn.datasets import fetch_openml
 
 from classifier_cv import cross_validate, HyperParams
 
-"""Script for cross-validating the image segmentation dataset.
+"""Script for doing 5-fold cross-validation on the image segmentation dataset.
 """
 
 tensorboard_dir = "tb_logs/segment_cv/"
@@ -21,13 +21,13 @@ hyperparams = HyperParams(
     max_rules=25,
     whole_rule_prob=0.1,
     batch_size=20,
-    memory_decay=.7
+    memory_decay=0.7,
 )
 
 data, y = fetch_openml(data_id=40984, as_frame=True, return_X_y=True)
 
 # this column should not be used
-del data['region.centroid.row']
+del data["region.centroid.row"]
 
 data.columns = [c.replace(".", "_") for c in data.columns]
 

@@ -1,7 +1,8 @@
 import pickle
-from typing import Optional
+from typing import Optional, Iterable
 
 import numpy as np
+import tensorboardX
 from deap import base, tools
 
 from evofuzzy.fuzzygp import (
@@ -40,6 +41,8 @@ class FuzzyBase:
         memory_decay: float = 1,
         verbose: bool = True,
     ):
+        """Initialise hyperparameters"""
+
         self.min_tree_height = min_tree_height
         self.max_tree_height = max_tree_height
         self.min_rules = min_rules
@@ -57,7 +60,13 @@ class FuzzyBase:
         self.memory_decay = memory_decay
         self.verbose = verbose
 
-    def _initialise(self, tensorboard_writer):
+    def _initialise(self, tensorboard_writer: Optional["tensorboardX.SummaryWriter"]):
+        """Initialise the toolbox and register functions needed by DEAP on it.
+        Also set up the DEAP statistics object and optionally write hyperparameters to TensorBoard.
+        :param tensorboard_writer: Object used to write to TensorBoard.
+        :return:
+        """
+
         if tensorboard_writer:
             hparams = "\n\n".join(
                 f"* {k}: {v}" for (k, v) in self.__dict__.items() if not k.endswith("_")
@@ -96,7 +105,17 @@ class FuzzyBase:
             fitness=self.fitness_stats_, size=self.size_stats_
         )
 
-    def execute(self, slices, tensorboard_writer):
+    def execute(
+        self,
+        slices: Optional[Iterable[slice]],
+        tensorboard_writer: Optional["tensorboardX.SummaryWriter"],
+    ):
+        """Run the fuzzygp main loop.  Optionally write the best rule to TensorBoard.
+
+        :param slices: sequence of slices to use for batching classifier training data.
+        :param tensorboard_writer: Object used to write to TensorBoard.
+        :return: None
+        """
         if self.population_ is None:
             self.population_ = self.toolbox_.populationCreator(n=self.population_size)
 
@@ -119,39 +138,50 @@ class FuzzyBase:
             tensorboard_writer.add_text("best_ruleset", self.best_str)
             tensorboard_writer.add_text("size_of_best_ruleset", str(self.best_size()))
 
-    def _mate(self, ind1, ind2):
+    def _mate(self, ind1: RuleSet, ind2: RuleSet):
+        """Do crossover on two individuals"""
         return mate_rulesets(ind1, ind2, self.whole_rule_prob)
 
-    def _mutate(self, individual):
+    def _mutate(self, individual: RuleSet):
+        """Mutate an individual"""
         return mutate_ruleset(self.toolbox_, individual, self.whole_rule_prob)
 
     @property
     def best(self):
+        """Return the best individual"""
         return self.population_[-1] if self.population_ else None
 
     def best_size(self, *args):
+        """Return the size of the best individual.
+        N.B. takes additional *args because it is called from the DEAP stats code which
+        passes additional arguments.
+        """
         return len(self.best) if self.best else 0
 
     @property
     def best_str(self):
+        """Return the string representation of the best individual"""
         return self.individual_to_str(self.best) if self.best else "Unevaluated"
 
-    def individual_to_str(self, individual):
+    def individual_to_str(self, individual: RuleSet):
+        """Convert any individual to its string representation"""
         return "\n".join(
             str(self.toolbox_.compile(r)).splitlines()[0] for r in individual
         )
 
-    def save(self, filename):
+    def save(self, filename: str):
+        """Save the state of the object as a pickle"""
         with open(filename, "wb") as f:
             pickle.dump(self.__dict__, f, -1)
         return self
 
-    def load(self, filename):
+    def load(self, filename: str):
+        """Load the state of the object from a pickle created by the save method"""
         with open(filename, "rb") as f:
             self.__dict__ = pickle.load(f)
         return self
 
-    def best_n(self, n=1):
+    def best_n(self, n: int = 1):
         """Create a new rule set that combines the top n individuals"""
         if n == 1:
             return self.best
