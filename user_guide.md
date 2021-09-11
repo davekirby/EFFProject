@@ -1,13 +1,13 @@
-# User Manual for the evofuzzy python package {-}
+# User Manual for the evofuzzy python package {- .unlisted}
 
 `evofuzzy` is a python package for using Genetic Programming (GP) to evolve a Fuzzy Inference System (FIS) that can be used for classification and for reinforcement learning in the OpenAI Gym environment.  It is built on the DEAP evolutionary computation framework and the scikit-fuzzy library. No knowledge of these libraries is needed, but some prior knowledge of FIS and GP will be useful when tuning the system.
 
-# Core concepts and terminology {-}
+# Core concepts and terminology {- .unlisted}
 
-## Fuzzy Variables and Terms {-}
+## Fuzzy Variables and Terms {- .unlisted}
 A fuzzy variable maps a linear value into a series of linguistic terms, for example if classifying irises then petal length could be represented by a fuzzy variable with the terms "short", "medium", and "long".  
 
-## Fuzzy Rules, Antecedents and Consequents {-}
+## Fuzzy Rules, Antecedents and Consequents {- .unlisted}
 
 A fuzzy rule is an IF - THEN expression that combines fuzzy terms to generate output fuzzy terms.  The IF part can combine input variables called Antecedents through AND, OR and NOT operators.  The THEN part of the rule specifies one or more output terms, or Consequents.  For classification the consequent terms are "likely" and "unlikely" to represent the likelihood of that class.  
 
@@ -17,15 +17,15 @@ For example
 IF petal_length[short] AND sepal_length[short] THEN [setosa[likely], virginica[unlikely]]
 ```
 
-## Fuzzy Inference System (FIS) {-}
+## Fuzzy Inference System (FIS) {- .unlisted}
 
 A Fuzzy Inference System takes a set of fuzzy rules and some input data, evaluates the rules against that data and de-fuzzifies the output to return a crisp (non-fuzzy) result.  This may be a class prediction for classification or actions that a reinforcement learning agent is to perform.
 
-## Genetic Programming  {-}
+## Genetic Programming  {- .unlisted}
 
 In the `evofuzzy` package the fuzzy rules are encoded as expression trees and individual consists of a list of rules.
 
-### Creating the population {-}
+### Creating the population {- .unlisted}
 
 When the genetic programming system is run an initial population of individuals is randomly generated. Hyperparameters that control the generation of the population are:
 
@@ -37,7 +37,7 @@ When the genetic programming system is run an initial population of individuals 
 
 The latter four hyperparameters control the size and complexity of the individuals and hence the bias-variance trade-off and the execution speed.  If an individual has a few small rules it may not have enough complexity to model the relationships in the data and so under-fit.  If it has too many rules or they are too large it may over-fit the data.  It will also be harder to interpret and run slower.
 
-### The evolution cycle {-}
+### The evolution cycle {- .unlisted}
 Once the population has been created, the rule set of each individual is evaluated against the data or RL environment and a fitness score calculated.  A new population is then created by selecting individuals according to their fitness and randomly mutating or mating them.  These are then evaluated again and the process repeated for a number of generations controlled by the `n_iter` hyperparameter.  
 
 Also each cycle the best performing individuals are carried over unmodified to ensure that they are not selected out.  The number to carry over is controlled by the `elite_size` parameter.  Also a number of new individuals given by the `replacements` hyperparameter are created to prevent too much loss of diversity.
@@ -46,27 +46,27 @@ By default the FuzzyClassifier will run each individual against the entire train
 
 The `batch_size` hyperparameter is ignored by the GymRunner class, but the `memory_decay` hyperparameter is used because the individuals may be evaluated against successive randomly initialised environments so may perform well one time and badly another.  
 
-### Selection algorithm {-}
+### Selection algorithm {- .unlisted}
 evofuzzy uses a double tournament algorithm [@lukeFightingBloatNonparametric2002] when selecting the next generation, to help prevent trees from growing too large (bloat).  The selection is done in two steps:
 
 1. A series of fitness tournaments are held where in each round `tournament_size` individuals are selected at random from the population and the fittest is chosen as the winner to go into the next round.
 2. a second series of tournaments is held where pairs of candidates from the previous round are selected and the smallest is selected with a probability controlled by the `parsimony_size` hyperparameter.  This is a value between 1 and 2, where 1 means no size selection is done and 2 means the smallest candidate is always selected.  In the paper cited above, values in the range 1.2 to 1.6 were found to work well for their experiments. 
 
-### Mutating algorithm {-}
+### Mutating algorithm {- .unlisted}
 Individuals in the population are selected for mutation with a probability given by the `mutation_prob` hyperparameter.  An individual that is mutated has a single rule from its set of rules selected and either the entire rule is replaced with a newly generated one, or a sub-tree is selected and replaced with a new sub-tree.  The probability of the entire rule being replaced is controlled by the `whole_rule_prob` hyperparameter.  
 
-### Mating algorithm {-}
+### Mating algorithm {- .unlisted}
 
 Pairs of individuals in the population may also be selected for mating with a probability given by the `crossover_prob` hyperparameter.  A random rule is selected from each parent and either the entire rules are swapped over with a probability of `whole_rule_prob` or a sub-tree of each rule is selected and swapped over.
 
-# Using evofuzzy {-}
+# Using evofuzzy {- .unlisted}
 
 evofuzzy provided two classes - `FuzzyClassifier` for classification and `GymRunner` for reinforcement learning on OpenAI Gym.  They are both subclasses of `FuzzyBase` so have the following in common.
 
 
-## Common interface {-}
+## Common interface {- .unlisted}
 
-### Hyperparameters {-}
+### Hyperparameters {- .unlisted}
 
 Both classes are instantiated with the hyperparameters to use during training.  All the hyperparameters are explained in the previous section, but here is a summary:
 
@@ -135,7 +135,7 @@ EWMA weighting for new fitness over previous fitness
 if True print summary stats while running
 
 
-### Common methods and properties {-}
+### Common methods and properties {- .unlisted}
 
 Both classes have these methods and properties in common:
 
@@ -163,12 +163,12 @@ Convert any individual to a human readable string.
 Merge the rules of the top `n` individuals into a single rule set.  This is an experimental feature to combine the predictive power of several top performers into a single entity. 
 
 
-### Other common features {-}
+### Other common features {- .unlisted}
 
 Both classes support writing information while training into a format that can be viewed in TensorBoard, by using the TensorBoardX library (https://tensorboardx.readthedocs.io/en/latest/index.html).  If an instance of the `tensorboardX.SummaryWriter` is passed to the training method (`fit` or `train`) then at the end of each epoch statistics about the current best/average fitness and size is saved, plus a histogram of the fitness and size of the entire population.  The hyperparameters for the run are also saved as a text object.  The user may also use the SummaryWriter to save additional information before or after a run if they wish. 
 
 
-## The FuzzyClassifier class for classification {-}
+## The FuzzyClassifier class for classification {- .unlisted}
 
 The FuzzyClassifier class tries to follow the scikit-learn API as far as possible.  The class has the following methods in addition to those in the previous section:
 
@@ -211,7 +211,7 @@ Predict the target class for the data in X.
 - `X` a DataFrame or numpy array in the same format that the classifier was trained on.
 - `n` optional experimental parameter to use the combined top `n` individuals in the population to make the prediction.  By default only the best performer is used.
 
-### Example FuzzyClassifier code: {-}
+### Example FuzzyClassifier code: {- .unlisted}
 ```python
 from datetime import datetime
 from pathlib import Path
@@ -289,7 +289,7 @@ if tensorboard_writer:
 ```
 
 
-## The GymRunner class for reinforcement learning {-}
+## The GymRunner class for reinforcement learning {- .unlisted}
 
 The GymRunner class has two methods in addition to the common ones give above.  
 
@@ -310,7 +310,7 @@ Show the GymRunner playing the environment.
 This method returns the total reward the agent accrued from playing the environment.
 
 
-### Helper function {-}
+### Helper function {- .unlisted}
 
 **make_antecedent( name, min, max, terms=None)**
 This function can be used to create the values for the `antecedents` parameter to the `train` method. 
@@ -322,7 +322,7 @@ The parameters are:
 - `terms`: an optional list of names for the fuzzy terms. If not provided then they will default to "lower", "low", "average", "high", "higher".
 
 
-### Example GymRunner code: {-}
+### Example GymRunner code: {- .unlisted}
 
 ```python
 from datetime import datetime
