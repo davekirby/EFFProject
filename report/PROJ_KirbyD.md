@@ -711,6 +711,8 @@ IF obs_0[higher] THEN action_0[low]
 Figure 19 shows the score of the best individual over 1000 training iterations.  It shows a gradual improvement at first, with occasional high spikes where an individual got lucky.  At around 350 iterations there was a marked increase in performance which lasterd for around 75 iterations then was forgotten.   Then at iteration 650 there was a significant improvement, followed by further gradual improvements.  This sort of learning behaviour is common in evolutionary algorithms as "good genes" spread through the population or spread a little way then get weeded out by chance.
 
 ![Lunar Lander performance](images/lunarlander_best.png)
+*Figure 19: Lunar Lander performance*
+
 
 # Conclusion
 
