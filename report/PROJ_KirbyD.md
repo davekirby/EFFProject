@@ -1,6 +1,6 @@
 ---
 title:   "Evolving Fuzzy Forests: creating fuzzy inference systems with Genetic Programming"
-subtitle: A dissertation submitted in partial fulfilment of the requirements for the MSc in Advanced Computing Technologies (Data Analytics specialisation)
+subtitle: A dissertation submitted in partial fulfilment of the requirements for the M.Sc. in Advanced Computing Technologies (Data Analytics specialisation)
 author:
     - David Kirby
     - Department of Computer Science and Information Systems
@@ -20,9 +20,9 @@ One solution to this problem is to have a machine learning algorithm defined as 
 
 ## Background
 ### Fuzzy Sets and Fuzzy Inference Systems
-People have no problem dealing on a daily basis with fuzzy and imprecise terms and reasoning about them.  For example "light rain", "heavy rain" and "downpour" have no precise definition and there is no exact point where a change in precipitation moves from one category to another, but people understand and generally agree on what the terms mean.    In 1965 Lofti Zadeh [@Zadeh-Fuzzy-1965] introduced fuzzy logic and fuzzy set theory, which allowed for representing and reasoning about the sets using the kind of imprecise terms used in human language.  Zadeh showed that you could represent these kinds of fuzzy sets by a membership function that maps how strongly an item belongs to the set into a real value between 0 and 1.  Ten years later [@zadehConceptLinguisticVariable1975] he added the idea of mapping fuzzy membership functions to linguistic variables.  For example in english we refer to people as being "short", "average", "tall", "very tall" and so on.  These can be modelled by mapping a linear value (a person's height) to one or more fuzzy sets.  A person can have degrees of membership to several "height" sets, ranging from 0 (not a member of this set) to 1 (a full member of the set).  So a person who is a little above average height may have a membership of 0.8 to the "average height" class and 0.1 to the "tall" class.  Unlike probabilities the membership values do not need to sum to 1 and in most cases will not.  The usual boolean set operators such as AND, OR, UNION, INTERSECTION and NOT can be expressed as mathematical functions on the membership functions.  
+People have no problem dealing on a daily basis with fuzzy and imprecise terms and reasoning about them.  For example "light rain", "heavy rain" and "downpour" have no precise definition and there is no exact point where a change in precipitation moves from one category to another, but people understand and generally agree on what the terms mean.    In 1965 Lofti Zadeh [@Zadeh-Fuzzy-1965] introduced fuzzy logic and fuzzy set theory, which allowed for representing and reasoning about the sets using the kind of imprecise terms used in human language.  Zadeh showed that you could represent these kinds of fuzzy sets by a membership function that maps how strongly an item belongs to the set into a real value between 0 and 1.  Ten years later [@zadehConceptLinguisticVariable1975] he added the idea of mapping fuzzy membership functions to linguistic variables.  For example in English we refer to people as being "short", "average", "tall", "very tall" and so on.  These can be modelled by mapping a linear value (a person's height) to one or more fuzzy sets.  A person can have degrees of membership to several "height" sets, ranging from 0 (not a member of this set) to 1 (a full member of the set).  So a person who is a little above average height may have a membership of 0.8 to the "average height" class and 0.1 to the "tall" class.  Unlike probabilities the membership values do not need to sum to 1 and in most cases will not.  The usual Boolean set operators such as AND, OR, UNION, INTERSECTION and NOT can be expressed as mathematical functions on the membership functions.  
 
-Figure 1 shows how a person's height could map onto linguistic variables using triangular mapping functions.  Other shapes than triangles can also be used, such as gaussian or trapezoid.
+Figure 1 shows how a person's height could map onto linguistic variables using triangular mapping functions.  Other shapes than triangles can also be used, such as Gaussian or trapezoid.
 
 ![Triangle fuzzy membership](images/fuzzy_height.png)
 *Figure 1: fuzzy membership functions for adult human height*
@@ -68,11 +68,11 @@ for N generations:
 
 Evolutionary computing algorithms have been applied to many problem domains, and are particularly useful for solving problems that are mathematically intractable, for example because the derivative cannot be calculated for back propagation or the problem is NP-complete.  They are also useful for multi-objective problems where they can find a set of solutions that are Pareto optimal.  
 
-Most EC algorithms represent the chromosome as a fixed-length list of values.  For example Genetic Algorithms (GA) [@Holland:1975] represents the chromosome as a bit string, with mutation done by flipping a randomly selected bit and crossover done by swapping the bits of two individuals that are between random start and end points.   Evolutionary Strategy uses a list of floating point values for the chromosome and mutates by adding a value from a gaussian distribution, with crossover not being used at all.   Using a fixed length linear representation works for some problems, but there are limitations on what it can encode.
+Most EC algorithms represent the chromosome as a fixed-length list of values.  For example Genetic Algorithms (GA) [@Holland:1975] represents the chromosome as a bit string, with mutation done by flipping a randomly selected bit and crossover done by swapping the bits of two individuals that are between random start and end points.   Evolutionary Strategy uses a list of floating point values for the chromosome and mutates by adding a value from a Gaussian distribution, with crossover not being used at all.   Using a fixed length linear representation works for some problems, but there are limitations on what it can encode.
 
 Genetic Programming [@Koza92geneticprogramming] avoids this limitation by encoding the chromosome as a tree that can vary in size as it evolves.  The tree is usually used to represent a computer program or mathematical expression, but it can also be used to represent other complex structures such as circuit diagrams [@DesignAnalogCircuits].  
 
-To mutate a tree a random node is selected and the subtree from that node is replaced by a new randomly generated tree.  Crossover is done by selecting a random node in each parent and swapping them over to create two new individuals.   Figure 2 shows an example of two trees representing the expressions $sin(x+3)$ and $sqrt(log(y * 10))$.  After crossover the two offsprings represent the expressions $sin(x + log(y*10))$ and $sqrt(3)$.  
+To mutate a tree a random node is selected and the sub-tree from that node is replaced by a new randomly generated tree.  Crossover is done by selecting a random node in each parent and swapping them over to create two new individuals.   Figure 2 shows an example of two trees representing the expressions $sin(x+3)$ and $sqrt(log(y * 10))$.  After crossover the two offspring represent the expressions $sin(x + log(y*10))$ and $sqrt(3)$.  
 
 
 ![Crossover in GP](images/crossover.png)
@@ -100,7 +100,7 @@ All the objectives of the project were achieved.  The main entry points to the c
 
 A FuzzyClassifier class was created that could learn a set of fuzzy rules from a dataset that could then be used to predict the classification of unseen data.  It was implemented in the style of scikit-learn classifiers, with hyperparameters specified in the  `__init__` method, the  `fit` method trains the classifier and the `predict` method makes predictions.   
 
-It was found that the classifier worked well on small data sets with two or three classes, but for large datasets the training time could be prohibitive and the accuracy was found to be poor when tried on a data set with seven classes.  However this could be an artifact of the particular dataset used since the No Free Lunch theorem [@wolpertNoFreeLunch1997] says that no algorithm is suitable for all data sets, so the poor performance could be an artifact of that particular dataset rather than the number of classes.  Further work would be needed to determine if it performs as badly on other multi-class problems.
+It was found that the classifier worked well on small data sets with two or three classes, but for large datasets the training time could be prohibitive and the accuracy was found to be poor when tried on a data set with seven classes.  However this could be an artefact of the particular dataset used since the No Free Lunch theorem [@wolpertNoFreeLunch1997] says that no algorithm is suitable for all data sets, so the poor performance could be an artefact of that particular dataset rather than the number of classes.  Further work would be needed to determine if it performs as badly on other multi-class problems.
 
 A unique feature of the classifier is the ability to show the top performing rule set as human readable text.  For example on the Wisconsin breast cancer dataset, the following set of rules generated during 5-fold cross validation scored 94.8% accuracy in predicting benign and malignant outcomes on the test data:
 
@@ -115,7 +115,7 @@ IF Cell_Size_Uniformity[high] AND Single_Epi_Cell_Size[high] THEN malignant[unli
 
 ### GymRunner 
 
-A class called GymRunner was created that could learn to play some reinforcement learning environments in openAI Gym.  It was found to be able to master some simple environments such as cartpole (balancing a 2D pole on a moveable cart) in as few as ten generations.  For LunarLander, a more complex environment, it took several hundred generations to be able to repeatably get a good score.  A video demonstration of it playing LunarLander is available at https://youtu.be/Oo6hulwqr9M.
+A class called GymRunner was created that could learn to play some reinforcement learning environments in openAI Gym.  It was found to be able to master some simple environments such as CartPole (balancing a 2D pole on a movable cart) in as few as ten generations.  For LunarLander, a more complex environment, it took several hundred generations to be able to repeatably get a good score.  A video demonstration of it playing LunarLander is available at https://youtu.be/Oo6hulwqr9M.
 
 More information about the exploration of the FuzzyClassifier and GymRunner performance against different data sets and gym environments can be found in the Testing and Evaluation section later in this report, along with steps taken to improve the performance.
 
@@ -127,7 +127,7 @@ The following third party libraries were chosen for use in the project:
 
 ### DEAP for genetic programming
 
-DEAP [@DEAP_JMLR2012] is the defacto standard library for evolutionary computation in Python, supporting a wide range of algorithms such as Genetic Algorithms, Genetic Programming, Particle Swarm Optimisation, and Evolution Strategy.  Other evolutionary libraries that were investigated were found to be toy projects not intended for production use, did not support Genetic Programming, or were tailored to a specific application of GP such as symbolic regression.
+DEAP [@DEAP_JMLR2012] is the de facto standard library for evolutionary computation in Python, supporting a wide range of algorithms such as Genetic Algorithms, Genetic Programming, Particle Swarm Optimisation, and Evolution Strategy.  Other evolutionary libraries that were investigated were found to be toy projects not intended for production use, did not support Genetic Programming, or were tailored to a specific application of GP such as symbolic regression.
 
 DEAP is a toolbox of components for implementing evolutionary systems, rather than out-of-the-box ready made algorithms such as those provided by frameworks such as scikit-learn.  This makes the learning curve steeper, but gives great flexibility in the problems it can be applied to.  
 
@@ -142,7 +142,7 @@ The main components of DEAP are:
    ```
    creates the attribute "select" on the Toolbox instance that is the `deap.tools.selTournament` function with its `tournsize` parameter bound to the value 3.  When the Toolbox instance is passed to the main evolution algorithm it will expect certain functions to be defined on the toolbox for it to call.  Other functions that need to be registered typically include "mate", "mutate" and "evaluate" as well as "select" but it depends on the algorithm being used.
 
-3. A library of functions for different ways of mating, mutating and selecting individuals in the population and for running different kinds of evolution algorithms. Using the toolbox these can be combined like lego bricks to produce a huge variety of evolutionary computing solutions.
+3. A library of functions for different ways of mating, mutating and selecting individuals in the population and for running different kinds of evolution algorithms. Using the toolbox these can be combined like Lego bricks to produce a huge variety of evolutionary computing solutions.
    
 4. The Genetic Programming module.  This is the most complex part of DEAP and is explained in more detail in the next section.
 
@@ -220,14 +220,14 @@ The core parts of the API are:
 
   - `observation` is information about the updated state of the environment
   - `reward` is the reward (positive or negative) for taking that step
-  - `done` is a boolean flag indicating if the run is completed
+  - `done` is a Boolean flag indicating if the run is completed
   - `info` may contain diagnostic information specific to an environment, and should not be used by the agent for learning
-5. `env.render()` will display the current environment (e.g. one frame of an atari game) and can be used to create a video display of the agent in action.  This is usually omitted during training to speed up the process.
+5. `env.render()` will display the current environment (e.g. one frame of an Atari game) and can be used to create a video display of the agent in action.  This is usually omitted during training to speed up the process.
 
 The `observation_space` and `action_space` are subclasses of `gym.spaces.Space` and will be one of several types.  The most common are:
 
 1. `Discrete(n)` - the observation or action is a single integer in a range 0-n.
-2. `Box(low, high, shape, dtype)` a numpy array of the given shape and dtype where the values are bounded by the high and low values.  This may be a simple linear array or multidimensional.  For example the atari games often have an observation space of `Box(low=0, high=255, shape=(210, 160, 3), dtype=np.uint8)`, where the Box is a 3-dimensional representation of the screen pixels.
+2. `Box(low, high, shape, dtype)` a numpy array of the given shape and dtype where the values are bounded by the high and low values.  This may be a simple linear array or multidimensional.  For example the Atari games often have an observation space of `Box(low=0, high=255, shape=(210, 160, 3), dtype=np.uint8)`, where the Box is a 3-dimensional representation of the screen pixels.
 
 Other types of observational space exist, such as dicts or tuples of spaces, but they are rarely used in practice.
 
@@ -274,7 +274,7 @@ The code for the project is in a python package `evofuzzy` which contains four m
 
 This section goes through the steps that were taken to implement the evofuzzy package and the decisions made along the way.  For instructions on how to use the final version see the User Guide in Appendix I.
 
-The implementation was done iteratively over several stages.  The classifier code was developed first then support for reinforcement learning was added.  The development process alternated between exploratory programming in jupyter notebooks and test driven development using a combination of unit tests written with pytest and test scripts running against small data sets such as Fisher's iris dataset or simple gym environments such as cartpole. 
+The implementation was done iteratively over several stages.  The classifier code was developed first then support for reinforcement learning was added.  The development process alternated between exploratory programming in Jupiter notebooks and test driven development using a combination of unit tests written with pytest and test scripts running against small data sets such as Fisher's iris dataset or simple gym environments such as CartPole. 
 
 ## Stage 1:  Classification with hand-coded fuzzy rules
 
@@ -344,7 +344,7 @@ Improvements to the initial classifier were added over several iterations:
 
 ### Parallelising the evaluation with multiprocessing
 
-Evolutionary algorithms are "embarrasingly parallel" so a significant speedup was obtained by using a `multiprocessing.Pool` to evaluate the population in parallel with a pool of workers.  The runtime for training on the iris dataset went from about 50 seconds down to 12 seconds on an 8-core linux desktop, for a 4-fold speedup.
+Evolutionary algorithms are "embarrassingly parallel" so a significant speedup was obtained by using a `multiprocessing.Pool` to evaluate the population in parallel with a pool of workers.  The run time for training on the iris dataset went from about 50 seconds down to 12 seconds on an 8-core Linux desktop, for a 4-fold speedup.
 
 ### Supporting rules with multiple consequents
 
@@ -369,7 +369,7 @@ In practice this has not been found to make much difference to the performance o
 
 ### Adding new individuals to reduce diversity loss
 
-Another problem common in evolutionary algorithms is loss of diversity, where a moderately good genotype outperforms the others and spreads through the population, resulting in convergence on a suboptimal local maxima.   To avoid this each generation a number of new individuals are created and added to the population.  The number to add is controlled by the `replacements` hyperparameter.
+Another problem common in evolutionary algorithms is loss of diversity, where a moderately good genotype outperforms the others and spreads through the population, resulting in convergence on a sub-optimal local maxima.   To avoid this each generation a number of new individuals are created and added to the population.  The number to add is controlled by the `replacements` hyperparameter.
 
 ### Adding support for TensorBoard
 
@@ -386,7 +386,7 @@ To assist with evaluation and tuning of hyperparameters I added support for writ
   - the rules of the best individual as human-readable text
   - the size of the best individual
 
-tensorboardX has no dependency on TensorBoard, so it is not necessary to install tensorboard to save the data, only to view it afterwards.
+tensorboardX has no dependency on TensorBoard, so it is not necessary to install TensorBoard to save the data, only to view it afterwards.
 
 Figures 4 shows an examples of TensorBoard comparing several runs of the classifier on the iris dataset.
 
@@ -406,7 +406,7 @@ Figure 6 shows the TensorBoard display of the rules for the best individual afte
 
 ### Adding rule pruning
 
-It was noticed that rules were often created with redundant terms, for example (in pseudocode) "IF NOT(NOT(X)) THEN ...", "IF X AND X THEN ..." and "IF X OR X THEN..." could all be replaced with "IF X THEN ..." without changing the meaning of the expression.  This redundancy was unnecessary bloat that slowed down execution of the rules and contributed nothing to the fitness.  To aleviate this  `_prune_rule` and `_prune_population` functions were added that searched for this kind of redundancy and remove it.  The population is then pruned just before it is evaluated.
+It was noticed that rules were often created with redundant terms, for example (in pseudo-code) "IF NOT(NOT(X)) THEN ...", "IF X AND X THEN ..." and "IF X OR X THEN..." could all be replaced with "IF X THEN ..." without changing the meaning of the expression.  This redundancy was unnecessary bloat that slowed down execution of the rules and contributed nothing to the fitness.  To alleviate this  `_prune_rule` and `_prune_population` functions were added that searched for this kind of redundancy and remove it.  The population is then pruned just before it is evaluated.
 
 ### Adding "unlikely" term to consequents
 
@@ -424,9 +424,9 @@ Although at this point the classifier learns from the data, it only updates the 
 
 This code change results in much faster convergence since there are far more opportunities for learning.  Previously if the data set had 1000 data points then over 10 iterations the population would have evolved 10 times.  With the batch size set to 100 then it would have evolved 100 times.
 
-An iteration is still considered a complete pass through the data, so may now consist of many generations.  The output of the statistics, both to tensorboard and through print statements, still only happened at the end of each complete iteration to keep the output to a manageable level. 
+An iteration is still considered a complete pass through the data, so may now consist of many generations.  The output of the statistics, both to TensorBoard and through print statements, still only happened at the end of each complete iteration to keep the output to a manageable level. 
 
-Figure 8 shows a comparison of the best and mean fitness and sizes when classifying the iris data without batching (grey line) and with a batch size of 20 (red line).  It can be seen that with batching the population has reached a better solution after five iterations than the run without batching took afer 20 iterations.  Not only is the fitness higher but the size of the individuals is also smaller.  The run was done over 100 data points and the remaining 50 were used for measuring the performance on unseen data.  In this case the version without batching had a test accuracy of 78% while the version with batching had an accuracy of 96%.
+Figure 8 shows a comparison of the best and mean fitness and sizes when classifying the iris data without batching (grey line) and with a batch size of 20 (red line).  It can be seen that with batching the population has reached a better solution after five iterations than the run without batching took after 20 iterations.  Not only is the fitness higher but the size of the individuals is also smaller.  The run was done over 100 data points and the remaining 50 were used for measuring the performance on unseen data.  In this case the version without batching had a test accuracy of 78% while the version with batching had an accuracy of 96%.
 
 ![Batching comparison](images/batching_comparison.png)
 *Figure 8: iris classification with and without batching*
@@ -460,7 +460,7 @@ The `GymRunner` class was added as a subclass of `FuzzyBase`, initially with the
 - `_evaluate` runs a single individual in the environment and returns the total reward it has achieved. The environment is reset to a random starting state every time an individual is evaluated.
 - `_evaluate_action` runs a single timestep of an individual in the environment.  This maps the current observations from the environment into the antecedent terms, runs the FIS for the individual and converts the consequent into the environments action space and returns the action to perform.  
 
-At this stage the antecendents and consequents had to be created by the user and passed into the `train` method.  The `antecedents` parameter took a list of `Antecedent` instances that map the observation space to fuzzy variables.  A `make_antecedent` function was provided to create an `Antecedent` instance from a name and min and max range, plus an optional list of terms to use.  For the `consequents` parameter took a dictionary mapping a name to an action value.  
+At this stage the antecedents and consequents had to be created by the user and passed into the `train` method.  The `antecedents` parameter took a list of `Antecedent` instances that map the observation space to fuzzy variables.  A `make_antecedent` function was provided to create an `Antecedent` instance from a name and min and max range, plus an optional list of terms to use.  For the `consequents` parameter took a dictionary mapping a name to an action value.  
 
 Only environments with `Discrete` action spaces were supported at this stage (see section 4.1.3).  The discrete actions were treated the same way as for the classifier - a `Consequent` was created with "likely" and "unlikely" terms and the action with the highest score was chosen as the return value.
 
@@ -468,15 +468,15 @@ At this point it was possible to train a GymRunner instance to play some simple 
 
 ## Stage 8: Handle Box actions and auto-generate Antecedents and Consequents
 
-The next step was to create the antecedents and consequents automatically by inspecting the observation space and action space respectively and to handle `Box` (continous) actions.  
+The next step was to create the antecedents and consequents automatically by inspecting the observation space and action space respectively and to handle `Box` (continuous) actions.  
 
 For the antecedents, a helper function `_make_antecedents_from_env` was written that inspects the environment's `observation_space` attribute to find the shape of the space and the maximum and minimum that each value can take, then creates an `Antecedent` for each one.   The names of the antecedents are "obs_0", "obs_1" etc and the terms are the default scikit-fuzzy terms of "lower", "low", "average", "high" and "higher".    Currently only one-dimensional `Box` spaces are supported.
 
 One issue that was encountered was that many environments give the upper and lower bounds as "inf" and "-inf", which caused the antecedents to fail.  To get round this an `inf_limit` parameter was added to the `train` method that clipped any "inf" antecedents to that value.  The default was arbitrarily chosen to be 100.
 
-The user may still provide their own list of antecendents definition and these will be used instead of the auto-generated ones.  
+The user may still provide their own list of antecedents definition and these will be used instead of the auto-generated ones.  
 
-For the consequents the `action_space` was inspected to see what type it was and different kinds of consequents created depending on whether it was a `Box` or `Continuous` space.  For the `Discrete` space a binary `Consequent` was created for each possible action, as described previously.  For `Box` spaces a consequent is created for each output with the min and max values taken from the action space and the terms the same as for the antecedents.  Both box and continous consequents named "action_0", "action_1" etc.
+For the consequents the `action_space` was inspected to see what type it was and different kinds of consequents created depending on whether it was a `Box` or `Continuous` space.  For the `Discrete` space a binary `Consequent` was created for each possible action, as described previously.  For `Box` spaces a consequent is created for each output with the min and max values taken from the action space and the terms the same as for the antecedents.  Both box and continuous consequents named "action_0", "action_1" etc.
 
 ## Stage 9:  Further improvements
 
@@ -497,7 +497,7 @@ The `memory_decay` parameter defaults to 1, so no memory of the previous evaluat
 
 ### Adding save and load methods
 
-Convenience methods to save and load the state of a `GymRunner` of `FuzzyClassifer` was added to the base class.  This pickles/unpickles the object's `__dict__` to a file.
+Convenience methods to save and load the state of a `GymRunner` of `FuzzyClassifier` was added to the base class.  This pickles/unpickles the object's `__dict__` to a file.
 The code was also updated for "warm start" learning - if the `fit` or `train` methods are called on the same object multiple times it will carry on learning from where it left off, instead of starting from scratch with a new population.
 
 ### Experimental feature added - `predict` or `play` with the top N performers
@@ -529,7 +529,7 @@ The final set of hyperparameters available are given below.  For an explanation 
 
 # Evaluation and Tuning
 
-The package was evaluated against several different datasets for classification and gym environments for reinforcement learning.  The results were saved to tensorboard for analysis.
+The package was evaluated against several different datasets for classification and gym environments for reinforcement learning.  The results were saved to TensorBoard for analysis.
 
 ##  FuzzyClassifier evaluation
 
@@ -537,17 +537,17 @@ The initial development of the classifier was done by running the rules against 
 
 The `cross_validate` function uses `sklearn.model_selection.StratifiedKFold` to create a 5-fold split of the data with the distribution of the target classes balanced between each split.  
 The for each split:
-- If the tensorboard directory is specified a subdirectory is added with its name containing the split number, current date and time, then a `tensorboardX.SummaryWriter` is instantiated to log into that directory.
-- a `FuzzyClassifer` is created with any hyperparameters passed into the function
+- If the TensorBoard directory is specified a subdirectory is added with its name containing the split number, current date and time, then a `tensorboardX.SummaryWriter` is instantiated to log into that directory.
+- a `FuzzyClassifier` is created with any hyperparameters passed into the function
 - the classifier is trained against the training data and evaluated against the test fold
-- the accuracy and confusion matrix are printed out and also saved to tensorboard.
+- the accuracy and confusion matrix are printed out and also saved to TensorBoard.
 
 At the end of the five folds, the average accuracy and standard deviation are printed.
 
 Running five-fold CV on a large dataset could be very time consuming, so a flag was added to the parameters to optionally swap the train and test data, so the model was trained on one fifth of the data and evaluated on four-fifths.  This gave less accurate results but a five-fold speedup. 
 
 ### Iris dataset results
-Figure 9 shows a typical result from cross validation of the iris dataset with a batch size of 10 and a popuation of 20 trained over 10 iterations.  Most of the folds had reached 100% training accuracy by the fifth iteration.  
+Figure 9 shows a typical result from cross validation of the iris dataset with a batch size of 10 and a population of 20 trained over 10 iterations.  Most of the folds had reached 100% training accuracy by the fifth iteration.  
 The average accuracy on the test data was 93.33% with a standard deviation of 7.81%.  The training run time for each fold was 18-20 seconds. 
 
 ![Iris CV](images/iris_cv_1.png)
@@ -556,7 +556,7 @@ The average accuracy on the test data was 93.33% with a standard deviation of 7.
 
 ### Wisconsin Breast Cancer dataset results
 
-The Wisconsin Cancer dataset [@wolbergMultisurfaceMethodPattern1990] was chosen as a more challenging task.  The dataset was originally from the UCI Machine learning repository [@Dua_2019] and accessed through the OpenML catalog via the scikit-learn `sklearn.datasets.fetch_openml` function.  There are two version of this dataset available, so the smaller version with 10 features and 699 instances was chosen (https://www.openml.org/d/15).
+The Wisconsin Cancer dataset [@wolbergMultisurfaceMethodPattern1990] was chosen as a more challenging task.  The dataset was originally from the UCI Machine learning repository [@Dua_2019] and accessed through the OpenML catalogue via the scikit-learn `sklearn.datasets.fetch_openml` function.  There are two version of this dataset available, so the smaller version with 10 features and 699 instances was chosen (https://www.openml.org/d/15).
 
 Figure 10 shows a typical result with a population of 50, a batch size of 50 and 5 iterations.  The run time for each fold ranged from 34 to 42 seconds.   The average accuracy on the test data was 93.7% with a standard deviation of 1.9%.
 
@@ -585,7 +585,7 @@ The confusion matrix for this particular run is
 
 ### Segmentation dataset results
 
-The segmentation dataset (https://www.openml.org/d/40984), also from the UCI ML repository via OpenML, is a much more challenging task than the previous two.   It is a dataset of information about 3x3 pixel squares taken from outdoor images, such as mean RGB values, intensity, measure of horizonal and vertical edges etc.  The task is to classify the pixels into one of seven classes - "brickface", "sky", "foliage", "cement", "window", "path" and "grass". There are 17 features in total and 2310 rows.  
+The segmentation dataset (https://www.openml.org/d/40984), also from the UCI ML repository via OpenML, is a much more challenging task than the previous two.   It is a dataset of information about 3x3 pixel squares taken from outdoor images, such as mean RGB values, intensity, measure of horizontal and vertical edges etc.  The task is to classify the pixels into one of seven classes - "brickface", "sky", "foliage", "cement", "window", "path" and "grass". There are 17 features in total and 2310 rows.  
 
 This dataset performed very poorly.  It was much slower than the previous datasets, partly because there were far more rows of data, but also because the larger number of feature and classes meant more rules and larger rules were used to model it.  Each fold took between 8 and 14 minutes to run.  It was also far less accurate, both on the training and test sets.  After 5 iterations with a population of 50 and a batch size of 30, it's best accuracy on the training set was 72.2% but that fold only scored 55.4% accuracy on the test set.  The mean accuracy on the test set was 54% with a standard deviation of 6.68%. For comparison, the scikit-learn RandomForestClassifer managed 5-fold CV on the dataset in under 2.5 seconds with an accuracy of 94%.
 
@@ -601,12 +601,12 @@ Further research is needed, but my hypothesis is that the reason it performs so 
 
 Evaluation of the GymRunner class started with the CartPole environment (https://gym.openai.com/envs/CartPole-v1/).  This is a classic reinforcement learning exercise where a hinged pole on a cart has to be kept upright by moving the cart left and right.   
 
-![Cartpole display](images/cartpole_1.png))
-*Figure 12: Cartpole environment in action*
+![CartPole display](images/cartpole_1.png))
+*Figure 12: CartPole environment in action*
 
 The observations that can be made by the agent are:
 
-- 0: cart position relative to the center.  From the center to the edge of the display is +/- 2.4 units
+- 0: cart position relative to the centre.  From the centre to the edge of the display is +/- 2.4 units
 - 1: cart velocity.  The environment's `observation_space` specified the value as -inf to +inf, but in practice was found to be between -1 and 1
 - 2: pole angle from the vertical in radians.  The `observation_space` gave the limits as -0.418 to 0.418, but the stopping condition effectively limited it to -0.209 to 0.209.
 - 3: pole angular velocity.  This was also specified as between -inf and inf, but in practice was between -2 and 2. 
@@ -615,7 +615,7 @@ The action generated by the agent is a discrete value - 0 to push the cart left,
 
 The game ends when the cart reaches the edge of the display, the angle of the pole goes outside the range of +/- 0.209 radians (12 degrees), or the game reaches 500 timesteps.  A reward of 1 point is given for every timestep, so the maximum reward is 500.
 
-To run cartpole, these antecedents were used:
+To run CartPole, these antecedents were used:
 
 ```python
 antecedents = [
@@ -628,11 +628,11 @@ antecedents = [
 
 With these antecedents, a population of 50 could learn to get a maximum score in under ten generations, and often in 2-4 generations as shown in Figure 13.
 
-![Cartpole results](images/cartpole_tb.png)
-*Figure 13: Cartpole v1 results*
+![CartPole results](images/cartpole_tb.png)
+*Figure 13: CartPole v1 results*
 
 ### MountainCarContinuous-v0
-The second task for GymRunner was the MountainCarContinous-v0 environment (https://gym.openai.com/envs/MountainCarContinuous-v0/).  Unlike the CartPole environment, this requires a continous output value from the agent so it a test of GymRunner's ability to handle `Box` action spaces.  
+The second task for GymRunner was the MountainCarContinuous-v0 environment (https://gym.openai.com/envs/MountainCarContinuous-v0/).  Unlike the CartPole environment, this requires a continuous output value from the agent so it a test of GymRunner's ability to handle `Box` action spaces.  
 
 The task is to get a car to the top of a steep climb.  The car does not have sufficient energy to do it in one go, so has to go back and forth between the left and right slopes to build up momentum.
 
@@ -663,14 +663,14 @@ The Pendulum-v0 environment (https://gym.openai.com/envs/Pendulum-v0/) is a rigi
 The observations and action spaces are undocumented, but from the source code it appears that the observations are:
 
 - 0: the x coordinate of the tip of the pendulum, between -1.0 and 1.0
-- 1: the y coordinate of the tip of the pendulum, betweeen -1.0 and 1.0
+- 1: the y coordinate of the tip of the pendulum, between -1.0 and 1.0
 - 2: the angular velocity of the pendulum, between -8.0 and 8.0.
 
 The action is the torque to apply, between -2.0 and 2.0.
 
 The reward is a penalty calculated by how far the pendulum is from the upright position each timestep, so is always negative.  The run ends after 200 timesteps.
 
-Figure 17 shows the results from for training session with a population of 50 over 50 iterations.  Although superficially a similar task to cartpole, the performance was much worse. It took far longer to achieve a reasonable score, and in one of the runs barely learnt anything after 50 generations.  For the runs that did achieve a reasonable score in training, replaying them against reset environments showed that they were highly sensitive to the start position.  For some start angles they moved it to the vertical position straight away and held it there for a good score, for othe start positions they never managed to gain control and swung wildly.
+Figure 17 shows the results from for training session with a population of 50 over 50 iterations.  Although superficially a similar task to CartPole, the performance was much worse. It took far longer to achieve a reasonable score, and in one of the runs barely learnt anything after 50 generations.  For the runs that did achieve a reasonable score in training, replaying them against reset environments showed that they were highly sensitive to the start position.  For some start angles they moved it to the vertical position straight away and held it there for a good score, for the start positions they never managed to gain control and swung wildly.
 
 I hypothesise that part of the reason for this is that the observations are in terms of x and y coordinates of the tip, rather than the angle.  To achieve good control the coordinates would need to be translated back into a single angle, which is beyond the realm of the fuzzy rules.  Possibly given sufficiently complex rules and enough time to evolve them, they could achieve a reasonable approximation.
 
@@ -686,7 +686,7 @@ The LunarLanderContinuous-v2 environment (https://gym.openai.com/envs/LunarLande
 *Figure 18: Lunar Lander in action*
 
 
-The observations are eight floating point values in the range of -inf to inf.  The first two values are the coordinates of the lander, where (0, 0) is the coordinate of the center of the landing pad.  The other values are undocumented.  
+The observations are eight floating point values in the range of -inf to inf.  The first two values are the coordinates of the lander, where (0, 0) is the coordinate of the centre of the landing pad.  The other values are undocumented.  
 
 The actions are two floats, the first is the thrust of the main engine (-1.0 to 1.0) and the second is the thrust for the side engines (-1.0 to 1.0), where negative values are left thrust and positive values are right thrust.
 
@@ -708,7 +708,7 @@ IF obs_4[higher] THEN [action_1[lower], action_0[low]]
 IF obs_0[higher] THEN action_0[low]
 ```
 
-Figure 19 shows the score of the best individual over 1000 training iterations.  It shows a gradual improvement at first, with occasional high spikes where an individual got lucky.  At around 350 iterations there was a marked increase in performance which lasterd for around 75 iterations then was forgotten.   Then at iteration 650 there was a significant improvement, followed by further gradual improvements.  This sort of learning behaviour is common in evolutionary algorithms as "good genes" spread through the population or spread a little way then get weeded out by chance.
+Figure 19 shows the score of the best individual over 1000 training iterations.  It shows a gradual improvement at first, with occasional high spikes where an individual got lucky.  At around 350 iterations there was a marked increase in performance which lasted for around 75 iterations then was forgotten.   Then at iteration 650 there was a significant improvement, followed by further gradual improvements.  This sort of learning behaviour is common in evolutionary algorithms as "good genes" spread through the population or spread a little way then get weeded out by chance.
 
 ![Lunar Lander performance](images/lunarlander_best.png)
 *Figure 19: Lunar Lander performance*
@@ -726,27 +726,27 @@ Some of the weaknesses of the system is that the slow speed and large number of 
 
 ## Possible improvements and future work
 
-There are a number of improvements that were considered but were omitted due to time constaints.
+There are a number of improvements that were considered but were omitted due to time constraints.
 
-### Reimplement or replace the fuzzy logic library
-Profiling of the classifier showed that even with a small batch size, around 90% of the time was spent in the scikit-fuzzy library.  That library is implemented in pure python, with the low level maths implemented with numpy.  Replacing it with a pure C or Cython version could result in a significant speen improvement.  It could also be possible to offload some of the fuzzy calculations to the GPU for further speed improvements, as demonstrated by [@chauhanSpeedupType1Fuzzy] and by [@defourFuzzyGPUFuzzyArithmetic2013].
+### Re-implement or replace the fuzzy logic library
+Profiling of the classifier showed that even with a small batch size, around 90% of the time was spent in the scikit-fuzzy library.  That library is implemented in pure python, with the low level maths implemented with numpy.  Replacing it with a pure C or Cython version could result in a significant speed improvement.  It could also be possible to offload some of the fuzzy calculations to the GPU for further speed improvements, as demonstrated by [@chauhanSpeedupType1Fuzzy] and by [@defourFuzzyGPUFuzzyArithmetic2013].
 
 ### Using weighted rules when merging the top n performers
 An experimental feature in the system is to merge the rules for several of the top performers to make one large predictor.   At the moment the rules of all the performers are given equal weight, but it may be beneficial to weight the importance of the rules by the fitness values of the individuals.  
 
-### Adding predict_proba to the classifer and making the fitness function configurable
-Many sckit-learn predictors have a `predict_proba` method that output the class probabilities.  It would be possible to add the same method to `FuzzyClassifier` by taking the weights generated for the consequences and normalising them so they sum to one.  
+### Adding predict_proba to the classifier and making the fitness function configurable
+Many scikit-learn predictors have a `predict_proba` method that output the class probabilities.  It would be possible to add the same method to `FuzzyClassifier` by taking the weights generated for the consequences and normalising them so they sum to one.  
 
 The classifier currently uses the accuracy as the metric that it is trying to maximise.   This could be made configurable so that other metrics can be used instead, such as F1 score or ROC AUC.  Some of the metrics will require the `predict_proba` method to be implemented first.  
 
 ### Add diagnostics to the classifier when making a decision
-It would be possible to add a method to the classifer where you pass it a single datapoint and it outputs the strength with which each rule is triggered when making the prediction.  This could be useful for improving explainability such as when using the classifier for medical diagnosis.
+It would be possible to add a method to the classifier where you pass it a single data point and it outputs the strength with which each rule is triggered when making the prediction.  This could be useful for improving explainability such as when using the classifier for medical diagnosis.
 
 ### Add early stopping to GymRunner
 Currently GymRunner will continue running an agent in an environment until the environment signals that it has ended.  Some environments may run for a long time before this happens, which slows down the learning process.   It could speed things up to run the environment just long enough to make a decision on the fitness of an individual by adding an optional `time_limit` hyperparameter that is the number of time steps to run it for.  A refinement of that could be to have a way of increasing the value over time, so it starts off with a small `time_limit` to weed out the bad performers early on, then gradually increases it to allow later generations longer to prove their worth.
 
 ### Multiple populations - Demes
-In biology, demes are populations of the same species that are physically separated so they form separate gene pools.   In evolutionary computing the term is used to mean splitting a population into subpopulations with little or no crossover between them.   This helps prevent loss of diversity that could result in the entire population converging on a sub-optimal solution.   This could be used in the evofuzzy project by splitting the population into two or more demes, training them in parallel, then combining the predictions of the top performers of each deme.
+In biology, demes are populations of the same species that are physically separated so they form separate gene pools.   In evolutionary computing the term is used to mean splitting a population into sub-populations with little or no crossover between them.   This helps prevent loss of diversity that could result in the entire population converging on a sub-optimal solution.   This could be used in the evofuzzy project by splitting the population into two or more demes, training them in parallel, then combining the predictions of the top performers of each deme.
 
 
 # References
