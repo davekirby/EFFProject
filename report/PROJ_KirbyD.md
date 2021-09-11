@@ -716,6 +716,39 @@ Figure 19 shows the score of the best individual over 1000 training iterations. 
 
 # Conclusion
 
+This project has shown that genetic programming of fuzzy rules is a viable technique for both classification and reinforcement learning, but does have some weaknesses.
+
+For classification it is best suited to small datasets in situations where explainability is of paramount importance, such as medical diagnosis.  With large datasets it is very slow compared to other methods such as Random Forest, and if there are complex dependencies between features or a large number of target classes it may perform poorly.
+
+For reinforcement learning it has been shown to work well in several simple tasks, but has not been tried with more complex environments such as Atari games.   Again it has the advantage that the generated rules are highly interpretable, which may be important in some applications such as a decision-making component in an autonomous vehicle.
+
+Some of the weaknesses of the system is that the slow speed and large number of hyperparameters makes tuning the system to a particular dataset or RL environment very time consuming. It may be advisable when tuning the classifier to use a representative subset of the training data and to start with a small number of simple rules then gradually increase the number and complexity to find the best combination for the task. 
+
+## Possible improvements and future work
+
+There are a number of improvements that were considered but were omitted due to time constaints.
+
+### Reimplement or replace the fuzzy logic library
+Profiling of the classifier showed that even with a small batch size, around 90% of the time was spent in the scikit-fuzzy library.  That library is implemented in pure python, with the low level maths implemented with numpy.  Replacing it with a pure C or Cython version could result in a significant speen improvement.  It could also be possible to offload some of the fuzzy calculations to the GPU for further speed improvements, as demonstrated by [@chauhanSpeedupType1Fuzzy] and by [@defourFuzzyGPUFuzzyArithmetic2013].
+
+### Using weighted rules when merging the top n performers
+An experimental feature in the system is to merge the rules for several of the top performers to make one large predictor.   At the moment the rules of all the performers are given equal weight, but it may be beneficial to weight the importance of the rules by the fitness values of the individuals.  
+
+### Adding predict_proba to the classifer and making the fitness function configurable
+Many sckit-learn predictors have a `predict_proba` method that output the class probabilities.  It would be possible to add the same method to `FuzzyClassifier` by taking the weights generated for the consequences and normalising them so they sum to one.  
+
+The classifier currently uses the accuracy as the metric that it is trying to maximise.   This could be made configurable so that other metrics can be used instead, such as F1 score or ROC AUC.  Some of the metrics will require the `predict_proba` method to be implemented first.  
+
+### Add diagnostics to the classifier when making a decision
+It would be possible to add a method to the classifer where you pass it a single datapoint and it outputs the strength with which each rule is triggered when making the prediction.  This could be useful for improving explainability such as when using the classifier for medical diagnosis.
+
+### Add early stopping to GymRunner
+Currently GymRunner will continue running an agent in an environment until the environment signals that it has ended.  Some environments may run for a long time before this happens, which slows down the learning process.   It could speed things up to run the environment just long enough to make a decision on the fitness of an individual by adding an optional `time_limit` hyperparameter that is the number of time steps to run it for.  A refinement of that could be to have a way of increasing the value over time, so it starts off with a small `time_limit` to weed out the bad performers early on, then gradually increases it to allow later generations longer to prove their worth.
+
+### Multiple populations - Demes
+In biology, demes are populations of the same species that are physically separated so they form separate gene pools.   In evolutionary computing the term is used to mean splitting a population into subpopulations with little or no crossover between them.   This helps prevent loss of diversity that could result in the entire population converging on a sub-optimal solution.   This could be used in the evofuzzy project by splitting the population into two or more demes, training them in parallel, then combining the predictions of the top performers of each deme.
+
+
 # References
 ::: {#refs}
 :::

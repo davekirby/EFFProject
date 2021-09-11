@@ -13,3 +13,16 @@ Drawbacks:
     - may not learn at all for some!
     - 
 
+Improvements
+- classifier
+    - add predict_proba
+    - add configurable metric
+    - show rule triggering for a given input datapoint
+    - 
+- GymRunner
+    - early stopping
+    - 
+- both
+    - weighted values for top-n predictors
+    - demes
+    - 

@@ -10,7 +10,7 @@ In predict, optionally take a number of members to use for the prediction
         - maybe do the same for GymRunner in play mode
         - Thought:  perhaps an easy way of combining several top individuals is to concatentate all the rules together.  Also maybe weight them by updating the consequents to add the fitness value of the individual as the consequent weight. (done, except for weight)
 
-or batch and RL, have a weighted exponential average of the previous scores, so if it does well on one batch/session and badly on the next, the previous success will be remembered to some extent. (done)
+- [X] for batch and RL, have a weighted exponential average of the previous scores, so if it does well on one batch/session and badly on the next, the previous success will be remembered to some extent. (done)
 
 Add a pre-processing function to gymrunner that can transform the observations to make them more usable.
 
