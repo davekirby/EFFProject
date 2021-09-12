@@ -47,10 +47,10 @@ By default the FuzzyClassifier will run each individual against the entire train
 The `batch_size` hyperparameter is ignored by the GymRunner class, but the `memory_decay` hyperparameter is used because the individuals may be evaluated against successive randomly initialised environments so may perform well one time and badly another.  
 
 ### Selection algorithm {- .unlisted}
-evofuzzy uses a double tournament algorithm [@lukeFightingBloatNonparametric2002] when selecting the next generation, to help prevent trees from growing too large (bloat).  The selection is done in two steps:
+evofuzzy uses a double tournament algorithm when selecting the next generation, to help prevent trees from growing too large (bloat).  The selection is done in two steps:
 
 1. A series of fitness tournaments are held where in each round `tournament_size` individuals are selected at random from the population and the fittest is chosen as the winner to go into the next round.
-2. a second series of tournaments is held where pairs of candidates from the previous round are selected and the smallest is selected with a probability controlled by the `parsimony_size` hyperparameter.  This is a value between 1 and 2, where 1 means no size selection is done and 2 means the smallest candidate is always selected.  In the paper cited above, values in the range 1.2 to 1.6 were found to work well for their experiments. 
+2. a second series of tournaments is held where pairs of candidates from the previous round are selected and the smallest is selected with a probability controlled by the `parsimony_size` hyperparameter.  This is a value between 1 and 2, where 1 means no size selection is done and 2 means the smallest candidate is always selected.  Values in the range 1.2 to 1.6 were found to work well for their experiments. 
 
 ### Mutating algorithm {- .unlisted}
 Individuals in the population are selected for mutation with a probability given by the `mutation_prob` hyperparameter.  An individual that is mutated has a single rule from its set of rules selected and either the entire rule is replaced with a newly generated one, or a sub-tree is selected and replaced with a new sub-tree.  The probability of the entire rule being replaced is controlled by the `whole_rule_prob` hyperparameter.  
@@ -165,7 +165,7 @@ Merge the rules of the top `n` individuals into a single rule set.  This is an e
 
 ### Other common features {- .unlisted}
 
-Both classes support writing information while training into a format that can be viewed in TensorBoard, by using the TensorBoardX library (https://tensorboardx.readthedocs.io/en/latest/index.html).  If an instance of the `tensorboardX.SummaryWriter` is passed to the training method (`fit` or `train`) then at the end of each epoch statistics about the current best/average fitness and size is saved, plus a histogram of the fitness and size of the entire population.  The hyperparameters for the run are also saved as a text object.  The user may also use the SummaryWriter to save additional information before or after a run if they wish. 
+Both classes support writing information while training into a format that can be viewed in TensorBoard, by using the TensorBoardX library (<https://tensorboardx.readthedocs.io/en/latest/index.html>).  If an instance of the `tensorboardX.SummaryWriter` is passed to the training method (`fit` or `train`) then at the end of each iteration statistics about the current best/average fitness and size is saved, plus a histogram of the fitness and size of the entire population.  The hyperparameters for the run are also saved as a text object.  The user may also use the SummaryWriter to save additional information before or after a run if they wish. 
 
 
 ## The FuzzyClassifier class for classification {- .unlisted}
