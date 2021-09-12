@@ -1,14 +1,19 @@
 ---
-title:   "Evolving Fuzzy Forests: creating fuzzy inference systems with Genetic Programming"
+title:   "Evolving Fuzzy Forests: creating Fuzzy Inference Systems with Genetic Programming"
 subtitle: A dissertation submitted in partial fulfilment of the requirements for the M.Sc. in Advanced Computing Technologies (Data Analytics specialisation)
 author:
     - David Kirby
     - Department of Computer Science and Information Systems
     - Birkbeck, University of London
 date:  Summer Term 2021
+header: "Evolving Fuzzy Forests: creating Fuzzy Inference Systems with Genetic Programming"
+header-includes: |
+    \usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyhead[C]{Evolving Fuzzy Forests: creating Fuzzy Inference Systems with Genetic Programming}
+    \fancyhead[L,R]{}
 ---
 
-# List of Figures and Tables
 
 \newpage
 # Introduction
@@ -22,10 +27,10 @@ One solution to this problem is to have a machine learning algorithm defined as 
 ### Fuzzy Sets and Fuzzy Inference Systems
 People have no problem dealing on a daily basis with fuzzy and imprecise terms and reasoning about them.  For example "light rain", "heavy rain" and "downpour" have no precise definition and there is no exact point where a change in precipitation moves from one category to another, but people understand and generally agree on what the terms mean.    In 1965 Lofti Zadeh [@Zadeh-Fuzzy-1965] introduced fuzzy logic and fuzzy set theory, which allowed for representing and reasoning about the sets using the kind of imprecise terms used in human language.  Zadeh showed that you could represent these kinds of fuzzy sets by a membership function that maps how strongly an item belongs to the set into a real value between 0 and 1.  Ten years later [@zadehConceptLinguisticVariable1975] he added the idea of mapping fuzzy membership functions to linguistic variables.  For example in English we refer to people as being "short", "average", "tall", "very tall" and so on.  These can be modelled by mapping a linear value (a person's height) to one or more fuzzy sets.  A person can have degrees of membership to several "height" sets, ranging from 0 (not a member of this set) to 1 (a full member of the set).  So a person who is a little above average height may have a membership of 0.8 to the "average height" class and 0.1 to the "tall" class.  Unlike probabilities the membership values do not need to sum to 1 and in most cases will not.  The usual Boolean set operators such as AND, OR, UNION, INTERSECTION and NOT can be expressed as mathematical functions on the membership functions.  
 
-Figure 1 shows how a person's height could map onto linguistic variables using triangular mapping functions.  Other shapes than triangles can also be used, such as Gaussian or trapezoid.
+Figure 1.1 shows how a person's height could map onto linguistic variables using triangular mapping functions.  Other shapes than triangles can also be used, such as Gaussian or trapezoid.
 
 ![Triangle fuzzy membership](images/fuzzy_height.png)
-*Figure 1: fuzzy membership functions for adult human height*
+*Figure 1.1: fuzzy membership functions for adult human height*
 
 A fuzzy inference system (FIS) uses a set of rules composed of fuzzy sets to map one or more inputs into output values.  For example, a potential set of fuzzy rules for the classification of irises could be:
 
@@ -47,11 +52,11 @@ Fuzzy inference systems are commonly used for feedback control systems but can a
 Genetic programming (GP) is part of a family of algorithms inspired by the process of natural evolution,  known collectively as Evolutionary Computing (EC).   These algorithms include genetic algorithms,  evolutionary strategies,  particle swarm optimisation,  differential evolution and many others.  All EC algorithms work by creating a population that randomly samples possible solutions in the problem space, then combines attributes of the best individuals to create a new population. They generally hold the following features in common and differ in implementation and emphasis:
 
 -  codification of a potential solution to a problem into some data structure.  This  is often referred to as their chromosome or genotype
--  a population of individuals whose chromosomes are  initially randomly generated
- - a fitness function that evaluates an individual's chromosome To see how well it fits as a solution to the problem
+-  a population of individuals whose chromosomes are initially randomly generated
+ - a fitness function that evaluates an individual's chromosome to see how well it fits as a solution to the problem
 - a method of selecting individuals from the population according to their fitness
-- mutation -  the chromosome of a selected individual may be randomly modified
-- crossover  or mating -  parts of the chromosomes of two selected individuals are swapped over to make new individuals
+- selected individuals may be mutated by randomly modified their chromosome
+- two selected individuals may be mated by swapping over parts of the chromosomes 
 
 The evolutionary computing algorithms generally work as follows:
 ```
@@ -61,22 +66,22 @@ for N generations:
 
     randomly select individuals with a bias towards fitter individuals
 
-    randomly leave them unchanged, mutated or mated with another selected individual 
-        selected individuals are replaced by the offspring
+    randomly leave them unchanged, mutated or mated
+    modified individuals are replaced by the offspring
 ```
 
 
 Evolutionary computing algorithms have been applied to many problem domains, and are particularly useful for solving problems that are mathematically intractable, for example because the derivative cannot be calculated for back propagation or the problem is NP-complete.  They are also useful for multi-objective problems where they can find a set of solutions that are Pareto optimal.  
 
-Most EC algorithms represent the chromosome as a fixed-length list of values.  For example Genetic Algorithms (GA) [@Holland:1975] represents the chromosome as a bit string, with mutation done by flipping a randomly selected bit and crossover done by swapping the bits of two individuals that are between random start and end points.   Evolutionary Strategy uses a list of floating point values for the chromosome and mutates by adding a value from a Gaussian distribution, with crossover not being used at all.   Using a fixed length linear representation works for some problems, but there are limitations on what it can encode.
+Most EC algorithms represent the chromosome as a fixed-length list of values.  For example Genetic Algorithms (GA) [@Holland:1975] represents the chromosome as a bit string, with mutation done by flipping a randomly selected bit and crossover done by swapping the bits of two individuals that are between random start and end points.   Evolutionary Strategy uses a list of floating point values for the chromosome and mutates by adding a value from a Gaussian distribution, with crossover not used.   Using a fixed length linear representation works for some problems, but there are limitations on what it can encode.
 
 Genetic Programming [@Koza92geneticprogramming] avoids this limitation by encoding the chromosome as a tree that can vary in size as it evolves.  The tree is usually used to represent a computer program or mathematical expression, but it can also be used to represent other complex structures such as circuit diagrams [@DesignAnalogCircuits].  
 
-To mutate a tree a random node is selected and the sub-tree from that node is replaced by a new randomly generated tree.  Crossover is done by selecting a random node in each parent and swapping them over to create two new individuals.   Figure 2 shows an example of two trees representing the expressions $sin(x+3)$ and $sqrt(log(y * 10))$.  After crossover the two offspring represent the expressions $sin(x + log(y*10))$ and $sqrt(3)$.  
+To mutate a tree a random node is selected and the sub-tree from that node is replaced by a new randomly generated tree.  Crossover is done by selecting a random node in each parent and swapping them over to create two new individuals.   Figure 1.2 shows an example of two trees representing the expressions $sin(x+3)$ and $sqrt(log(y * 10))$.  After crossover the two offspring represent the expressions $sin(x + log(y*10))$ and $sqrt(3)$.  
 
 
 ![Crossover in GP](images/crossover.png)
-*Figure 2: Example of crossover in Genetic Programming*
+*Figure 1.2: Example of crossover in Genetic Programming*
 
 
 # Project Objectives and Results Summary
@@ -93,12 +98,12 @@ A second objective was to explore how well the generated fuzzy Logic system perf
 
 ## Results Summary
 
-All the objectives of the project were achieved.  The main entry points to the code are a class called FuzzyClassifier for classification of datasets and one called GymRunner to learn to play openAI Gym environments.
+All the objectives of the project were achieved.  The main entry points to the code are two classes, FuzzyClassifier for classification of datasets and GymRunner to learn to play openAI Gym environments.
 
 
 ### FuzzyClassifier
 
-A FuzzyClassifier class was created that could learn a set of fuzzy rules from a dataset that could then be used to predict the classification of unseen data.  It was implemented in the style of scikit-learn classifiers, with hyperparameters specified in the  `__init__` method, the  `fit` method trains the classifier and the `predict` method makes predictions.   
+A FuzzyClassifier class was created that could learn a set of fuzzy rules from a dataset that could then be used to predict the classification of unseen data.  It was implemented in the style of scikit-learn classifiers, with hyperparameters specified in the  `__init__` method, a `fit` method to train the classifier and a `predict` method to make predictions.   
 
 It was found that the classifier worked well on small data sets with two or three classes, but for large datasets the training time could be prohibitive and the accuracy was found to be poor when tried on a data set with seven classes.  However this could be an artefact of the particular dataset used since the No Free Lunch theorem [@wolpertNoFreeLunch1997] says that no algorithm is suitable for all data sets, so the poor performance could be an artefact of that particular dataset rather than the number of classes.  Further work would be needed to determine if it performs as badly on other multi-class problems.
 
@@ -115,9 +120,9 @@ IF Cell_Size_Uniformity[high] AND Single_Epi_Cell_Size[high] THEN malignant[unli
 
 ### GymRunner 
 
-A class called GymRunner was created that could learn to play some reinforcement learning environments in openAI Gym.  It was found to be able to master some simple environments such as CartPole (balancing a 2D pole on a movable cart) in as few as ten generations.  For LunarLander, a more complex environment, it took several hundred generations to be able to repeatably get a good score.  A video demonstration of it playing LunarLander is available at https://youtu.be/Oo6hulwqr9M.
+A class called GymRunner was created that could learn to play some reinforcement learning environments in openAI Gym.  It was found to be able to master some simple environments such as CartPole (balancing a 2D pole on a movable cart) in as few as ten generations.  For LunarLander, a more complex environment, it took several hundred generations to be able to repeatably get a good score.  A video demonstration of it playing LunarLander is available at <https://youtu.be/Oo6hulwqr9M>.
 
-More information about the exploration of the FuzzyClassifier and GymRunner performance against different data sets and gym environments can be found in the Testing and Evaluation section later in this report, along with steps taken to improve the performance.
+More information about the exploration of the FuzzyClassifier and GymRunner performance against different data sets and gym environments can be found in the Evaluation section of the report.
 
 # Architecture and Design
 
@@ -140,7 +145,7 @@ The main components of DEAP are:
    toolbox = deap.base.Toolbox()
    toolbox.register("select", deap.tools.selTournament, tournsize=3)
    ```
-   creates the attribute "select" on the Toolbox instance that is the `deap.tools.selTournament` function with its `tournsize` parameter bound to the value 3.  When the Toolbox instance is passed to the main evolution algorithm it will expect certain functions to be defined on the toolbox for it to call.  Other functions that need to be registered typically include "mate", "mutate" and "evaluate" as well as "select" but it depends on the algorithm being used.
+   creates the attribute "select" on the Toolbox instance that is the `deap.tools.selTournament` function with its `tournsize` parameter bound to the value 3.  When the Toolbox instance is passed to the main evolution algorithm it will expect certain functions to be defined on the toolbox for it to call.  The functions that need to be registered depend on the algorithm being used and typically include "mate", "mutate" and "evaluate" as well as "select".
 
 3. A library of functions for different ways of mating, mutating and selecting individuals in the population and for running different kinds of evolution algorithms. Using the toolbox these can be combined like Lego bricks to produce a huge variety of evolutionary computing solutions.
    
@@ -151,31 +156,31 @@ The `deap.gp` module contains classes and functions for supporting Genetic Progr
 
 1. The `PrimitiveTree` class encapsulates the tree structure that the genetic programming operations act on.   The tree of primitives is stored in a python list in depth-first order.  Because the the arity of every primitive is known, the tree can be reconstructed from the list when it is compiled.  The `PrimitiveTree` class has methods for manipulating the tree and a `__str__` method converts the tree into the equivalent python code, to be used by the `compile` function. 
 
-2. The `PrimitiveSet` and `TypedPrimitiveSet` classes are used to register the type of nodes that a go into a tree structure.  There are three types:
+2. The `PrimitiveSet` and `TypedPrimitiveSet` classes are used to register the nodes that go into a tree structure.  There are three node types:
    
    - `Primitive`s are functions that take a fixed non-zero number of arguments and return a single result.  These form the non-leaf nodes of the tree.
    - `Terminal`s are either constants or functions with no arguments that form the leaves of the tree.  Terminals that are functions are executed every time the compiled tree is run.
    - `EphemeralConstant`s are Terminal functions that are executed once when they are first created and after that always return the same value.  These are used for example to generate a random value that is then used as a constant.
   
-   A `PrimitiveSet` assumes that the parameter and return types of the primitives and terminals are compatible.   A `TypedPrimitiveSet` requires all the types to be defined when they are registered, and will only build trees where the parameter and return types match.
+   A `PrimitiveSet` assumes that all the parameter and return types of the primitives and terminals are compatible.   A `TypedPrimitiveSet` requires all the types to be defined when they are registered, and will only build trees where the parameter and return types match.
 
-3. The `compile` function takes an individual tree of primitives and compiles it to a python function.   It does this by first converting it to a string containing a lambda function and then calling `eval` on the string.  Because the function is compiled from a string using `eval` it is necessary that all the primitives and terminals have `__repr__` methods that will result in that object being created when executed.
+3. The `compile` function takes an individual tree of primitives and compiles it to a python function.   It does this by first converting it to a string containing a python lambda function and then calling `eval` on the string.  Because of this it is necessary that all the primitives and terminals have `__repr__` methods that will result in that object being created when executed.
 
 4. support functions for creating, mutating and mating trees of primitives.
 
-Full documentation for DEAP can be found at https://deap.readthedocs.io/en/master/index.html.
+Full documentation for DEAP can be found at <https://deap.readthedocs.io/en/master/index.html>.
 
 
 ### Scikit-fuzzy for the fuzzy inference system
 Several python fuzzy logic libraries were evaluated for the low-level fuzzy inference engine implementation, including:
 
-* fuzzylite python version - https://fuzzylite.com/; https://github.com/fuzzylite/pyfuzzylite
-* fuzzylogic - https://github.com/amogorkon/fuzzylogic
-* FuzzyLogicToolbox - https://github.com/Luferov/FuzzyLogicToolBox
-* FuzzyPy - https://github.com/alsprogrammer/PythonFuzzyLogic
-* Simpful - https://github.com/aresio/simpful
-* fuzzylab - https://github.com/ITTcs/fuzzylab
-* scikit-fuzzy - https://scikit-fuzzy.github.io/scikit-fuzzy/
+* fuzzylite python version - <https://fuzzylite.com/>; <https://github.com/fuzzylite/pyfuzzylite>
+* fuzzylogic - <https://github.com/amogorkon/fuzzylogic>
+* FuzzyLogicToolbox - <https://github.com/Luferov/FuzzyLogicToolBox>
+* FuzzyPy - <https://github.com/alsprogrammer/PythonFuzzyLogic>
+* Simpful - <https://github.com/aresio/simpful>
+* fuzzylab - <https://github.com/ITTcs/fuzzylab>
+* scikit-fuzzy - <https://scikit-fuzzy.github.io/scikit-fuzzy/>
 
 Several of these were rejected because they were lacking in documentation or unit tests.  Others were rejected because they appeared to be abandoned with no commits for at least two years and in some cases requiring python 2.7 or earlier.
 
@@ -234,7 +239,7 @@ Other types of observational space exist, such as dicts or tuples of spaces, but
 ### Other third party libraries
 Other third-party libraries used are:
 
-1. tensorboardX (https://tensorboardx.readthedocs.io/en/latest/tensorboard.html) is used to optionally write performance data in a format that can be displayed by TensorBoard (https://www.tensorflow.org/tensorboard/)
+1. tensorboardX (<https://tensorboardx.readthedocs.io/en/latest/tensorboard.html>) is used to optionally write performance data in a format that can be displayed by TensorBoard (<https://www.tensorflow.org/tensorboard/>)
 
 2. Numpy for general numerical and array manipulation
 
@@ -313,7 +318,7 @@ Once the `_make_primitive_set` function was completed a function was added to cr
 
 ## Stage 3: Adding rule generation to the classifier
 
-The `FuzzyClassifier` class with hand-coded rules created in stage 1 was updated to generate random rules using the functions created in stage 2.  The `__init__` method was added that took the hyperparameters for controlling the tree height and number of rules.  Since the FuzzyClassifier is intended to be compatible with scikit-learn, the `__init__` method is only used for assigning hyperparameters to local variables of the same name, as required in the scikit-learn developer's guidelines (https://scikit-learn.org/stable/developers/develop.html#instantiation).
+The `FuzzyClassifier` class with hand-coded rules created in stage 1 was updated to generate random rules using the functions created in stage 2.  The `__init__` method was added that took the hyperparameters for controlling the tree height and number of rules.  Since the FuzzyClassifier is intended to be compatible with scikit-learn, the `__init__` method is only used for assigning hyperparameters to local variables of the same name, as required in the scikit-learn developer's guidelines (<https://scikit-learn.org/stable/developers/develop.html#instantiation>).
 
 
 The `fit(X, y, ...)` method was added that created the DEAP toolbox and registered the primitive set and creation functions.  A helper function was added to generate the scikit-fuzzy `Antecedent` objects.  The upper and lower limits for the fuzzy variable are taken from the min and max values in the X data, while the variable names and terms are either taken from a dictionary passed in by the user or derived from the column names & default terms.  Another helper function was added to create the `Consequent` objects that represent the target classes.   Originally these had a single fuzzy term "likely" that ranged from 0 to 1, but later an "unlikely" term was added that was the inverse function.  This enabled more expressive rules to be created.  
@@ -373,7 +378,7 @@ Another problem common in evolutionary algorithms is loss of diversity, where a 
 
 ### Adding support for TensorBoard
 
-To assist with evaluation and tuning of hyperparameters I added support for writing information to disk in a format that can be displayed by TensorBoard (https://www.tensorflow.org/tensorboard/).  I used the tensorboardX library (https://tensorboardx.readthedocs.io/) to write the data.  The `fit` function was extended to take an optional `tensorboardX.SummaryWriter` instance and this was used to save:
+To assist with evaluation and tuning of hyperparameters I added support for writing information to disk in a format that can be displayed by TensorBoard (<https://www.tensorflow.org/tensorboard/>).  I used the tensorboardX library (<https://tensorboardx.readthedocs.io/>) to write the data.  The `fit` function was extended to take an optional `tensorboardX.SummaryWriter` instance and this was used to save:
 - at the start of a training run:
   - the hyperparameters used for training
 - after each iteration:
@@ -527,7 +532,7 @@ The final set of hyperparameters available are given below.  For an explanation 
 - verbose
 
 
-# Evaluation and Tuning
+# Evaluation
 
 The package was evaluated against several different datasets for classification and gym environments for reinforcement learning.  The results were saved to TensorBoard for analysis.
 
@@ -556,7 +561,7 @@ The average accuracy on the test data was 93.33% with a standard deviation of 7.
 
 ### Wisconsin Breast Cancer dataset results
 
-The Wisconsin Cancer dataset [@wolbergMultisurfaceMethodPattern1990] was chosen as a more challenging task.  The dataset was originally from the UCI Machine learning repository [@Dua_2019] and accessed through the OpenML catalogue via the scikit-learn `sklearn.datasets.fetch_openml` function.  There are two version of this dataset available, so the smaller version with 10 features and 699 instances was chosen (https://www.openml.org/d/15).
+The Wisconsin Cancer dataset [@wolbergMultisurfaceMethodPattern1990] was chosen as a more challenging task.  The dataset was originally from the UCI Machine learning repository [@Dua_2019] and accessed through the OpenML catalogue via the scikit-learn `sklearn.datasets.fetch_openml` function.  There are two version of this dataset available, so the smaller version with 10 features and 699 instances was chosen (<https://www.openml.org/d/15>).
 
 Figure 10 shows a typical result with a population of 50, a batch size of 50 and 5 iterations.  The run time for each fold ranged from 34 to 42 seconds.   The average accuracy on the test data was 93.7% with a standard deviation of 1.9%.
 
@@ -585,7 +590,7 @@ The confusion matrix for this particular run is
 
 ### Segmentation dataset results
 
-The segmentation dataset (https://www.openml.org/d/40984), also from the UCI ML repository via OpenML, is a much more challenging task than the previous two.   It is a dataset of information about 3x3 pixel squares taken from outdoor images, such as mean RGB values, intensity, measure of horizontal and vertical edges etc.  The task is to classify the pixels into one of seven classes - "brickface", "sky", "foliage", "cement", "window", "path" and "grass". There are 17 features in total and 2310 rows.  
+The segmentation dataset (<https://www.openml.org/d/40984>), also from the UCI ML repository via OpenML, is a much more challenging task than the previous two.   It is a dataset of information about 3x3 pixel squares taken from outdoor images, such as mean RGB values, intensity, measure of horizontal and vertical edges etc.  The task is to classify the pixels into one of seven classes - "brickface", "sky", "foliage", "cement", "window", "path" and "grass". There are 17 features in total and 2310 rows.  
 
 This dataset performed very poorly.  It was much slower than the previous datasets, partly because there were far more rows of data, but also because the larger number of feature and classes meant more rules and larger rules were used to model it.  Each fold took between 8 and 14 minutes to run.  It was also far less accurate, both on the training and test sets.  After 5 iterations with a population of 50 and a batch size of 30, it's best accuracy on the training set was 72.2% but that fold only scored 55.4% accuracy on the test set.  The mean accuracy on the test set was 54% with a standard deviation of 6.68%. For comparison, the scikit-learn RandomForestClassifer managed 5-fold CV on the dataset in under 2.5 seconds with an accuracy of 94%.
 
@@ -599,7 +604,7 @@ Further research is needed, but my hypothesis is that the reason it performs so 
 
 ### CartPole-v1
 
-Evaluation of the GymRunner class started with the CartPole environment (https://gym.openai.com/envs/CartPole-v1/).  This is a classic reinforcement learning exercise where a hinged pole on a cart has to be kept upright by moving the cart left and right.   
+Evaluation of the GymRunner class started with the CartPole environment (<https://gym.openai.com/envs/CartPole-v1/>).  This is a classic reinforcement learning exercise where a hinged pole on a cart has to be kept upright by moving the cart left and right.   
 
 ![CartPole display](images/cartpole_1.png))
 *Figure 12: CartPole environment in action*
@@ -632,7 +637,7 @@ With these antecedents, a population of 50 could learn to get a maximum score in
 *Figure 13: CartPole v1 results*
 
 ### MountainCarContinuous-v0
-The second task for GymRunner was the MountainCarContinuous-v0 environment (https://gym.openai.com/envs/MountainCarContinuous-v0/).  Unlike the CartPole environment, this requires a continuous output value from the agent so it a test of GymRunner's ability to handle `Box` action spaces.  
+The second task for GymRunner was the MountainCarContinuous-v0 environment (<https://gym.openai.com/envs/MountainCarContinuous-v0/>).  Unlike the CartPole environment, this requires a continuous output value from the agent so it a test of GymRunner's ability to handle `Box` action spaces.  
 
 The task is to get a car to the top of a steep climb.  The car does not have sufficient energy to do it in one go, so has to go back and forth between the left and right slopes to build up momentum.
 
@@ -655,7 +660,7 @@ Figure 15 shows five training episodes with a population of 50 over ten generati
 
 ### Pendulum-v0
 
-The Pendulum-v0 environment (https://gym.openai.com/envs/Pendulum-v0/) is a rigid pendulum that rotates about a fixed point.  The aim is to move the pendulum into the upright position and keep it there by applying clockwise or anticlockwise torque to it.  The pendulum starts at a random angle.
+The Pendulum-v0 environment (<https://gym.openai.com/envs/Pendulum-v0/>) is a rigid pendulum that rotates about a fixed point.  The aim is to move the pendulum into the upright position and keep it there by applying clockwise or anticlockwise torque to it.  The pendulum starts at a random angle.
 
 ![Pendulum display](images/pendulum_screenshot.png)
 *figure 16: Pendulum in action*
@@ -680,7 +685,7 @@ I hypothesise that part of the reason for this is that the observations are in t
 
 ### LunarLanderContinuous-v2
 
-The LunarLanderContinuous-v2 environment (https://gym.openai.com/envs/LunarLanderContinuous-v2/) requires the agent to land a 2D lunar module between two flags on a randomly generated terrain and from a random start position.
+The LunarLanderContinuous-v2 environment (<https://gym.openai.com/envs/LunarLanderContinuous-v2/>) requires the agent to land a 2D lunar module between two flags on a randomly generated terrain and from a random start position.
 
 ![Lunar Lander in action](images/lunarlander_screenshot.png)
 *Figure 18: Lunar Lander in action*
@@ -692,7 +697,7 @@ The actions are two floats, the first is the thrust of the main engine (-1.0 to 
 
 The reward is complex, with up to 300 points for a successful landing, -100 for crashing and a penalty each timestep for firing the engine.
 
-Initial short training runs generally fell into a local optima of not firing the engines at all and so crashing as quickly as possible without getting the engine penalty.  However by increasing the population to 100, increasing the maximum number of rules to 10 and training for 1000 iterations it did learn to successfully land most of the time.   There is a video demonstrating GymRunner controlling the lander at https://youtu.be/Oo6hulwqr9M.
+Initial short training runs generally fell into a local optima of not firing the engines at all and so crashing as quickly as possible without getting the engine penalty.  However by increasing the population to 100, increasing the maximum number of rules to 10 and training for 1000 iterations it did learn to successfully land most of the time.   There is a video demonstrating GymRunner controlling the lander at <https://youtu.be/Oo6hulwqr9M>.
 
 
 The best rule set after 1000 generations was:
