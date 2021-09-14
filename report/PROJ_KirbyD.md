@@ -806,9 +806,12 @@ In biology, demes are populations of the same species that are physically separa
 ```
 
 \newpage
-### evofuzzy/gymrunner.py {-}
+### tests/test_classifier.py
+
+\newpage
+### iris_test.py
 ```python
-!include ../evofuzzy/gymrunner.py
+!include ../iris_test.py
 ```
 
 \newpage
@@ -836,7 +839,19 @@ In biology, demes are populations of the same species that are physically separa
 ```
 
 \newpage
+### evofuzzy/gymrunner.py {-}
+```python
+!include ../evofuzzy/gymrunner.py
+```
+
+\newpage
 ### run_cartpole.py {-}
 ```python
 !include ../run_cartpole.py
+```
+
+\newpage
+### run_mountain_car.py
+```python
+!include ../run_mountain_car.py
 ```

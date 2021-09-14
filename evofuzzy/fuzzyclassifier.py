@@ -1,4 +1,4 @@
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 import tensorboardX
@@ -96,7 +96,7 @@ class FuzzyClassifier(FuzzyBase, BaseEstimator, ClassifierMixin):
         batch_slice: Optional[slice],
         X: pd.DataFrame,
         y: pd.Series,
-    ) -> tuple(float):
+    ) -> Tuple[float]:
         """Calculate the fitness score of an individual by making a prediction on the X and y
         data and returning the accuracy in a tuple (as required by DEAP).
 
