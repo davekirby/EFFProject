@@ -1,0 +1,17 @@
+@startgantt
+
+title Project Progress
+ganttscale monthly zoom 8 
+caption "(story points estimate in brackets)"
+Project starts 2021-06-05
+
+[FIS with hand-coded rules (8)] lasts 1 Day 
+[Encode fuzzy rules in DEAP PrimitiveTrees (8)]  starts 2021-06-06 and ends 2021-06-18
+[Implement classifier fitness evaluator (5)] starts 2021-06-18 and ends 2021-06-20
+[Implement GP engine (5)] starts 2021-06-20 and ends 2021-07-05
+[Evaluate and improve classifier (5)] starts 2021-07-05 and ends 2021-08-07
+[Implement GymRunner (5)] starts 2021-08-07 and ends 2021-08-12
+[Evaluate and improve GymRunner (8)] starts 2021-08-12 and ends 2021-08-24
+[Write report (13)] starts 2021-08-14 and ends 2021-09-16
+[Write user guide (3)] starts 2021-09-03 and ends 2021-09-12
+@endgantt

@@ -20,7 +20,7 @@ header-includes: |
 
 There have been many machine learning algorithms developed over the last few decades and combined with the increase in computing power and availability of large volumes of data they have transformed many areas of our lives.   However their use in some areas such as law, medicine or finance is held back because most of the models are black boxes unable to explain how they came to a decision.  
 
-A solution to this problem is to have a machine learning algorithm defined as a set of fuzzy IF-THEN rules that can then be represented in a form understandable to non-specialists.  Fuzzy rules were originally hand written for expert systems but writing and debugging rules by hand is time consuming and error prone.  An alternative it to learn the fuzzy rules from data.  Several ways of doing this have been developed, one of the most successful being through the application of genetic programming (GP).
+One solution to this problem is to have a machine learning algorithm that creates a set of fuzzy IF-THEN rules that can then be represented in a form understandable to non-specialists.  Fuzzy rules were originally hand written for expert systems but writing and debugging rules by hand is time consuming and error prone.  An alternative it to learn the fuzzy rules from data.  Several ways of doing this have been developed, one of the most successful being through the application of genetic programming (GP).
 
 
 ## Background
@@ -536,6 +536,14 @@ The final set of hyperparameters available are given below.  For an explanation 
 - verbose
 
 
+## Project Schedule and Progress
+
+The project used the Kanban method for planning where the work is divided into stories and given relative sizes in story points, then as each story finishes the next is taken off the backlog.  There is no fixed schedule, instead progress is measured in the rate of completion of story points.  Figure 4.6 shows the project progress, with the original story point estimates in brackets.   It can be seen that some of the estimates were significantly out, with some of the early stories taking less time than anticipated and later stories longer.
+
+![Project Progress](images/gantt.png)
+*Figure 4.6: Project progress Gantt chart*
+
+
 \newpage
 # Evaluation
 
@@ -768,7 +776,7 @@ In biology, demes are populations of the same species that are physically separa
 :::
 
 \newpage
-# Appendices
+# Appendices {-}
 
 ## Appendix I: User Guide {-}
 
@@ -806,10 +814,10 @@ In biology, demes are populations of the same species that are physically separa
 ```
 
 \newpage
-### tests/test_classifier.py
+### tests/test_classifier.py {-}
 
 \newpage
-### iris_test.py
+### iris_test.py {-}
 ```python
 !include ../iris_test.py
 ```
@@ -851,7 +859,7 @@ In biology, demes are populations of the same species that are physically separa
 ```
 
 \newpage
-### run_mountain_car.py
+### run_mountain_car.py {-}
 ```python
 !include ../run_mountain_car.py
 ```
