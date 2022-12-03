@@ -1,0 +1,29 @@
+@startuml
+skinparam DefaultTextAlignment center
+
+|#Bisque|GP Engine|
+start
+:Initialise Chromosomes 
+with random trees;
+repeat
+   repeat :Evaluate chromosomes;
+       :Get chromosome to evaluate;
+       :Convert chromosome\nto Fuzzy Rules;
+       |#Aquamarine|FIS|
+            repeat
+                :Read in training data item;
+                :Fuzzify data;
+                :Apply fuzzy rules;
+                :Defuzzify output;
+                :Compare with expected output\nand store the result;
+            repeat while (more data?) is (yes)
+       |GP Engine|
+       :Calculate fitness and\nstore on the chromosome;
+       :Select chromosomes\nfor mutation or breeding;
+       :Create new chromosome(s);
+       :Add to the population;
+   repeat while (unevaluated chromosomes?) is (yes) 
+repeat while (max iterations reached\nor fitness > threshold?) is (no)
+stop
+
+@enduml

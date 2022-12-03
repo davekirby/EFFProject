@@ -1,0 +1,20 @@
+Engine: 
+InputVariable: Size
+  enabled: true
+  range: 0.000 50.000
+  lock-range: false
+  term: Xsmall Ramp 10.000 0.000
+  term: small Triangle 0.000 10.000 20.000
+  term: medium Triangle 10.000 20.000 30.000
+  term: large Triangle 20.000 30.000 40.000
+  term: XLarge Triangle 30.000 40.000 50.000
+  term: XXlarge Ramp 40.000 50.000
+InputVariable: unnamed
+  enabled: true
+  range: 0.000 50.000
+  lock-range: false
+  term: Xsmall Gaussian 0.000 5.000
+  term: small Gaussian 12.500 5.000
+  term: medium Gaussian 25.000 5.000
+  term: large Gaussian 37.500 5.000
+  term: Xlarge Gaussian 50.000 5.000

@@ -1,0 +1,44 @@
+@startuml
+
+title System Diagram
+
+package "Genetic Programming Subsystem" {
+
+    object GPEngine
+    object CrossoverStrategy
+    object MutationStrategy
+    object SelectionStrategy
+
+    object Population
+    object FitnessFunction
+    object Chromosome
+}
+
+package "Fuzzy Inference Subsystem" {
+    object FuzzyLogicController
+    object FuzzyRule
+    object Defuzzifier
+    object Fuzzifier 
+    object FuzzyRulebase 
+    object "FuzzySet\nDefinitions" as FuzzySetDefinitions
+
+}
+
+GPEngine *-- Population
+GPEngine *-- CrossoverStrategy
+GPEngine *-- MutationStrategy
+GPEngine *-- SelectionStrategy
+Population *-- "*" Chromosome
+GPEngine *-- FitnessFunction
+
+
+FuzzyLogicController -- FuzzyRulebase
+FuzzyLogicController -- Fuzzifier
+FuzzyLogicController -- Defuzzifier
+FuzzyRulebase *-- "*" FuzzyRule
+Fuzzifier -- FuzzySetDefinitions
+
+FitnessFunction .> FuzzyLogicController : invokes
+Chromosome ..>FuzzyRulebase : converted\nto
+
+@enduml
